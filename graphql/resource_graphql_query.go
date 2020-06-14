@@ -10,10 +10,14 @@ import (
 func resourceGraphqlMutation() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"mutation": {
+			"createMutation": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+			},
+			"deleteMutation": {
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"variables": {
 				Type: schema.TypeMap,
@@ -31,7 +35,7 @@ func resourceGraphqlMutation() *schema.Resource {
 }
 
 func resourceGraphqlMutationCreateUpdate(d *schema.ResourceData, m interface{}) error {
-	queryResponseObj, err := QueryExecute(d, m, "mutation")
+	queryResponseObj, err := QueryExecute(d, m, "createMutation")
 	if err != nil {
 		return err
 	}
@@ -45,7 +49,7 @@ func resourceGraphqlRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceGraphqlMutationDelete(d *schema.ResourceData, m interface{}) error {
-	_, err := QueryExecute(d, m, "mutation")
+	_, err := QueryExecute(d, m, "deleteMutation")
 	if err != nil {
 		return err
 	}
