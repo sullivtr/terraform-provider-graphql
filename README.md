@@ -6,14 +6,14 @@ A [Terraform](http://terraform.io) plugin to manage graphql queries and mutation
 
 ## Example:
 ```
-data "grapgql_query" "example" {
+data "graphql_query" "queryexample" {
   variables = {
     ID = "nfddksajf3948290dsa!f"
   }
 
   query = <<EOF
 {
-  secretByName(secretType: ENCRYPTED_TEXT, name:"secre-name") {
+  secretByName(secretType: ENCRYPTED_TEXT, name:"secret-name") {
     name,
     id
   }
@@ -21,7 +21,7 @@ data "grapgql_query" "example" {
 EOF          
 }
 
-resource "graphql_mutation" "importantboxes" {
+resource "graphql_mutation" "mutationexample" {
   variables = {
     "secretType" = "secret_type"
     "secret" = {
