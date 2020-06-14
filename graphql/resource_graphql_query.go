@@ -19,6 +19,12 @@ func resourceGraphqlMutation() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+
+			"updateMutation": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+
 			"variables": {
 				Type: schema.TypeMap,
 				Elem: &schema.Schema{
@@ -29,12 +35,14 @@ func resourceGraphqlMutation() *schema.Resource {
 			},
 		},
 		Create: resourceGraphqlMutationCreateUpdate,
+
+		Update: resourceGraphqlMutationUpdate,
 		Read:   resourceGraphqlRead,
 		Delete: resourceGraphqlMutationDelete,
 	}
 }
 
-func resourceGraphqlMutationCreateUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceGraphqlMutationCreate(d *schema.ResourceData, m interface{}) error {
 	queryResponseObj, err := QueryExecute(d, m, "createMutation")
 	if err != nil {
 		return err
@@ -45,6 +53,16 @@ func resourceGraphqlMutationCreateUpdate(d *schema.ResourceData, m interface{}) 
 }
 
 func resourceGraphqlRead(d *schema.ResourceData, m interface{}) error {
+	return nil
+}
+
+func resourceGraphqlMutationUpdate(d *schema.ResourceData, m interface{}) error {
+	queryResponseObj, err := QueryExecute(d, m, "updateMutation")
+	if err != nil {
+		return err
+	}
+	objID := hashString(queryResponseObj)
+	d.SetId(string(objID))
 	return nil
 }
 
