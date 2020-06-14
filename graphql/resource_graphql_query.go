@@ -33,7 +33,6 @@ func resourceGraphqlMutation() *schema.Resource {
 			},
 		},
 		Create: resourceGraphqlMutationCreateUpdate,
-
 		Update: resourceGraphqlMutationUpdate,
 		Read:   resourceGraphqlRead,
 		Delete: resourceGraphqlMutationDelete,
