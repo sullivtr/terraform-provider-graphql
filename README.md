@@ -2,7 +2,7 @@
 
 ## Synopsis
 
-A [Terraform](http://terraform.io) plugin to manage graphql queries and mutations.
+A [Terraform](https://terraform.io) plugin to manage [GraphQL](https://graphql.org/) queries and mutations.
 
 ## Example:
 #### Provider setup:
