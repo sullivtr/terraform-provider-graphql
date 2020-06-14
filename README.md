@@ -6,6 +6,13 @@ A [Terraform](http://terraform.io) plugin to manage graphql queries and mutation
 
 ## Example:
 ```
+provider "graphql" {
+  url = "https://my-graphql-service-url.io"
+  headers = {
+    "x-api-key": "4324nsfkdsanj32k!!4FakeApiKey8873"
+    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+  }
+}
 data "graphql_query" "queryexample" {
   variables = {
     ID = "nfddksajf3948290dsa!f"
