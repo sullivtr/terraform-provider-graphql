@@ -1,4 +1,4 @@
-module github.com/tyler-technologies/terraform-provider-gitfile
+module github.com/sullivtr/terraform-provider-graphql
 
 go 1.12
 

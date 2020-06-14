@@ -2,7 +2,7 @@ GOPATH := $(shell go env | grep GOPATH | sed 's/GOPATH="\(.*\)"/\1/')
 PATH := $(GOPATH)/bin:$(PATH)
 export $(PATH)
 GIT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
-COPY_FILES := $(wildcard ./dist/terraform-provider-gitfile*/*)
+COPY_FILES := $(wildcard ./dist/terraform-provider-graphql*/*)
 TEST_DIR := test/
 TEST_DESTS := $(patsubst $(TEST_DIR)%/test.sh, $(TEST_DIR)%, $(wildcard $(TEST_DIR)*/test.sh))
 
@@ -35,14 +35,14 @@ build: clean fetch ## publishes in dry run mode
 .PHONY: test copyplugins
 
 copyplugins: ## copy plugins to test folders
-	$(eval OS_ARCH := $(patsubst ./dist/terraform-provider-gitfile_%/terraform-provider-gitfile, %, $(COPY_FILES)))
+	$(eval OS_ARCH := $(patsubst ./dist/terraform-provider-graphql_%/terraform-provider-graphql, %, $(COPY_FILES)))
 	$(eval TEST_FOLDERS := $(foreach p,$(OS_ARCH), $(patsubst %,%/terraform.d/plugins/$p,$(TEST_DESTS))))
 
 	@mkdir -p $(TEST_FOLDERS)
 
 	@for o in $(OS_ARCH); do \
 	  for f in $(TEST_DESTS); do \
-		  cp ./dist/terraform-provider-gitfile_$$o/* $$f/terraform.d/plugins/$$o; \
+		  cp ./dist/terraform-provider-graphql_$$o/* $$f/terraform.d/plugins/$$o; \
 		done; \
 	done
 
