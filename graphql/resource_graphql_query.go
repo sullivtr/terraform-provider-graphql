@@ -13,7 +13,6 @@ func resourceGraphqlMutation() *schema.Resource {
 			"readQuery": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"createMutation": {
 				Type:     schema.TypeString,
@@ -42,7 +41,6 @@ func resourceGraphqlMutation() *schema.Resource {
 					Type: schema.TypeString,
 				},
 				Optional: true,
-				ForceNew: true,
 			},
 			"readQueryVariables": {
 				Type: schema.TypeMap,
@@ -50,7 +48,6 @@ func resourceGraphqlMutation() *schema.Resource {
 					Type: schema.TypeString,
 				},
 				Optional: true,
-				ForceNew: true,
 			},
 			"deleteMutationVariables": {
 				Type: schema.TypeMap,
@@ -58,7 +55,6 @@ func resourceGraphqlMutation() *schema.Resource {
 					Type: schema.TypeString,
 				},
 				Optional: true,
-				ForceNew: true,
 			},
 			"queryResponse": {
 				Type: schema.TypeMap,
