@@ -19,12 +19,10 @@ func resourceGraphqlMutation() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-
 			"updateMutation": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-
 			"variables": {
 				Type: schema.TypeMap,
 				Elem: &schema.Schema{
