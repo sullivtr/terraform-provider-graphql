@@ -9,9 +9,12 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
-func QueryExecute(d *schema.ResourceData, m interface{}, queryType string) (map[string]interface{}, error) {
-	query := d.Get(queryType).(string)
-	variables := d.Get("variables").(map[string]interface{})
+func QueryExecute(d *schema.ResourceData, m interface{}, querySource, variableSource string) (map[string]interface{}, error) {
+	query := d.Get(querySource).(string)
+	variables := d.Get(variableSource).(map[string]interface{})
+	if variables == nil {
+		variables = d.Get("createMutationVariables").(map[string]interface{})
+	}
 	apiURL := m.(*GraphqlProviderConfig).GQLServerUrl
 	headers := m.(*GraphqlProviderConfig).RequestHeaders
 
