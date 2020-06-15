@@ -58,7 +58,7 @@ resource "graphql_mutation" "mutationexample" {
   # Reference files instead of inline queries to keep tf files clean. See examplquery for an example of a query file
   createMutation = "${path.module}/queries/createMutation"
   updateMutation = "${path.module}/queries/updateMutation"
-  deleteMutation = "${path.module}/queries/createMudeleteMutationtation"
+  deleteMutation = "${path.module}/queries/deleteMutation"
   readQuery      = "${path.module}/queries/readQuery"
 }
 ```
