@@ -4,9 +4,12 @@ This provider plugin is currently in under active development, and is not yet pr
 
 ## Synopsis
 
-A [Terraform](https://terraform.io) plugin to manage [GraphQL](https://graphql.org/) queries and mutations.
+A [Terraform](https://terraform.io) plugin to manage [GraphQL](https://graphql.org/) queries and mutations. 
+  
 
-## Example:
+## Example: 
+Open the [./test/test_basic]("./test/test_basic") directory for a basic example usage of this provider.
+
 #### Provider setup:
 ```
 provider "graphql" {
@@ -69,7 +72,14 @@ resource "graphql_mutation" "basic_mutation" {
 #### Outputs
 - query_response: The resulting response body of the graphql query
 
-
+## Testing
+- First, in the root of the project run `make build && make copyplugins`
+- Go to [./test/gql-server]("./test/gql-server") and run `go run server.go`.
+- Open the [./test/test_basic]("./test/test_basic") directory. 
+  - run `tf init && tf apply`
+  
+ note: development of automated testing is in progress.
+ 
 # License
 
 Apache2 - See the included LICENSE file for more details.
