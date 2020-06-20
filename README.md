@@ -1,4 +1,6 @@
 # terraform-provider-graphql
+### NOTE: 
+This provider plugin is currently in under active development, and is not yet production ready. Contributions and feedback are welcome. 
 
 ## Synopsis
 
