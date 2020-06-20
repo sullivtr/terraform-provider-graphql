@@ -1,0 +1,9 @@
+mutation updateTodo($text: String!, $userId: String!) {
+  updateTodo(input:{text: $text, userId: $userId}) {
+    user {
+      id
+    }
+    text
+    done
+  }
+}

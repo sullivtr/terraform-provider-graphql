@@ -17,76 +17,55 @@ provider "graphql" {
 ```
 #### Data source
 ```
-data "graphql_query" "queryexample" {
-  variables = {
-    ID = "nfddksajf3948290dsa!f"
-  }
-
-  query = <<EOF
-{
-  secretByName(secretType: ENCRYPTED_TEXT, name:"secret-name") {
-    name,
-    id
-  }
-}
-EOF          
+data "graphql_query" "basic_query" {
+  read_query_variables = {}
+  read_query     = "${file("./queries/readQuery")}"
 }
 ```
 #### Graphql Resource
 ```
-resource "graphql_mutation" "mutationexample" {
-  createMutationVariables = {
-    "secretType" = "secret_type"
-    "secret" = {
-      "thing1": "thing2"
-    }
+resource "graphql_mutation" "basic_mutation" {
+  # variables
+  create_mutation_variables = {
+    "text" = "Here is something todo"
+    "userId" = "98"
   }
+  update_mutation_variables = {}
+  delete_mutation_variables = {}
+  read_query_variables = {}
 
-  # if update, create, and read variables are omitted, they will fall back to the required createMutationVariables
-  updateMutationVariables = {
-    "secretType" = "secret_type"
-    "secret" = {
-      "thing1": "thing4"
-    }
-  }
-  deleteMutationVariables = {
-    "secretId" = "123456"
-  }
-  readQueryVariables = {
-    "secretName" = "secret_name"
-  }
   # Reference files instead of inline queries to keep tf files clean. See examplquery for an example of a query file
-  createMutation = "${path.module}/queries/createMutation"
-  updateMutation = "${path.module}/queries/updateMutation"
-  deleteMutation = "${path.module}/queries/deleteMutation"
-  readQuery      = "${path.module}/queries/readQuery"
+  create_mutation = "${file("./queries/createMutation")}"
+  update_mutation = "${file("./queries/updateMutation")}"
+  delete_mutation = "${file("./queries/deleteMutation")}"
+  read_query      = "${file("./queries/readQuery")}"
 }
 ```
 ## Data Sources
 
 ### graphql_query
 #### Argument Reference
-- variables (required): a map(string) of any variables that will be used in the query
-- query (required): the graphql query. See [example query](./examplequery) for an example of what this looks like.
+- read_query_variables (required): a map(string) of any variables that will be used in the query
+- read_query (required): the graphql query. See [example query](./examplequery) for an example of what this looks like.
 #### Outputs
-- queryResponse: The resulting response body of the graphql query
+- query_response: The resulting response body of the graphql query
 
 ## Resources
 
 ### graphql_mutation
 #### Argument Reference
-- createMutationVariables (Required): a map(string) of any variables that will be used in the mutation
-- updateMutationVariables (Optional | falls back to createMutationVariables if omitted): a map(string) of any variables that will be used in the mutation
-- deleteMutationVariables (Optional | falls back to createMutationVariables if omitted): a map(string) of any variables that will be used in the mutation
-- readQueryVariables (Optional | falls back to createMutationVariables if omitted): a map(string) of any variables that will be used in the reader query
+- create_mutation_variables (Required): a map(string) of any variables that will be used in the mutation
+- update_mutation_variables (Optional): a map(string) of any variables that will be used in the mutation
+- delete_mutation_variables (Optional): a map(string) of any variables that will be used in the mutation
+- read_query_variables (Optional): a map(string) of any variables that will be used in the reader query
 
-- createMutation: (Required) the graphql mutation to be used for the create operation  
-- updateMutation: (Required) the graphql mutation to be used for the update operation 
-- deleteMutation: (Required) the graphql mutation to be used for the delete operation 
-- readQuery:      (Required) the graphql mutation to be used for the read operation
+- create_mutation: (Required) the graphql mutation to be used for the create operation  
+- update_mutation: (Required) the graphql mutation to be used for the update operation 
+- delete_mutation: (Required) the graphql mutation to be used for the delete operation 
+- read_query:      (Required) the graphql mutation to be used for the read operation
 
 #### Outputs
-- queryResponse: The resulting response body of the graphql query
+- query_response: The resulting response body of the graphql query
 
 
 # License

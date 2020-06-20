@@ -7,25 +7,23 @@ import (
 func dataSourceGraphql() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"query": {
+			"read_query": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"variables": {
+			"read_query_variables": {
 				Type: schema.TypeMap,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Optional: false,
+				Required: true,
 				ForceNew: true,
 			},
-			"queryResponse": {
-				Type: schema.TypeMap,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Computed: true,
+			"query_response": {
+				Type:        schema.TypeString,
+				Description: "The raw body of the HTTP response from the last read of the object.",
+				Computed:    true,
 			},
 		},
 		Read: dataSourceGraphqlQuery,
@@ -33,11 +31,13 @@ func dataSourceGraphql() *schema.Resource {
 }
 
 func dataSourceGraphqlQuery(d *schema.ResourceData, m interface{}) error {
-	queryResponseObj, err := QueryExecute(d, m, "query", "variables")
+	queryResponseBytes, err := QueryExecute(d, m, "read_query", "read_query_variables")
 	if err != nil {
 		return err
 	}
-	if err := d.Set("queryResponse", queryResponseObj); err != nil {
+	objID := hashString(queryResponseBytes)
+	d.SetId(string(objID))
+	if err := d.Set("query_response", string(queryResponseBytes)); err != nil {
 		return err
 	}
 	return nil

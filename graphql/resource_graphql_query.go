@@ -10,24 +10,24 @@ import (
 func resourceGraphqlMutation() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"readQuery": {
+			"read_query": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"createMutation": {
+			"create_mutation": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"deleteMutation": {
+			"delete_mutation": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"updateMutation": {
+			"update_mutation": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"createMutationVariables": {
+			"create_mutation_variables": {
 				Type: schema.TypeMap,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -35,33 +35,31 @@ func resourceGraphqlMutation() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"updateMutationVariables": {
+			"update_mutation_variables": {
 				Type: schema.TypeMap,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 				Optional: true,
 			},
-			"readQueryVariables": {
+			"read_query_variables": {
 				Type: schema.TypeMap,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 				Optional: true,
 			},
-			"deleteMutationVariables": {
+			"delete_mutation_variables": {
 				Type: schema.TypeMap,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 				Optional: true,
 			},
-			"queryResponse": {
-				Type: schema.TypeMap,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Computed: true,
+			"query_response": {
+				Type:        schema.TypeString,
+				Description: "The raw body of the HTTP response from the last read of the object.",
+				Computed:    true,
 			},
 		},
 		Create: resourceGraphqlMutationCreate,
@@ -72,7 +70,7 @@ func resourceGraphqlMutation() *schema.Resource {
 }
 
 func resourceGraphqlMutationCreate(d *schema.ResourceData, m interface{}) error {
-	queryResponseObj, err := QueryExecute(d, m, "createMutation", "createMutationVariables")
+	queryResponseObj, err := QueryExecute(d, m, "create_mutation", "create_mutation_variables")
 	if err != nil {
 		return err
 	}
@@ -82,36 +80,38 @@ func resourceGraphqlMutationCreate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceGraphqlRead(d *schema.ResourceData, m interface{}) error {
-	queryResponseObj, err := QueryExecute(d, m, "readQuery", "readQueryVariables")
+	queryResponseBytes, err := QueryExecute(d, m, "read_query", "read_query_variables")
 	if err != nil {
 		return err
 	}
-	if err := d.Set("queryResponse", queryResponseObj); err != nil {
+	if err := d.Set("query_response", string(queryResponseBytes)); err != nil {
 		return err
 	}
 	return nil
 }
 
 func resourceGraphqlMutationUpdate(d *schema.ResourceData, m interface{}) error {
-	queryResponseObj, err := QueryExecute(d, m, "updateMutation", "updateMutationVariables")
+	queryResponseBytes, err := QueryExecute(d, m, "update_mutation", "update_mutation_variables")
 	if err != nil {
 		return err
 	}
-	objID := hashString(queryResponseObj)
+	objID := hashString(queryResponseBytes)
 	d.SetId(string(objID))
 	return nil
 }
 
 func resourceGraphqlMutationDelete(d *schema.ResourceData, m interface{}) error {
-	_, err := QueryExecute(d, m, "deleteMutation", "deleteMutationVariables")
+	_, err := QueryExecute(d, m, "delete_mutation", "delete_mutation_variables")
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func hashString(v map[string]interface{}) int {
-	out, err := json.Marshal(v)
+func hashString(v []byte) int {
+	queryResponseObj := make(map[string]interface{})
+	_ = json.Unmarshal(v, &queryResponseObj)
+	out, err := json.Marshal(queryResponseObj)
 	if err != nil {
 		panic(err)
 	}

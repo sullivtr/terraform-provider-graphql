@@ -9,12 +9,9 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
-func QueryExecute(d *schema.ResourceData, m interface{}, querySource, variableSource string) (map[string]interface{}, error) {
+func QueryExecute(d *schema.ResourceData, m interface{}, querySource, variableSource string) ([]byte, error) {
 	query := d.Get(querySource).(string)
 	variables := d.Get(variableSource).(map[string]interface{})
-	if variables == nil {
-		variables = d.Get("createMutationVariables").(map[string]interface{})
-	}
 	apiURL := m.(*GraphqlProviderConfig).GQLServerUrl
 	headers := m.(*GraphqlProviderConfig).RequestHeaders
 
@@ -35,7 +32,7 @@ func QueryExecute(d *schema.ResourceData, m interface{}, querySource, variableSo
 	}
 
 	for key, value := range headers {
-		req.Header.Set(key, value)
+		req.Header.Set(key, value.(string))
 	}
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	req.Header.Set("Accept", "application/json; charset=utf-8")
@@ -49,10 +46,5 @@ func QueryExecute(d *schema.ResourceData, m interface{}, querySource, variableSo
 
 	body, _ := ioutil.ReadAll(resp.Body)
 
-	queryResponseObj := make(map[string]interface{})
-	err = json.Unmarshal(body, &queryResponseObj)
-	if err != nil {
-		return nil, err
-	}
-	return queryResponseObj, nil
+	return body, nil
 }
