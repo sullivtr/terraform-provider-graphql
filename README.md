@@ -24,7 +24,7 @@ provider "graphql" {
 ```
 data "graphql_query" "basic_query" {
   read_query_variables = {}
-  read_query     = "${file("./queries/readQuery")}"
+  read_query     = file("./queries/readQuery")
 }
 ```
 #### Graphql Resource
@@ -40,10 +40,10 @@ resource "graphql_mutation" "basic_mutation" {
   read_query_variables = {}
 
   # Reference files instead of inline queries to keep tf files clean. See examplquery for an example of a query file
-  create_mutation = "${file("./queries/createMutation")}"
-  update_mutation = "${file("./queries/updateMutation")}"
-  delete_mutation = "${file("./queries/deleteMutation")}"
-  read_query      = "${file("./queries/readQuery")}"
+  create_mutation = file("./queries/createMutation")
+  update_mutation = file("./queries/updateMutation")
+  delete_mutation = file("./queries/deleteMutation")
+  read_query      = file("./queries/readQuery")
 }
 ```
 ## Data Sources
