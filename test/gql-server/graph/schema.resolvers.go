@@ -19,12 +19,12 @@ import (
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
 	fmt.Println("Running create query")
 
-	todo := &model.Todo{
+	todo := model.Todo{
 		Text: input.Text,
 		ID:   fmt.Sprintf("T%d", rand.Int()),
 		User: &model.User{ID: input.UserID, Name: "user " + input.UserID},
 	}
-	fmt.Println(todo)
+
 	content, _ := json.MarshalIndent(todo, "", " ")
 	err := ioutil.WriteFile("./test.json", content, 0755)
 
@@ -83,7 +83,7 @@ func (r *mutationResolver) DeleteTodo(ctx context.Context, input string) (*model
 	return &todoResultAfterClear, nil
 }
 
-func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
+func (r *queryResolver) Todo(ctx context.Context) (*model.Todo, error) {
 	jsonFile, err := os.Open("./test.json")
 	if err != nil {
 		fmt.Println(err)
@@ -94,10 +94,7 @@ func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 
 	var todoResult model.Todo
 	_ = json.Unmarshal([]byte(byteValue), &todoResult)
-	var todoList []*model.Todo
-	todoList = append(todoList, &todoResult)
-	fmt.Println("Running read query")
-	return todoList, nil
+	return &todoResult, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

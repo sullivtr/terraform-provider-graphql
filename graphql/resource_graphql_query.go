@@ -2,6 +2,7 @@ package graphql
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -54,7 +55,14 @@ func resourceGraphqlMutation() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Optional: true,
+				Computed: true,
+			},
+			"query_response_key_map": {
+				Type: schema.TypeList,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Required: true,
 			},
 			"query_response": {
 				Type:        schema.TypeString,
@@ -80,11 +88,36 @@ func resourceGraphqlMutationCreate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceGraphqlRead(d *schema.ResourceData, m interface{}) error {
+	responseKeys := d.Get("query_response_key_map").([]interface{})
 	queryResponseBytes, err := QueryExecute(d, m, "read_query", "read_query_variables")
 	if err != nil {
 		return err
 	}
 	if err := d.Set("query_response", string(queryResponseBytes)); err != nil {
+		return err
+	}
+
+	var robj = make(map[string]interface{})
+	err = json.Unmarshal(queryResponseBytes, &robj)
+	if err != nil {
+		return err
+	}
+
+	var dmks = make(map[string]string)
+
+	frk := responseKeys[0]
+	if frk != "data" {
+		responseKeys = append(responseKeys, "_")
+		copy(responseKeys[1:], responseKeys[0:])
+		responseKeys[0] = "data"
+	}
+	k, v, err := getResourceKey(robj, responseKeys...)
+	if err != nil {
+		return err
+	}
+	dmks[k] = v.(string)
+
+	if err := d.Set("delete_mutation_variables", dmks); err != nil {
 		return err
 	}
 	return nil
@@ -116,4 +149,21 @@ func hashString(v []byte) int {
 		panic(err)
 	}
 	return hashcode.String(string(out))
+}
+
+func getResourceKey(m map[string]interface{}, ks ...interface{}) (key string, val interface{}, err error) {
+	var ok bool
+
+	if len(ks) == 0 {
+		return "", nil, fmt.Errorf("Query response object is empty")
+	}
+	if val, ok = m[ks[0].(string)]; !ok {
+		return "", nil, fmt.Errorf("query_response_key not found")
+	} else if len(ks) == 1 {
+		return ks[0].(string), val, nil
+	} else if m, ok = val.(map[string]interface{}); !ok {
+		return "", nil, fmt.Errorf("malformed structure at %#v", val)
+	} else {
+		return getResourceKey(m, ks[1:]...)
+	}
 }

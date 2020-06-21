@@ -72,6 +72,32 @@ resource "graphql_mutation" "basic_mutation" {
 #### Outputs
 - query_response: The resulting response body of the graphql query
 
+**Handling tf destroy operations**:
+- `delete_mutation_variables`: The delete mutation variables are calculated based on the `query_response_key_map` variable.
+  Example: Your read query returns an object that has this structure: 
+  ```
+  { 
+    data: { 
+      todos: { 
+        id 
+        } 
+      } 
+  }
+  ```
+  such that `id` is the property you use to delete your object during a destroy event. 
+
+  Your delete mutation would look something like this: 
+  ```
+  mutation deleteTodo($id: String!) {
+    deleteTodo(input: $id) {
+      id
+    }
+  }
+  ```
+  You would set the `query_response_key_map` variable on the resource as `["todo", "id"]`. NOTE: Since the standard for GraphQL is to return objects with the `data` parent object, the root `data` key is implied. However, you can use `["data", "todo", "id"]` if that makes you sleep better at night. See 
+
+  At the moment, this feature assumes you only need a single variable to run a delete operation. 
+
 ## Testing
 - First, in the root of the project run `make build && make copyplugins`
 - Go to [./test/gql-server]("./test/gql-server") and run `go run server.go`.
@@ -83,4 +109,5 @@ resource "graphql_mutation" "basic_mutation" {
 # License
 
 Apache2 - See the included LICENSE file for more details.
+
 
