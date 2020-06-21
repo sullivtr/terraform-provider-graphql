@@ -1,6 +1,6 @@
 # terraform-provider-graphql
 ### NOTE: 
-This provider plugin is currently in under active development, and is not yet production ready. Contributions and feedback are welcome. 
+This terraform provider plugin is currently in beta. It can be used in production, but some common GraphQL use-cases may not be possible at the moment. Contributions and feedback are welcome. 
 
 ## Synopsis
 
@@ -59,15 +59,17 @@ resource "graphql_mutation" "basic_mutation" {
 
 ### graphql_mutation
 #### Argument Reference
-- create_mutation_variables (Required): a map(string) of any variables that will be used in the mutation
-- update_mutation_variables (Optional): a map(string) of any variables that will be used in the mutation
-- delete_mutation_variables (Optional): a map(string) of any variables that will be used in the mutation
-- read_query_variables (Optional): a map(string) of any variables that will be used in the reader query
+- `create_mutation_variables` (Required): a map(string) of any variables that will be used in the mutation
+- `update_mutation_variables` (Optional): a map(string) of any variables that will be used in the mutation
+- `read_query_variables` (Optional): a map(string) of any variables that will be used in the reader query
 
-- create_mutation: (Required) the graphql mutation to be used for the create operation  
-- update_mutation: (Required) the graphql mutation to be used for the update operation 
-- delete_mutation: (Required) the graphql mutation to be used for the delete operation 
-- read_query:      (Required) the graphql mutation to be used for the read operation
+- `create_mutation`: (Required): the graphql mutation to be used for the create operation  
+- `update_mutation`: (Required): the graphql mutation to be used for the update operation 
+- `delete_mutation`: (Required): the graphql mutation to be used for the delete operation 
+- `read_query`:      (Required): the graphql mutation to be used for the read operation
+
+- `query_response_key_map`: list of string representing the hierarchy of your response object leading to the key that will be used during a terraform destroy operation.
+  See "Handling tf destroy operations" below in the outputs section.
 
 #### Outputs
 - query_response: The resulting response body of the graphql query
