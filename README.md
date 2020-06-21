@@ -96,7 +96,7 @@ resource "graphql_mutation" "basic_mutation" {
     }
   }
   ```
-  You would set the `query_response_key_map` variable on the resource as `["todo", "id"]`. NOTE: Since the standard for GraphQL is to return objects with the `data` parent object, the root `data` key is implied. However, you can use `["data", "todo", "id"]` if that makes you sleep better at night. See 
+  You would set the `query_response_key_map` variable on the resource as `["todo", "id"]`. NOTE: Since the standard for GraphQL is to return objects with the `data` parent object, the root `data` key is implied. However, you can use `["data", "todo", "id"]` if that makes you sleep better at night. 
 
   At the moment, this feature assumes you only need a single variable to run a delete operation. 
 
