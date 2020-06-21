@@ -1,5 +1,6 @@
 query findTodos{
-  todos {
+  todo {
+    id
     text
     done
     user {
