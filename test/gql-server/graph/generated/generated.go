@@ -46,7 +46,7 @@ type ComplexityRoot struct {
 	Mutation struct {
 		CreateTodo func(childComplexity int, input model.NewTodo) int
 		DeleteTodo func(childComplexity int, input string) int
-		UpdateTodo func(childComplexity int, input model.NewTodo) int
+		UpdateTodo func(childComplexity int, id string, input model.NewTodo) int
 	}
 
 	Query struct {
@@ -68,7 +68,7 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error)
-	UpdateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error)
+	UpdateTodo(ctx context.Context, id string, input model.NewTodo) (*model.Todo, error)
 	DeleteTodo(ctx context.Context, input string) (*model.Todo, error)
 }
 type QueryResolver interface {
@@ -124,7 +124,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateTodo(childComplexity, args["input"].(model.NewTodo)), true
+		return e.complexity.Mutation.UpdateTodo(childComplexity, args["id"].(string), args["input"].(model.NewTodo)), true
 
 	case "Query.todo":
 		if e.complexity.Query.Todo == nil {
@@ -266,7 +266,7 @@ input NewTodo {
 
 type Mutation {
   createTodo(input: NewTodo!): Todo!
-  updateTodo(input: NewTodo!): Todo!
+  updateTodo(id: String!, input: NewTodo!): Todo!
   deleteTodo(input: String!): Todo!
 }`, BuiltIn: false},
 }
@@ -307,14 +307,22 @@ func (ec *executionContext) field_Mutation_deleteTodo_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_updateTodo_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.NewTodo
-	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalNNewTodo2githubᚗcomᚋsullivtrᚋterraformᚑproviderᚑgraphqlᚋgqlᚑserverᚋgraphᚋmodelᚐNewTodo(ctx, tmp)
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["input"] = arg0
+	args["id"] = arg0
+	var arg1 model.NewTodo
+	if tmp, ok := rawArgs["input"]; ok {
+		arg1, err = ec.unmarshalNNewTodo2githubᚗcomᚋsullivtrᚋterraformᚑproviderᚑgraphqlᚋgqlᚑserverᚋgraphᚋmodelᚐNewTodo(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
 	return args, nil
 }
 
@@ -433,7 +441,7 @@ func (ec *executionContext) _Mutation_updateTodo(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateTodo(rctx, args["input"].(model.NewTodo))
+		return ec.resolvers.Mutation().UpdateTodo(rctx, args["id"].(string), args["input"].(model.NewTodo))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

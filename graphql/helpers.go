@@ -25,16 +25,16 @@ func buildResourceKeyArgs(slice []interface{}) [][]string {
 	return ss
 }
 
-func computeDeleteMutationVariableKeys(keyMaps [][]string, responseObject map[string]interface{}) (map[string]string, error) {
-	var dmks = make(map[string]string)
+func computeMutationVariableKeys(keyMaps [][]string, responseObject map[string]interface{}) (map[string]string, error) {
+	var mvks = make(map[string]string)
 	for _, v := range keyMaps {
 		k, v, err := getResourceKey(responseObject, v...)
 		if err != nil {
 			return nil, err
 		}
-		dmks[k] = v.(string)
+		mvks[k] = v.(string)
 	}
-	return dmks, nil
+	return mvks, nil
 }
 
 func getResourceKey(m map[string]interface{}, ks ...string) (key string, val interface{}, err error) {

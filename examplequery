@@ -1,6 +1,0 @@
-{
-  secretByName(secretType: ENCRYPTED_TEXT, name:"secre-name") {
-    name,
-    id
-  }
-}

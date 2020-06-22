@@ -12,12 +12,11 @@ data "graphql_query" "basic_query" {
 }
 
 resource "graphql_mutation" "basic_mutation" {
-  create_mutation_variables = {
+  mutation_variables = {
     "text" = "Here is something todo"
-    "userId" = "98"
+    "userId" = "24"
   }
   # if update, create, and read variables are omitted, they will fall back to the required create_mutation_variables
-  update_mutation_variables = {}
   read_query_variables = {}
   # Reference files instead of inline queries to keep tf files clean. See examplquery for an example of a query file
   create_mutation = file("./queries/createMutation")
@@ -25,7 +24,7 @@ resource "graphql_mutation" "basic_mutation" {
   delete_mutation = file("./queries/deleteMutation")
   read_query      = file("./queries/readQuery")
 
-  query_response_key_map = ["todo.id"]
+  mutation_keys = ["todo.id"]
 }
 
 output "myoutput" {

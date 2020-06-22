@@ -32,7 +32,7 @@ build: clean fetch ## publishes in dry run mode
 	$(GOPATH)/bin/goreleaser --skip-publish --snapshot
 
 
-.PHONY: test copyplugins
+.PHONY: copyplugins
 
 copyplugins: ## copy plugins to test folders
 	$(eval OS_ARCH := $(patsubst ./dist/terraform-provider-graphql_%/terraform-provider-graphql, %, $(COPY_FILES)))
@@ -46,7 +46,7 @@ copyplugins: ## copy plugins to test folders
 		done; \
 	done
 
-test: copyplugins ## test
-	@cd test && $(MAKE) test
+# test: copyplugins ## test
+# 	@cd test && $(MAKE) test
 
-fulltest: build test ## build and test
+# fulltest: build test ## build and test
