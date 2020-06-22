@@ -1,6 +1,4 @@
 # terraform-provider-graphql
-### NOTE: 
-This terraform provider plugin is currently in beta. It can be used in production, but some common GraphQL use-cases may not be possible at the moment. Contributions and feedback are welcome. 
 
 ## Synopsis
 
