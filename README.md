@@ -36,7 +36,6 @@ resource "graphql_mutation" "basic_mutation" {
     "userId" = "98"
   }
   update_mutation_variables = {}
-  delete_mutation_variables = {}
   read_query_variables = {}
 
   # Reference files instead of inline queries to keep tf files clean. See examplquery for an example of a query file
@@ -50,10 +49,10 @@ resource "graphql_mutation" "basic_mutation" {
 
 ### graphql_query
 #### Argument Reference
-- read_query_variables (required): a map(string) of any variables that will be used in the query
-- read_query (required): the graphql query. See [example query](./examplequery) for an example of what this looks like.
+- `read_query_variables` (required): a map(string) of any variables that will be used in the query
+- `read_query` (required): the graphql query. See [example query](./examplequery) for an example of what this looks like.
 #### Outputs
-- query_response: The resulting response body of the graphql query
+- `query_response`: The resulting response body of the graphql query
 
 ## Resources
 
@@ -72,7 +71,7 @@ resource "graphql_mutation" "basic_mutation" {
   See "Handling tf destroy operations" below in the outputs section.
 
 #### Outputs
-- query_response: The resulting response body of the graphql query
+- `query_response`: The resulting response body of the graphql query
 
 **Handling tf destroy operations**:
 - `delete_mutation_variables`: The delete mutation variables are computed based on the `query_response_key_map` variable.
