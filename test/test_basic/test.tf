@@ -25,7 +25,7 @@ resource "graphql_mutation" "basic_mutation" {
   delete_mutation = file("./queries/deleteMutation")
   read_query      = file("./queries/readQuery")
 
-  query_response_key_map = ["todo", "id"]
+  query_response_key_map = ["todo.id"]
 }
 
 output "myoutput" {

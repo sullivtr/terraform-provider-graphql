@@ -1,6 +1,9 @@
 {
- "id": "",
- "text": "",
+ "id": "T8674665223082153551",
+ "text": "Here is something todo",
  "done": false,
- "user": null
+ "user": {
+  "id": "98",
+  "name": "user 98"
+ }
 }

@@ -67,20 +67,21 @@ resource "graphql_mutation" "basic_mutation" {
 - `delete_mutation`: (Required): the graphql mutation to be used for the delete operation 
 - `read_query`:      (Required): the graphql mutation to be used for the read operation
 
-- `query_response_key_map`: list of string representing the hierarchy of your response object leading to the key that will be used during a terraform destroy operation.
+- `query_response_key_map`: list of string representing the hierarchy of your response object leading to the key(s) that will be used during a terraform destroy operation.
   See "Handling tf destroy operations" below in the outputs section.
 
 #### Outputs
 - `query_response`: The resulting response body of the graphql query
 
 **Handling tf destroy operations**:
-- `delete_mutation_variables`: The delete mutation variables are calculated based on the `query_response_key_map` variable.
+- `delete_mutation_variables`: The delete mutation variables are computed based on the `query_response_key_map` variable.
   Example: Your read query returns an object that has this structure: 
   ```
   { 
     data: { 
-      todo: { 
-        id 
+      todos: { 
+        id
+        text 
         } 
       } 
   }
@@ -95,9 +96,18 @@ resource "graphql_mutation" "basic_mutation" {
     }
   }
   ```
-  You would set the `query_response_key_map` variable on the resource as `["todo", "id"]`. NOTE: Since the standard for GraphQL is to return objects with the `data` parent object, the root `data` key is implied. However, you can use `["data", "todo", "id"]` if that makes you sleep better at night. 
+  You would set the `query_response_key_map` variable on the resource as `["todo.id"]`. NOTE: Since the standard for GraphQL is to return objects with the `data` parent object, the root `data` key is implied. However, you can use `["data.todo.id"]` if that makes you sleep better at night. 
 
-  At the moment, this feature assumes you only need a single variable to run a delete operation. 
+  If your delete events require more than one key/variable, you can pass unlimited maps to the `query_response_key_map` list. For example, for two keys you would use this: `["todo.id", "todo.text"]`
+
+  The result is a map(string) that is used as the variables object in your delete mutation. Example:
+  ```
+    "delete_mutation_variables" = {
+      "id" = "T8674665223082153551"
+      "text" = "Here is something todo"
+    }
+  ```
+  Your delete mutation variables are automatically computed this way. 
 
 ## Testing
 - First, in the root of the project run `make build && make copyplugins`
