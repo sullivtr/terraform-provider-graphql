@@ -49,14 +49,34 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) 
 	return &todoResult, nil
 }
 
-func (r *mutationResolver) UpdateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
-	todo := &model.Todo{
-		Text: input.Text,
-		ID:   fmt.Sprintf("T%d", rand.Int()),
-		User: &model.User{ID: input.UserID, Name: "user " + input.UserID},
+func (r *mutationResolver) UpdateTodo(ctx context.Context, id string, input model.NewTodo) (*model.Todo, error) {
+	fmt.Println("Running update")
+	jsonFile, err := os.Open("./test.json")
+	if err != nil {
+		fmt.Println(err)
 	}
-	r.todos = append(r.todos, todo)
-	return todo, nil
+	defer jsonFile.Close()
+
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	var todoRead model.Todo
+	_ = json.Unmarshal([]byte(byteValue), &todoRead)
+
+	if todoRead.ID == id {
+		todo := &model.Todo{
+			Text: input.Text,
+			ID:   id,
+			User: &model.User{ID: input.UserID, Name: "user " + input.UserID},
+		}
+		content, _ := json.MarshalIndent(&todo, "", " ")
+		_ = ioutil.WriteFile("./test.json", content, 0755)
+	}
+
+	byteValueReadAfterUpdate, _ := ioutil.ReadAll(jsonFile)
+
+	var todoResultAfterUpdate model.Todo
+	_ = json.Unmarshal([]byte(byteValueReadAfterUpdate), &todoResultAfterUpdate)
+	return &todoResultAfterUpdate, nil
 }
 
 func (r *mutationResolver) DeleteTodo(ctx context.Context, input string) (*model.Todo, error) {
@@ -72,15 +92,13 @@ func (r *mutationResolver) DeleteTodo(ctx context.Context, input string) (*model
 	_ = json.Unmarshal([]byte(byteValue), &todoRead)
 
 	if todoRead.ID == input {
-		content, _ := json.MarshalIndent(model.Todo{}, "", " ")
-		_ = ioutil.WriteFile("./test.json", content, 0755)
+		if err := os.Remove("./test.json"); err != nil {
+			return nil, err
+		}
+		fmt.Println("File Deleted")
 	}
 
-	byteValueReadAfterClear, _ := ioutil.ReadAll(jsonFile)
-
-	var todoResultAfterClear model.Todo
-	_ = json.Unmarshal([]byte(byteValueReadAfterClear), &todoResultAfterClear)
-	return &todoResultAfterClear, nil
+	return &model.Todo{}, nil
 }
 
 func (r *queryResolver) Todo(ctx context.Context) (*model.Todo, error) {

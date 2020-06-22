@@ -3,6 +3,7 @@ mutation createTodo($text: String!, $userId: String!) {
     user {
       id
     }
+    id
     text
     done
   }
