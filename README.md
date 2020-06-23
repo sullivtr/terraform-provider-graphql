@@ -112,7 +112,7 @@ resource "graphql_mutation" "basic_mutation" {
   ``` 
   if that makes you sleep better at night. 
 
-  If your delete events require more than one key/variable, you can pass unlimited maps to the `mutation_keys` list. For example, for two keys you would use this:
+  If your delete events require more than one key/variable, you can pass unlimited key:pairs to the `mutation_keys` list. For example, for two keys you would use this:
     ```
     {
       "id" = "todo.id"
