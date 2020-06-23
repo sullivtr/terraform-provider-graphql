@@ -2,6 +2,7 @@ package graphql
 
 import (
 	"encoding/json"
+	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -48,7 +49,7 @@ func resourceGraphqlMutation() *schema.Resource {
 				Computed: true,
 			},
 			"mutation_keys": {
-				Type: schema.TypeList,
+				Type: schema.TypeMap,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -119,7 +120,7 @@ func resourceGraphqlMutationCreateUpdate(d *schema.ResourceData, m interface{}) 
 }
 
 func resourceGraphqlRead(d *schema.ResourceData, m interface{}) error {
-	dataKeys := d.Get("mutation_keys").([]interface{})
+	dataKeys := d.Get("mutation_keys").(map[string]interface{})
 	mutationVariables := d.Get("mutation_variables").(map[string]interface{})
 	queryResponseBytes, err := QueryExecute(d, m, "read_query", "read_query_variables")
 	if err != nil {
@@ -135,24 +136,22 @@ func resourceGraphqlRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	rkas := buildResourceKeyArgs(dataKeys)
-
 	// Set delete mutation variables
-	mvks, err := computeMutationVariableKeys(rkas, robj)
+	mvks, err := computeMutationVariableKeys(dataKeys, robj)
 	if err != nil {
-		return err
-	}
-	if err := d.Set("delete_mutation_variables", mvks); err != nil {
-		return err
-	}
-
-	// Combine computed update mutation variables with provided input variables
-	for k, v := range mutationVariables {
-		mvks[k] = v.(string)
-	}
-
-	if err := d.Set("computed_update_operation_variables", mvks); err != nil {
-		return err
+		log.Printf("[ERROR] Uunable to compute mutation variable keys: %s ", err)
+	} else {
+		// Set delete mutation variables
+		if err := d.Set("delete_mutation_variables", mvks); err != nil {
+			return err
+		}
+		// Combine computed update mutation variables with provided input variables
+		for k, v := range mutationVariables {
+			mvks[k] = v.(string)
+		}
+		if err := d.Set("computed_update_operation_variables", mvks); err != nil {
+			return err
+		}
 	}
 
 	return nil

@@ -65,7 +65,7 @@ resource "graphql_mutation" "basic_mutation" {
 - `delete_mutation`: (Required): the graphql mutation to be used for the delete operation 
 - `read_query`:      (Required): the graphql mutation to be used for the read operation
 
-- `mutation_keys` (Required): list of string representing the hierarchy of your response object leading to the key(s) that will be used during a terraform destroy operation.
+- `mutation_keys` (Required): map(string) representing the hierarchy of your response object leading to the key(s) that will be used during a terraform destroy operation.
   **See "Handling tf update & destroy operations" below in the outputs section.**
 
 #### Outputs
@@ -96,9 +96,27 @@ resource "graphql_mutation" "basic_mutation" {
     }
   }
   ```
-  You would set the `mutation_keys` variable on the resource as `["todo.id"]`. NOTE: Since the standard for GraphQL is to return objects with the `data` parent object, the root `data` key is implied. However, you can use `["data.todo.id"]` if that makes you sleep better at night. 
+  You would set the `mutation_keys` variable on the resource as 
+  ```
+  {
+    "id" = "todo.id"
+  }
+  ``` 
+  NOTE: Since the standard for GraphQL is to return objects with the `data` parent object, the root `data` key is implied. However, you can use 
+  ```
+  {
+    "id" = "data.todo.id"
+  }
+  ``` 
+  if that makes you sleep better at night. 
 
-  If your delete events require more than one key/variable, you can pass unlimited maps to the `mutation_keys` list. For example, for two keys you would use this: `["todo.id", "todo.text"]`
+  If your delete events require more than one key/variable, you can pass unlimited maps to the `mutation_keys` list. For example, for two keys you would use this:
+    ```
+    {
+      "id" = "todo.id"
+      "parentId" = "todo.parent.id"
+    }
+  ```
 
   The result is a map(string) that is used as the variables object in your delete mutation. Example:
   ```
