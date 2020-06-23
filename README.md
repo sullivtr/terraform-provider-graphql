@@ -35,7 +35,9 @@ resource "graphql_mutation" "basic_mutation" {
   }
   read_query_variables = {}
 
-  mutation_keys = ["todo.id"]
+  mutation_keys = {
+    "id" = "todo.id"
+  }
 
   # Reference files instead of inline queries to keep tf files clean. See examplquery for an example of a query file
   create_mutation = file("./queries/createMutation")
