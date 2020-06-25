@@ -6,4 +6,4 @@ go:
   - master
 
 script:
-  - make fulltest
+  - env GO111MODULE=on make fulltest
