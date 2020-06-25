@@ -1,5 +1,9 @@
 .terraform/**
 terraform-provider-graphql
+test/*/terraform.tfstate
+test/*/terraform.tfstate.backup
+test/*/terraform.d
+test/*/.terraform
 dist/
 *.log
 .secrets

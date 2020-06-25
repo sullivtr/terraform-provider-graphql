@@ -4,7 +4,7 @@ export $(PATH)
 GIT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 COPY_FILES := $(wildcard ./dist/terraform-provider-graphql*/*)
 TEST_DIR := test/
-TEST_DESTS := $(patsubst $(TEST_DIR)%/test.sh, $(TEST_DIR)%, $(wildcard $(TEST_DIR)*/test.sh))
+TEST_DESTS := $(patsubst $(TEST_DIR)%/test.tf, $(TEST_DIR)%, $(wildcard $(TEST_DIR)*/test.tf))
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -46,7 +46,7 @@ copyplugins: ## copy plugins to test folders
 		done; \
 	done
 
-# test: copyplugins ## test
-# 	@cd test && $(MAKE) test
+test: copyplugins ## test
+	@cd test && $(MAKE) test
 
-# fulltest: build test ## build and test
+fulltest: build test ## build and test

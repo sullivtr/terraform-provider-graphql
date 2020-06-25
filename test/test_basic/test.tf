@@ -5,16 +5,16 @@ provider "graphql" {
   }
 }
 
-data "graphql_query" "basic_query" {
-  depends_on = [graphql_mutation.basic_mutation]
-  read_query_variables = {}
-  read_query     = file("./queries/readQuery")
-}
+# data "graphql_query" "basic_query" {
+#   depends_on = [graphql_mutation.basic_mutation]
+#   read_query_variables = {}
+#   read_query     = file("./queries/readQuery")
+# }
 
 resource "graphql_mutation" "basic_mutation" {
   mutation_variables = {
-    "text" = "Here is something todo"
-    "userId" = "24"
+    "text" = var.todo_text
+    "userId" = var.todo_user_id
   }
   # if update, create, and read variables are omitted, they will fall back to the required create_mutation_variables
   read_query_variables = {}
@@ -29,10 +29,6 @@ resource "graphql_mutation" "basic_mutation" {
   }
 }
 
-output "myoutput" {
+output "mutation_output" {
   value = graphql_mutation.basic_mutation
-}
-
-output "myitem" {
-  value = data.graphql_query.basic_query
 }
