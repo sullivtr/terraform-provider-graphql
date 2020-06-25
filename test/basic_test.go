@@ -30,5 +30,5 @@ func TestBasicCreateUpdateMutations(t *testing.T) {
 	assert.Contains(t, output, "\"text\" = \"Todo has been updated\"")
 
 	terraform.Destroy(t, terraformOptionsUpdate)
-	assert.NoFileExists(t, "./gql-service/test.json")
+	assert.NoFileExists(t, "./gql-server/test.json")
 }
