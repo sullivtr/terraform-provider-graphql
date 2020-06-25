@@ -8,4 +8,3 @@ dist/
 *.log
 .secrets
 *.tfstate
-test/test_basic/terraform.tfstate
