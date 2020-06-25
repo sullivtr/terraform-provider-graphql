@@ -1,4 +1,7 @@
-# terraform-provider-graphql
+# terraform-provider-graphql 
+
+#### Build & Test: 
+[![Build Status](https://travis-ci.com/sullivtr/terraform-provider-graphql.svg?branch=master)](https://travis-ci.com/sullivtr/terraform-provider-graphql)
 
 ## Synopsis
 
