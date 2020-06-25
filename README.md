@@ -153,13 +153,11 @@ resource "graphql_mutation" "basic_mutation" {
   See the basic [test project]("./test/test_basic") for examples.
 
 ## Testing
-- First, in the root of the project run `make build && make copyplugins`
-- Go to [./test/gql-server]("./test/gql-server") and run `go run server.go`.
-- Open the [./test/test_basic]("./test/test_basic") directory. 
-  - run `tf init && tf apply`
-  
- note: development of automated testing is in progress.
- 
+- In the root of this project, run `make fulltest`
+  This will build the plugin, and copy the binaries to the basic_test/terraform.d/* folder
+
+- To run a test without a build, simply run `make test`
+   
 # License
 
 Apache2 - See the included LICENSE file for more details.
