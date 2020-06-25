@@ -1,5 +1,5 @@
 cd gql-server
-(go run server.go &)
+(go get && go run server.go &)
 cd ..
 go test -i
 go test
