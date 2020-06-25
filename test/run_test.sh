@@ -1,6 +1,8 @@
 cd gql-server
+go mod download
 (go run server.go &)
 cd ..
+go mod download
 go test
 
 exit_status=$?
