@@ -23,11 +23,11 @@ func TestBasicCreateUpdateMutations(t *testing.T) {
 
 	terraform.InitAndApply(t, terraformOptionsCreate)
 	output, _ := terraform.OutputE(t, terraformOptionsCreate, "mutation_output")
-	assert.Contains(t, output, "\"text\" = \"Here is something todo\"")
+	assert.Contains(t, output, "\\\"text\\\":\\\"Here is something todo\\\"")
 
 	terraform.InitAndApply(t, terraformOptionsUpdate)
 	output, _ = terraform.OutputE(t, terraformOptionsUpdate, "mutation_output")
-	assert.Contains(t, output, "\"text\" = \"Todo has been updated\"")
+	assert.Contains(t, output, "\\\"text\\\":\\\"Todo has been updated\\\"")
 
 	terraform.Destroy(t, terraformOptionsUpdate)
 	assert.NoFileExists(t, "./gql-server/test.json")
