@@ -6,4 +6,5 @@ go:
   - master
 
 script:
-  - env GO111MODULE=on make fulltest
+  - curl -sfL https://git.io/goreleaser | sh -s --skip-publish --snapshot
+  - env GO111MODULE=on make copyplugins make test
