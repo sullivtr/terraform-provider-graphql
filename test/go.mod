@@ -1,6 +1,6 @@
 module github.com/sullivtr/terraform-provider-graphql/test
 
-go 1.14
+go 1.12
 
 require (
 	github.com/gruntwork-io/terratest v0.28.6
