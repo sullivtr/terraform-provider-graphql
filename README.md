@@ -73,6 +73,7 @@ resource "graphql_mutation" "basic_mutation" {
 
 #### Outputs
 - `query_response`: The resulting response body of the graphql query
+  - You can decode the `query_response` using terraform's built in [jsondecode](https://www.terraform.io/docs/configuration/functions/jsondecode.html) function.
 - `computed_update_operation_variables`: The computed object that combines any computed variables with your mutation variables. This is useful for outputing properties of your response and using it on other resources. For exampe:
    ```
     output "my_object_id" {
