@@ -6,7 +6,7 @@
 
 ## Synopsis
 
-A [Terraform](https://terraform.io) plugin to manage [GraphQL](https://graphql.org/) queries and mutations. 
+A [Terraform](https://terraform.io) [GraphQL](https://graphql.org/) provider to manage the full lifecyle of graphql based api resources. 
   
 
 ## Example: 
