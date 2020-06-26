@@ -159,7 +159,7 @@ resource "graphql_mutation" "basic_mutation" {
 
   See the basic [test project]("./test/test_basic") for examples.
   
-  **FUN TIP:** Although the `mutation_keys` are intended to be used for computed variables, you can use that to store the value of any proprty of your response object. (Note, however, that it cannot automatically traverse arrays inside of your response)
+  **FUN TIP:** Although the `mutation_keys` are intended to be used for computed variables, you can use that to store the value of any property of your response object. (Note, however, that it cannot automatically traverse arrays inside of your response)
 
 ## Testing
 - In the root of this project, run `make fulltest`
