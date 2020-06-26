@@ -1,9 +1,7 @@
 # terraform-provider-graphql 
 [![Build Status](https://travis-ci.com/sullivtr/terraform-provider-graphql.svg?branch=master)](https://travis-ci.com/sullivtr/terraform-provider-graphql)
 
-<pre>
-<img src="assets/tf.png" alt="terraform" width="300"/>       <img src="assets/gql.png" alt="graphql" width="375"/>
-</pre>
+<img src="assets/tf.png" alt="terraform" width="300"/>&nbsp;&nbsp;&nbsp;&nbsp;<img src="assets/gql.png" alt="graphql" width="385"/>
 
 
 ## Synopsis
