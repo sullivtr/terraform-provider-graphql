@@ -1,6 +1,11 @@
 # terraform-provider-graphql 
 [![Build Status](https://travis-ci.com/sullivtr/terraform-provider-graphql.svg?branch=master)](https://travis-ci.com/sullivtr/terraform-provider-graphql)
 
+<pre>
+<img src="assets/tf.png" alt="terraform" width="300"/>       <img src="assets/gql.png" alt="graphql" width="375"/>
+</pre>
+
+
 ## Synopsis
 
 A [Terraform](https://terraform.io) plugin to manage [GraphQL](https://graphql.org/) queries and mutations. 
