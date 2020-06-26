@@ -73,6 +73,12 @@ resource "graphql_mutation" "basic_mutation" {
 
 #### Outputs
 - `query_response`: The resulting response body of the graphql query
+- `computed_update_operation_variables`: The computed object that combines any computed variables with your mutation variables. This is useful for outputing properties of your response and using it on other resources. For exampe:
+   ```
+    output "my_object_id" {
+      value = graphql_mutation.basic_mutation.computed_update_operation_variables.id
+    }
+   ```
 
 #### Handling tf update & destroy operations:
 
