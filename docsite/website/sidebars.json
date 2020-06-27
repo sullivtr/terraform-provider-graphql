@@ -1,0 +1,13 @@
+{
+  "docs": {
+    "Graphql Provider": [
+      "provider"
+    ],
+    "Data Sources": [
+      "data_graphql_query"
+    ],
+    "Resources": [
+      "resource_graphql_mutation"
+    ]
+  }
+}
