@@ -8,3 +8,4 @@ dist/
 *.log
 .secrets
 *.tfstate
+docsite/website/node_modules
