@@ -3,6 +3,8 @@ id: data_graphql_query
 title: graphql_query
 ---
 
+## Synopsis
+This provider contains a single data source, `graphql_query`, that is used for querying existing resources from a GraphQL API.
 
 ## Usage Overview
 ```hcl
@@ -22,7 +24,7 @@ data "graphql_query" "basic_query" {
 ### read_query
   - **Required**: true
   - **Type**: string (multi-line)
-  - **Desciption**: The graphql query. See basic example below for what that looks like.
+  - **Desciption**: The graphql query. ( See basic example below for what that looks like.)
 
 ## Outputs
 
@@ -33,7 +35,7 @@ data "graphql_query" "basic_query" {
 
 ## Basic Example
 
-Just like graphql on its own, this data source takes in the query varibles, and the query itself:
+Just like graphql on its own, this data source takes in the query variables, and the query itself:
 ```hcl
 data "graphql_query" "basic_query" {
   read_query_variables = {} # this query does not take any variables as input
@@ -56,7 +58,6 @@ The query itself can be referenced in-line, as shown above, or it can be referen
 
 ## Advanced Example
 
-Just like graphql on its own, this data source takes in the query varibles, and the query itself:
 ```hcl
 data "graphql_query" "advanced_query" {
 
@@ -81,11 +82,11 @@ query getUser($name: String!, $email: String!) {
 }
 ```
 
-As you can see above, if a query requires a user object to be pass as a parameter, you can build the object inline on the query and fill in the properties using variables. 
+As you can see above, if a query requires a user object as a parameter, you can build the object inline on the query and fill in the properties using variables. 
 
 > NOTE: This provider does not currently support usage of complex objects as variables. read_query_variables must be a map of string.
 
-The `query_response` output would be a json encoded object with this structure: 
+The `query_response` output would be a json encoded object with the following structure: 
 
 ```json
 {

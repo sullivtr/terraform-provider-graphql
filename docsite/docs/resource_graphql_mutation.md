@@ -3,6 +3,10 @@ id: resource_graphql_mutation
 title: graphql_mutation
 ---
 
+## Synopsis
+
+This provider contains a single resource, `graphql_mutation` that can be used to automate the lifecycle of a GraphQL API resource. The `graphql_mutation` resource provides everything you need to create, read, update, and delete an api resource using GraphQL. 
+
 ## Usage Overview
 ```hcl
 resource "graphql_mutation" "basic_mutation" {
@@ -20,7 +24,6 @@ resource "graphql_mutation" "basic_mutation" {
     "id" = "user.id"
   }
 
-  # Reference files instead of inline queries to keep tf files clean. See examplquery for an example of a query file
   create_mutation = file("./queries/createMutation")
   update_mutation = file("./queries/updateMutation")
   delete_mutation = file("./queries/deleteMutation")
@@ -39,27 +42,27 @@ resource "graphql_mutation" "basic_mutation" {
 ### read_query_variables
   - **Required**: false
   - **Type**: map(string)
-  - **Description**: A map of any variables that will be used in the read query for teh resources lifecycle. 
+  - **Description**: A map of any variables that will be used in the read query for the resource's lifecycle. 
 
 ### create_mutation
   - **Required**: true
   - **Type**: string (multi-line)
-  - **Description**: A GraphQL mutation that will be used to create the api resource. (See basic example below for an example of what this looks like)
+  - **Description**: A GraphQL mutation that will be used to create the api resource.
    
 ### update_mutation
    - **Required**: true
   - **Type**: string (multi-line)
-  - **Description**: A GraphQL mutation that will be used to update the api resource. (See basic example below for an example of what this looks like)
+  - **Description**: A GraphQL mutation that will be used to update the api resource.
   
 ### delete_mutation
   - **Required**: true
   - **Type**: string (multi-line)
-  - **Description**: A GraphQL mutation that will be used to delete the api resource. (See basic example below for an example of what this looks like)
+  - **Description**: A GraphQL mutation that will be used to delete the api resource.
 
 ### read_query
   - **Required**: true
   - **Type**: string (multi-line)
-  - **Description**: A GraphQL query that will be used to query the api resource after it has been created. (See basic example below for an example of what this looks like)
+  - **Description**: A GraphQL query that will be used to query the api resource after it has been created.
 
 ### mutation_keys
   - **Required**: true
@@ -84,11 +87,11 @@ resource "graphql_mutation" "basic_mutation" {
 ### computed_update_operation_variables (This is where the magic happens)
   - **Type**: map(string)
   - **Desciption**: A computed map that combines any computed variables with the `mutation_variables` input based on what is provided in the `mutation_keys` input. 
-    - This is also useful for outputing properties of the response object and using it on other resources (if want to avoid that whole json decode thing mentioned above).
+    - This is also useful for outputing properties of the response object and using it on other resources (if you want to avoid that whole json decode thing mentioned above).
 
 ## Handling Update & Destroy
 
->This provider makes it simple to update and destroy api resources using computed properties (such as IDs). Since most delete and update mutations require a computed identifier for the object, this provider will keep track of the object's computed identifiers in state (or any other properties you ask it to keep track of).
+>This provider makes it simple to update and destroy api resources using computed properties (such as IDs). Since most delete and update mutations require a computed identifier, this provider will keep track of the object's computed identifiers (or any other properties you ask it to keep track of) in state.
 
 ### Defining computed variables:
 
@@ -113,11 +116,11 @@ As mentioned above, you define variables that _you_ want terraform to keep track
   ```
 
   In this example, `todo.id` describes the property we want to collect from the response object. 
-  >NOTE: Since it is idiomatic for GraphQL server responses to return objects with a "data" parent property, the "data" property is implcit. However, you can define the mutation key as "data.todo.id" if that makes you sleep better at night.
+  >NOTE: Since it is idiomatic for GraphQL server responses to return objects with a "data" parent property, the "data" property is implicit. However, you can define the mutation key as "data.todo.id" if that makes you sleep better at night.
 
   To add to this, we can collect N... variables using `mutation_keys`. 
 
-  For example, we can collect both the "id" and the "text" property off of a todo in the above example by defining `mutation_keys` as:
+  For example, we can collect both the "id" and the "text" property off of a `todo` response by defining `mutation_keys` as:
   ```hcl
     mutation_keys = {
       "id" = "todo.id"
@@ -180,7 +183,7 @@ mutation updateUser($userID: String!, $firstName: String!, $lastName: String!, $
 ### Delete Mutation Example
 ```hcl
 mutation deleteUser($userID: String!) {
-  deleteUser(userID: $userID) {
+  deleteUser(userID: $userID) {-
     id
   }
 }

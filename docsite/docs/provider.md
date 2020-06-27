@@ -3,7 +3,8 @@ id: provider
 title: Provider Setup
 ---
 
->This plugin provides a powerful way to automate GraphQL api resources using terraform.
+## Synopsis 
+This plugin provides a powerful way to automate GraphQL API resources using terraform.
 
 ## Provider Installation
 
@@ -29,8 +30,8 @@ provider "graphql" {
 
 ### url
   - **Type**: `string`
-  - **Description**: `The graphql api url to the provider will use to make requests`
+  - **Description**: `The GraphQL API url that the provider will use to make requests`
 
 ### headers
   - **Type**: `map(string)`
-  - **Desciption**: `Any http headers that the graphql api requires. (eg; Authentication; x-api-key; etc)`
+  - **Desciption**: `Any http headers that the GraphQL API requires. (eg; Authentication; x-api-key; etc)`
