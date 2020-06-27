@@ -70,3 +70,10 @@ p a {
 span ul li a {
     color: #E10098;
 }
+
+blockquote {
+    background-color: rgba(225, 0, 152, 0.26);
+    border-left: 8px solid #E10098;
+    padding: 15px 30px 15px 15px;
+    color: black;
+}

@@ -4,23 +4,11 @@
     "next": "Next",
     "previous": "Previous",
     "docs": {
-      "data_advanced": {
-        "title": "- advanced example -"
-      },
-      "data_basic": {
-        "title": "- basic example -"
-      },
       "data_graphql_query": {
         "title": "graphql_query"
       },
       "provider": {
         "title": "Provider Setup"
-      },
-      "resource_advanced": {
-        "title": "- advanced example -"
-      },
-      "resource_basic": {
-        "title": "- basic example -"
       },
       "resource_graphql_mutation": {
         "title": "graphql_mutation"

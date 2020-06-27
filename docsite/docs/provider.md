@@ -3,7 +3,7 @@ id: provider
 title: Provider Setup
 ---
 
->This provider provides a powerful way to automate GraphQL api resources using terraform.
+>This plugin provides a powerful way to automate GraphQL api resources using terraform.
 
 ## Provider Installation
 
