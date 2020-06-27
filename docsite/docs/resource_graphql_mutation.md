@@ -175,6 +175,7 @@ mutation updateUser($userID: String!, $firstName: String!, $lastName: String!, $
     email
   }
 }
+```
 
 ### Delete Mutation Example
 ```hcl
