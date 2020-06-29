@@ -7,12 +7,12 @@ import (
 func dataSourceGraphql() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"read_query": {
+			"query": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"read_query_variables": {
+			"query_variables": {
 				Type: schema.TypeMap,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -31,7 +31,7 @@ func dataSourceGraphql() *schema.Resource {
 }
 
 func dataSourceGraphqlQuery(d *schema.ResourceData, m interface{}) error {
-	queryResponseBytes, err := QueryExecute(d, m, "read_query", "read_query_variables")
+	queryResponseBytes, err := QueryExecute(d, m, "query", "query_variables")
 	if err != nil {
 		return err
 	}
