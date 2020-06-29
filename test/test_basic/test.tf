@@ -21,6 +21,17 @@ resource "graphql_mutation" "basic_mutation" {
   }
 }
 
+data "graphql_query" "basic_query" {
+  depends_on = [graphql_mutation.basic_mutation]
+  query = file("./queries/readQuery")
+  query_variables = {}
+}
+
+
 output "mutation_output" {
   value = graphql_mutation.basic_mutation
+}
+
+output "query_output" {
+  value = data.graphql_query.basic_query
 }

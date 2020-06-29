@@ -4,24 +4,24 @@ title: graphql_query
 ---
 
 ## Synopsis
-This provider contains a single data source, `graphql_query`, that is used for querying existing resources from a GraphQL API.
+This provider contains a single data source, `graphql_query`, that is used for querying, or creating resources using a GraphQL API. This data source is appropriate when you need to read/create any resources without managing its full lifecycle as you would with the `graphql_mutation` resource.  
 
 ## Usage Overview
 ```hcl
 data "graphql_query" "basic_query" {
-  read_query_variables = {}
-  read_query     = file("./path/to/query/file")
+  query_variables = {}
+  query     = file("./path/to/query/file")
 }
 ```
 
 ## Inputs
 
-### read_query_variables
+### query_variables
   - **Required**: true
   - **Type**: map(string)
   - **Description**: A map of any variables that will be used in your query
 
-### read_query
+### query
   - **Required**: true
   - **Type**: string (multi-line)
   - **Desciption**: The graphql query. ( See basic example below for what that looks like.)
@@ -38,8 +38,8 @@ data "graphql_query" "basic_query" {
 Just like graphql on its own, this data source takes in the query variables, and the query itself:
 ```hcl
 data "graphql_query" "basic_query" {
-  read_query_variables = {} # this query does not take any variables as input
-  read_query     = <<EOF
+  query_variables = {} # this query does not take any variables as input
+  query     = <<EOF
 query findTodos{
   todo {
     id
@@ -61,12 +61,12 @@ The query itself can be referenced in-line, as shown above, or it can be referen
 ```hcl
 data "graphql_query" "advanced_query" {
 
-  read_query_variables = {
+  query_variables = {
       "name"  = "Jimmy Dean"
       "email" = "jimmydean@jdthesausageman.com"
   }
 
-  read_query  = file("${path.module}/queries/readQuery")
+  query  = file("${path.module}/queries/readQuery")
 }
 ```
 
@@ -84,7 +84,7 @@ query getUser($name: String!, $email: String!) {
 
 As you can see above, if a query requires a user object as a parameter, you can build the object inline on the query and fill in the properties using variables. 
 
-> NOTE: This provider does not currently support usage of complex objects as variables. read_query_variables must be a map of string.
+> NOTE: This provider does not currently support usage of complex objects as variables. query_variables must be a map of string.
 
 The `query_response` output would be a json encoded object with the following structure: 
 
