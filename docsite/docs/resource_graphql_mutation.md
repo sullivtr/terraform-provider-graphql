@@ -45,15 +45,10 @@ resource "graphql_mutation" "basic_mutation" {
   - **Description**: A map of any variables that will be used in the read query for the resource's lifecycle. 
 
 ### delete_mutation_variables
-  - **Type**: map(string)
-  - **Desciption**: A computed map based on the result of what is provided in the `compute_mutation_keys` input. 
-  
-  >NOTE: delete_mutation_variables are merged with any variables that are computed based on the compute_mutation_keys input into the computed_delete_operation_variables output (similar to computed_update_operation_variables).
-
-### delete_mutation_variables
   - **Required**: false
   - **Type**: map(string)
   - **Description**: A map of any variables that will be used in the delete mutation for the resource's lifecycle (This is automatically combined with any computed variables). 
+  >NOTE: delete_mutation_variables are merged with any variables that are computed based on the compute_mutation_keys input. The result is the computed_delete_operation_variables output (similar to computed_update_operation_variables).
 
 ### create_mutation
   - **Required**: true
