@@ -10,13 +10,16 @@ resource "graphql_mutation" "basic_mutation" {
     "text" = var.todo_text
     "userId" = var.todo_user_id
   }
+  delete_mutation_variables = {
+    "testvar1" = "testval2"
+  }
   read_query_variables = {}
   create_mutation = file("./queries/createMutation")
   update_mutation = file("./queries/updateMutation")
   delete_mutation = file("./queries/deleteMutation")
   read_query      = file("./queries/readQuery")
 
-  mutation_keys = {
+  compute_mutation_keys = {
     "id" = "todo.id"
   }
 }
@@ -34,4 +37,8 @@ output "mutation_output" {
 
 output "query_output" {
   value = data.graphql_query.basic_query
+}
+
+output "computed_delete_variables" {
+  value = graphql_mutation.basic_mutation.computed_delete_operation_variables
 }

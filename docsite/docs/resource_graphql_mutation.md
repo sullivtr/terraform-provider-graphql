@@ -20,7 +20,7 @@ resource "graphql_mutation" "basic_mutation" {
     "email" = "thewurst@jimmydean.com"
   }
 
-  mutation_keys = {
+  compute_mutation_keys = {
     "id" = "user.id"
   }
 
@@ -44,6 +44,17 @@ resource "graphql_mutation" "basic_mutation" {
   - **Type**: map(string)
   - **Description**: A map of any variables that will be used in the read query for the resource's lifecycle. 
 
+### delete_mutation_variables
+  - **Type**: map(string)
+  - **Desciption**: A computed map based on the result of what is provided in the `compute_mutation_keys` input. 
+  
+  >NOTE: delete_mutation_variables are merged with any variables that are computed based on the compute_mutation_keys input into the computed_delete_operation_variables output (similar to computed_update_operation_variables).
+
+### delete_mutation_variables
+  - **Required**: false
+  - **Type**: map(string)
+  - **Description**: A map of any variables that will be used in the delete mutation for the resource's lifecycle (This is automatically combined with any computed variables). 
+
 ### create_mutation
   - **Required**: true
   - **Type**: string (multi-line)
@@ -64,12 +75,12 @@ resource "graphql_mutation" "basic_mutation" {
   - **Type**: string (multi-line)
   - **Description**: A GraphQL query that will be used to query the api resource after it has been created.
 
-### mutation_keys
+### compute_mutation_keys
   - **Required**: true
   - **Type**: map(string)
   - **Description**: A map representing the hierarchy of your response object leading to the object properties that will be used during a terraform destroy & update operation.
   
-  **See the "Handling Update & Destroy" section below** for an overview of the `mutation_keys` input usage. 
+  **See the "Handling Update & Destroy" section below** for an overview of the `compute_mutation_keys` input usage. 
 
 ## Outputs
 
@@ -77,17 +88,15 @@ resource "graphql_mutation" "basic_mutation" {
   - **Type**: string (json encoded http response)
   - **Desciption**: A computed json encoded http response object received from the query.
     - To use properties from this response, leverage Terraform's built in [jsondecode](https://www.terraform.io/docs/configuration/functions/jsondecode.html) function.
- 
-### delete_mutation_variables
-  - **Type**: map(string)
-  - **Desciption**: A computed map based on the result of what is provided in the `mutation_keys` input. 
-  
-  >NOTE: delete mutation variables are fully calculated at the moment. We expect to support merged delete mutation variables in a future release (similar to computed_update_operation_variables).
 
-### computed_update_operation_variables (This is where the magic happens)
+### computed_update_operation_variables
   - **Type**: map(string)
-  - **Desciption**: A computed map that combines any computed variables with the `mutation_variables` input based on what is provided in the `mutation_keys` input. 
+  - **Desciption**: A computed map that combines any computed variables with the `mutation_variables` input based on what is provided in the `compute_mutation_keys` input. 
     - This is also useful for outputing properties of the response object and using it on other resources (if you want to avoid that whole json decode thing mentioned above).
+  
+### computed_delete_operation_variables
+  - **Type**: map(string)
+  - **Desciption**: A computed map that combines any computed variables with the `delete_mutation_variables` input based on what is provided in the `compute_mutation_keys` input. 
 
 ## Handling Update & Destroy
 
@@ -95,7 +104,7 @@ resource "graphql_mutation" "basic_mutation" {
 
 ### Defining computed variables:
 
-As mentioned above, you define variables that _you_ want terraform to keep track of using the `mutation_keys` input. 
+As mentioned above, you define variables that _you_ want terraform to keep track of using the `compute_mutation_keys` input. 
 
   **Example**: We have a read query that returns an object with this structure: 
   ```json
@@ -108,9 +117,9 @@ As mentioned above, you define variables that _you_ want terraform to keep track
       } 
   }
   ```
-  We can define our `mutation_keys` as:
+  We can define our `compute_mutation_keys` as:
   ```hcl
-  mutation_keys = {
+  compute_mutation_keys = {
     "id" = "todo.id"
   }
   ```
@@ -118,11 +127,11 @@ As mentioned above, you define variables that _you_ want terraform to keep track
   In this example, `todo.id` describes the property we want to collect from the response object. 
   >NOTE: Since it is idiomatic for GraphQL server responses to return objects with a "data" parent property, the "data" property is implicit. However, you can define the mutation key as "data.todo.id" if that makes you sleep better at night.
 
-  To add to this, we can collect N... variables using `mutation_keys`. 
+  To add to this, we can collect N... variables using `compute_mutation_keys`. 
 
-  For example, we can collect both the "id" and the "text" property off of a `todo` response by defining `mutation_keys` as:
+  For example, we can collect both the "id" and the "text" property off of a `todo` response by defining `compute_mutation_keys` as:
   ```hcl
-    mutation_keys = {
+    compute_compute_mutation_keys = {
       "id" = "todo.id"
       "my_todo_text" = "todo.text"
     }
@@ -130,7 +139,7 @@ As mentioned above, you define variables that _you_ want terraform to keep track
   
 ### Using computed variables
 
-The only thing that we have to do to make use of the properties collected from `mutation_keys` is to use those variables in your update and/or delete mutations.
+The only thing that we have to do to make use of the properties collected from `compute_mutation_keys` is to use those variables in your update and/or delete mutations.
 
   **Example**: We define a delete mutation that looks like this: 
   ```
@@ -141,11 +150,11 @@ The only thing that we have to do to make use of the properties collected from `
   }
   ```
 
-  Since we told `mutation_keys` to collect the `id` property, and we defined it as `id` in the `mutation_keys` map, the delete mutation will automatically utilize the value returned from `todo.id` (which is collected during the read_query execution after a create or update execution). You could similary pass in a variable called `my_todo_text` to the mutation.
+  Since we told `compute_mutation_keys` to collect the `id` property, and we defined it as `id` in the `compute_mutation_keys` map, the delete mutation will automatically utilize the value returned from `todo.id` (which is collected during the read_query execution after a create or update execution). You could similary pass in a variable called `my_todo_text` to the mutation.
 
   This resource outputs `computed_update_operation_variables` and `delete_mutation_variables`, so you can always verify that they are reading values that you expect.
 
-  The principles outlined above apply the same way to the `update_mutation`. If you need to utilize computed values in your update mutation, define them in your `mutation_keys` input. 
+  The principles outlined above apply the same way to the `update_mutation`. If you need to utilize computed values in your update mutation, define them in your `compute_mutation_keys` input. 
 
 
 ## Full lifecyle graphql_mutation examples

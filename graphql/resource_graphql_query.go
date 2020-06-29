@@ -46,9 +46,9 @@ func resourceGraphqlMutation() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Computed: true,
+				Optional: true,
 			},
-			"mutation_keys": {
+			"compute_mutation_keys": {
 				Type: schema.TypeMap,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -56,6 +56,13 @@ func resourceGraphqlMutation() *schema.Resource {
 				Required: true,
 			},
 			"computed_update_operation_variables": {
+				Type: schema.TypeMap,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Computed: true,
+			},
+			"computed_delete_operation_variables": {
 				Type: schema.TypeMap,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -120,8 +127,9 @@ func resourceGraphqlMutationCreateUpdate(d *schema.ResourceData, m interface{}) 
 }
 
 func resourceGraphqlRead(d *schema.ResourceData, m interface{}) error {
-	dataKeys := d.Get("mutation_keys").(map[string]interface{})
+	dataKeys := d.Get("compute_mutation_keys").(map[string]interface{})
 	mutationVariables := d.Get("mutation_variables").(map[string]interface{})
+	deleteMutationVariables := d.Get("delete_mutation_variables").(map[string]interface{})
 	queryResponseBytes, err := QueryExecute(d, m, "read_query", "read_query_variables")
 	if err != nil {
 		return err
@@ -139,12 +147,20 @@ func resourceGraphqlRead(d *schema.ResourceData, m interface{}) error {
 	// Set delete mutation variables
 	mvks, err := computeMutationVariableKeys(dataKeys, robj)
 	if err != nil {
-		log.Printf("[ERROR] Uunable to compute mutation variable keys: %s ", err)
+		log.Printf("[ERROR] Unable to compute mutation variable keys: %s ", err)
 	} else {
-		// Set delete mutation variables
-		if err := d.Set("delete_mutation_variables", mvks); err != nil {
+		// Combine computed delete mutation variables with provided input variables
+		dvks := make(map[string]string)
+		for k, v := range deleteMutationVariables {
+			dvks[k] = v.(string)
+		}
+		for k, v := range mvks {
+			dvks[k] = v
+		}
+		if err := d.Set("computed_delete_operation_variables", dvks); err != nil {
 			return err
 		}
+
 		// Combine computed update mutation variables with provided input variables
 		for k, v := range mutationVariables {
 			mvks[k] = v.(string)
@@ -158,7 +174,7 @@ func resourceGraphqlRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceGraphqlMutationDelete(d *schema.ResourceData, m interface{}) error {
-	_, err := QueryExecute(d, m, "delete_mutation", "delete_mutation_variables")
+	_, err := QueryExecute(d, m, "delete_mutation", "computed_delete_operation_variables")
 	if err != nil {
 		return err
 	}
