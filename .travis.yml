@@ -3,6 +3,10 @@ language: go
 env:
   - tf_version=0.12.26
 
+branches:
+  only:
+  - master
+
 go:
   - 1.12.x
   - master
