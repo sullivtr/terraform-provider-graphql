@@ -1,7 +1,18 @@
-# terraform-provider-graphql 
-[![Build Status](https://travis-ci.com/sullivtr/terraform-provider-graphql.svg?branch=master)](https://travis-ci.com/sullivtr/terraform-provider-graphql)  [![Current Release](https://img.shields.io/github/v/release/sullivtr/terraform-provider-graphql)](https://img.shields.io/github/v/release/sullivtr/terraform-provider-graphql) [![Downloads](https://img.shields.io/github/downloads/sullivtr/terraform-provider-graphql/total?color=orange)](https://img.shields.io/github/downloads/sullivtr/terraform-provider-graphql/total?color=orange) [![Last Commit](https://img.shields.io/github/last-commit/sullivtr/terraform-provider-graphql?color=ff69b4)](https://img.shields.io/github/last-commit/sullivtr/terraform-provider-graphql?color=ff69b4)
+<p align="center">
+  <img src="assets/icon.png" alt="graphql provider" width="400"/>
 
-<img src="assets/tf.png" alt="terraform" width="300"/>&nbsp;&nbsp;&nbsp;&nbsp;<img src="assets/gql.png" alt="graphql" width="385"/>
+  <h3 align="center">Terraform GraphQL Provider</h3>
+
+  <p align="center">
+    <a href="https://travis-ci.com/sullivtr/terraform-provider-graphql"><img alt="GitHub release" src="https://travis-ci.com/sullivtr/terraform-provider-graphql.svg?branch=master"></a>
+    <a href="https://img.shields.io/github/v/release/sullivtr/terraform-provider-graphql"><img alt="GitHub release" src="https://img.shields.io/github/v/release/sullivtr/terraform-provider-graphql"></a>
+    <a href="https://img.shields.io/github/downloads/sullivtr/terraform-provider-graphql/total?color=orange"><img alt="GitHub release" src="https://img.shields.io/github/downloads/sullivtr/terraform-provider-graphql/total?color=orange"></a>
+    <a href="https://img.shields.io/github/last-commit/sullivtr/terraform-provider-graphql?color=ff69b4"><img alt="GitHub release" src="https://img.shields.io/github/last-commit/sullivtr/terraform-provider-graphql?color=ff69b4"></a>
+  </p>
+</p>
+
+---
+
 
 
 ## Synopsis
