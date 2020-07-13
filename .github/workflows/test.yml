@@ -36,4 +36,4 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.INTEGRATION_TOKEN }}
 
     - name: Run test
-      run: make clean && make test
+      run: make test
