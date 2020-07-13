@@ -2,8 +2,7 @@ GOPATH := $(shell go env | grep GOPATH | sed 's/GOPATH="\(.*\)"/\1/')
 PATH := $(GOPATH)/bin:$(PATH)
 export $(PATH)
 GIT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
-TEST_DIR := test/
-TEST_DESTS := $(dir $(wildcard ./test/*/test.tf))
+TEST_DESTS := $(dir $(wildcard ./test/*/*test.tf))
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -31,7 +30,7 @@ build: clean fetch ## publishes in dry run mode
 	$(GOPATH)/bin/goreleaser --skip-publish --snapshot
 
 
-.PHONY: copyplugins
+.PHONY: test copyplugins
 
 copyplugins: ## copy plugins to test folders
 	$(eval COPY_FILES := $(wildcard ./dist/terraform-provider-graphql*/*))
@@ -40,8 +39,8 @@ copyplugins: ## copy plugins to test folders
 	@sleep 1
 	@mkdir -p $(TEST_FOLDERS)
 	@for o in $(OS_ARCH); do \
-	  for f in $(TEST_DESTS); do \
-		  cp ./dist/terraform-provider-graphql_$$o/* $$f/terraform.d/plugins/$$o; \
+		for f in $(TEST_DESTS); do \
+			cp ./dist/terraform-provider-graphql_$$o/* $$f/terraform.d/plugins/$$o; \
 		done; \
 	done
 
