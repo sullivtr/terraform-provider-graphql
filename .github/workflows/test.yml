@@ -1,0 +1,39 @@
+name: test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]  
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.14
+
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 0.12.28
+        terraform_wrapper: false
+
+    - name: Build
+      uses: goreleaser/goreleaser-action@v2.1.1
+      with:
+        version: latest
+        args: release --snapshot --skip-validate --skip-publish
+      env:
+        GITHUB_TOKEN: ${{ secrets.INTEGRATION_TOKEN }}
+
+    - name: Run test
+      run: make test
