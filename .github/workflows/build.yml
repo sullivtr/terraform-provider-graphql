@@ -26,5 +26,4 @@ jobs:
       with:
         version: latest
         args: release --snapshot --skip-validate --skip-publish
-      env:
-        GITHUB_TOKEN: ${{ secrets.INTEGRATION_TOKEN }}
+
