@@ -13,19 +13,6 @@ fetch: ## download makefile dependencies
 clean: ## cleans previously built binaries
 	rm -rf ./dist
 
-publish: clean fetch ## publishes assets
-	@if [ "${GITHUB_TOKEN}" == "" ]; then\
-	  echo "GITHUB_TOKEN is not set";\
-		exit 1;\
-	fi
-	@if [ "$(GIT_BRANCH)" != "master" ]; then\
-	  echo "Current branch is: '$(GIT_BRANCH)'.  Please publish from 'master'";\
-		exit 1;\
-	fi
-	git tag -a $(VERSION) -m "$(MESSAGE)"
-	git push --follow-tags
-	$(GOPATH)/bin/goreleaser
-
 build: clean fetch ## publishes in dry run mode
 	$(GOPATH)/bin/goreleaser --skip-publish --snapshot
 

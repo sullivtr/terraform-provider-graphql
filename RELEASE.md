@@ -8,11 +8,9 @@ To create a local (non-release) build, just run `make build`
 ### Releasing:
 
 #### Requirements:
-1. A GITHUB_TOKEN environment variable must be set ([see here](https://github.com/settings/tokens))
-1. A new tag will be created with the provided commit message automatically.
+1. Releases can only be published from master
+2. Releases are only published when a tag with the following schema is added: `v.*.*.*`
+3. All builds and tests must be passing prior to any merges to the master branch. 
+4. After merging a pull request on master, add a tag for the new release. Once the tag is added, the `release` github action will automatically publish a release with the tag.
 
-```bash
-export GITHUB_TOKEN=some-token-value
-make publish VERSION=1.0 MESSAGE="Initial Release"
-```
 

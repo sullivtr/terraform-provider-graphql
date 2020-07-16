@@ -11,6 +11,8 @@ Please note we have a code of conduct, please follow it in all your interactions
    build.
 2. Update the README.md with details of changes to the provider, including any input variable and outputs changes, or general changes in functionality.
 3. Update or add tests to reflect changes you make, and ensure tests are passing. 
+   a. This project currently has a single E2E test, which covers the full usage of this provider. Depending on the changes you make, it may be necessary to add an additional test case. 
+   > NOTE: The E2E test spins up a very basic graphql server in the background in order to test realistic GraphQL scenarios. The scope of your changes may require adding functionality to the test's graphql server, which is located [HERE](test/gql-server/server.go).
 4. You may merge the Pull Request in once you have the sign-off of at least of of this repository's maintainers, or if you 
    do not have permission to do that, you may request a maintainer to merge it for you.
 
