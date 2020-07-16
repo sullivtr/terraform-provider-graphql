@@ -13,9 +13,9 @@ NC='\033[0m'
 
 if [ $exit_status -ne 0 ]; then
   $exit_status=1
-  echo -e $"\n${RED}SOME TESTS FAILED${NC}\n"
+  echo -e $"\n${RED}TESTING FAILED. Review test logs for details.${NC}\n"
 else
-  echo -e $"\n${GREEN}ALL TESTS WERE SUCCESSFUL${NC}\n"
+  echo -e $"\n${GREEN}TESTING COMPLETED SUCCESSFULLY${NC}\n"
 fi
 
 echo "Stopping graphql test server"
