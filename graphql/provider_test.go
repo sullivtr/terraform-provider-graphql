@@ -14,7 +14,7 @@ var testAccProvider *schema.Provider
 func init() {
 	testAccProvider = Provider().(*schema.Provider)
 	testAccProviders = map[string]terraform.ResourceProvider{
-		"grapgql": testAccProvider,
+		"graphql": testAccProvider,
 	}
 }
 
@@ -29,12 +29,7 @@ func TestProvider_impl(t *testing.T) {
 }
 
 func testAccPreCheck(t *testing.T) {
-	if os.Getenv("TF_GRAPHQL_URL") != "" {
+	if v := os.Getenv("TF_GRAPHQL_URL"); v == "" {
 		t.Fatal("TF_GRAPHQL_URL must be set for acceptance tests")
-	}
-
-	err := testAccProvider.Configure(terraform.NewResourceConfig(nil))
-	if err != nil {
-		t.Fatal(err)
 	}
 }
