@@ -1,6 +1,7 @@
 GO111MODULE=on
 cd gql-server
 (go get && go run server.go &)
+sleep 2
 cd ..
 go test -i
 go test
