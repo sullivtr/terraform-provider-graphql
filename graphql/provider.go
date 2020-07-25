@@ -9,9 +9,10 @@ func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"url": {
-				Required: true,
-				Type:     schema.TypeString,
-				ForceNew: true,
+				Required:    true,
+				Type:        schema.TypeString,
+				ForceNew:    true,
+				DefaultFunc: schema.EnvDefaultFunc("TF_GRAPHQL_URL", nil),
 			},
 			"headers": {
 				Type: schema.TypeMap,

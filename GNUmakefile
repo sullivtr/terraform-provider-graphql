@@ -2,7 +2,7 @@ GOPATH := $(shell go env | grep GOPATH | sed 's/GOPATH="\(.*\)"/\1/')
 PATH := $(GOPATH)/bin:$(PATH)
 export $(PATH)
 GIT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
-TEST_DESTS := $(dir $(wildcard ./test/*/*test.tf))
+TEST_DESTS := $(dir $(wildcard ./e2e/*/*test.tf))
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -32,6 +32,6 @@ copyplugins: ## copy plugins to test folders
 	done
 
 test: copyplugins ## test
-	@cd test && $(MAKE) test
+	@cd e2e && $(MAKE) test
 
 fulltest: build test ## build and test

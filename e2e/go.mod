@@ -1,4 +1,4 @@
-module github.com/sullivtr/terraform-provider-graphql/test
+module github.com/sullivtr/terraform-provider-graphql/e2e
 
 go 1.12
 
