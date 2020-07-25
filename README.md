@@ -12,7 +12,6 @@
     </a>
     <a href="https://github.com/sullivtr/terraform-provider-graphql/releases/latest"><img alt="Release" src="https://img.shields.io/github/v/release/sullivtr/terraform-provider-graphql"></a>
     <a href="https://img.shields.io/github/downloads/sullivtr/terraform-provider-graphql/total?color=orange"><img alt="GitHub release" src="https://img.shields.io/github/downloads/sullivtr/terraform-provider-graphql/total?color=orange"></a>
-    <a href="https://img.shields.io/github/last-commit/sullivtr/terraform-provider-graphql?color=ff69b4"><img alt="GitHub release" src="https://img.shields.io/github/last-commit/sullivtr/terraform-provider-graphql?color=ff69b4"></a>
   </p>
 </p>
 
