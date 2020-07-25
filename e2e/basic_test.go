@@ -3,7 +3,6 @@ package e2e
 import (
 	"testing"
 
-	"github.com/gruntwork-io/terratest/modules/logger"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
 )
@@ -19,13 +18,13 @@ func TestBasicCreateUpdateMutations(t *testing.T) {
 		// Set the path to the Terraform code that will be tested.
 		TerraformDir: "./test_basic",
 		VarFiles:     varFileCreate,
-		Logger:       logger.Discard,
+		// Logger:       logger.Discard,
 	}
 
 	terraformOptionsUpdate := &terraform.Options{
 		TerraformDir: "./test_basic",
 		VarFiles:     varFileUpdate,
-		Logger:       logger.Discard,
+		// Logger:       logger.Discard,
 	}
 
 	terraform.InitAndApply(t, terraformOptionsCreate)

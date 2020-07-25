@@ -1,4 +1,4 @@
-name: test
+name: acceptance tests
 
 on:
   push:
@@ -27,11 +27,5 @@ jobs:
         terraform_version: 0.12.28
         terraform_wrapper: false
 
-    - name: Build
-      uses: goreleaser/goreleaser-action@v2.1.1
-      with:
-        version: latest
-        args: release --snapshot --skip-validate --skip-publish
-
     - name: Run test
-      run: make test
+      run: go test -v ./... | awk '!/\[no test files\]/ {print}'
