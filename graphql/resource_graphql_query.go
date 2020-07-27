@@ -76,7 +76,7 @@ func resourceGraphqlMutation() *schema.Resource {
 			},
 			"existing_hash": {
 				Type:        schema.TypeString,
-				Description: "Represents the state of existence of a mutation in order to support intellegent updates.",
+				Description: "Represents the state of existence of a mutation in order to support intelligent updates.",
 				Computed:    true,
 			},
 		},
@@ -94,7 +94,7 @@ func resourceGraphqlMutationCreateUpdate(d *schema.ResourceData, m interface{}) 
 	mutationExistsHash := d.Get("existing_hash").(string)
 
 	if mutationExistsHash == "" {
-		queryResponseObj, err = QueryExecute(d, m, "create_mutation", "mutation_variables")
+		queryResponseObj, err = queryExecute(d, m, "create_mutation", "mutation_variables")
 		if err != nil {
 			return err
 		}
@@ -115,7 +115,7 @@ func resourceGraphqlMutationCreateUpdate(d *schema.ResourceData, m interface{}) 
 			return err
 		}
 
-		queryResponseObj, err = QueryExecute(d, m, "update_mutation", "computed_update_operation_variables")
+		queryResponseObj, err = queryExecute(d, m, "update_mutation", "computed_update_operation_variables")
 		if err != nil {
 			return err
 		}
@@ -130,7 +130,7 @@ func resourceGraphqlRead(d *schema.ResourceData, m interface{}) error {
 	dataKeys := d.Get("compute_mutation_keys").(map[string]interface{})
 	mutationVariables := d.Get("mutation_variables").(map[string]interface{})
 	deleteMutationVariables := d.Get("delete_mutation_variables").(map[string]interface{})
-	queryResponseBytes, err := QueryExecute(d, m, "read_query", "read_query_variables")
+	queryResponseBytes, err := queryExecute(d, m, "read_query", "read_query_variables")
 	if err != nil {
 		return err
 	}
@@ -174,7 +174,7 @@ func resourceGraphqlRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceGraphqlMutationDelete(d *schema.ResourceData, m interface{}) error {
-	_, err := QueryExecute(d, m, "delete_mutation", "computed_delete_operation_variables")
+	_, err := queryExecute(d, m, "delete_mutation", "computed_delete_operation_variables")
 	if err != nil {
 		return err
 	}

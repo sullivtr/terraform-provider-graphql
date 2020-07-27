@@ -34,14 +34,14 @@ func Provider() terraform.ResourceProvider {
 }
 
 func graphqlConfigure(d *schema.ResourceData) (interface{}, error) {
-	config := &GraphqlProviderConfig{
+	config := &graphqlProviderConfig{
 		GQLServerUrl:   d.Get("url").(string),
 		RequestHeaders: d.Get("headers").(map[string]interface{}),
 	}
 	return config, nil
 }
 
-type GraphqlProviderConfig struct {
+type graphqlProviderConfig struct {
 	GQLServerUrl   string
 	RequestHeaders map[string]interface{}
 }

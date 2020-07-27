@@ -3,6 +3,7 @@ package e2e
 import (
 	"testing"
 
+	"github.com/gruntwork-io/terratest/modules/logger"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
 )
@@ -18,13 +19,13 @@ func TestBasicCreateUpdateMutations(t *testing.T) {
 		// Set the path to the Terraform code that will be tested.
 		TerraformDir: "./test_basic",
 		VarFiles:     varFileCreate,
-		// Logger:       logger.Discard,
+		Logger:       logger.Discard,
 	}
 
 	terraformOptionsUpdate := &terraform.Options{
 		TerraformDir: "./test_basic",
 		VarFiles:     varFileUpdate,
-		// Logger:       logger.Discard,
+		Logger:       logger.Discard,
 	}
 
 	terraform.InitAndApply(t, terraformOptionsCreate)
@@ -34,13 +35,13 @@ func TestBasicCreateUpdateMutations(t *testing.T) {
 	assert.Contains(t, output, initialTextOutput)
 
 	// Validate data source output
-	data_source_output, _ := terraform.OutputE(t, terraformOptionsCreate, "query_output")
-	assert.Contains(t, data_source_output, initialTextOutput)
+	dataSourceOutput, _ := terraform.OutputE(t, terraformOptionsCreate, "query_output")
+	assert.Contains(t, dataSourceOutput, initialTextOutput)
 
 	// Validate computed delete variables
-	delete_variable_output, _ := terraform.OutputE(t, terraformOptionsCreate, "computed_delete_variables")
-	assert.Contains(t, delete_variable_output, "\"id\" =")
-	assert.Contains(t, delete_variable_output, "\"testvar1\" =")
+	deleteVariableOutput, _ := terraform.OutputE(t, terraformOptionsCreate, "computed_delete_variables")
+	assert.Contains(t, deleteVariableOutput, "\"id\" =")
+	assert.Contains(t, deleteVariableOutput, "\"testvar1\" =")
 
 	// Run update & validate changes
 	terraform.InitAndApply(t, terraformOptionsUpdate)
