@@ -14,6 +14,7 @@
     <a href="https://github.com/sullivtr/terraform-provider-graphql/releases/latest"><img alt="Release" src="https://goreportcard.com/badge/github.com/sullivtr/terraform-provider-graphql?style=flat-square"></a>
   </p>
 </p>
+
 ---
 
 ## Synopsis
