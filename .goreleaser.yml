@@ -28,3 +28,4 @@ changelog:
     exclude:
     - '^docs:'
     - '^test:'
+    - '^lint:'

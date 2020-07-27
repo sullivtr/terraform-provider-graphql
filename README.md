@@ -11,6 +11,7 @@
       <img src="https://img.shields.io/codecov/c/github/sullivtr/terraform-provider-graphql?logo=codecov&style=flat-square" />
     </a>
     <a href="https://github.com/sullivtr/terraform-provider-graphql/releases/latest"><img alt="Release" src="https://img.shields.io/github/v/release/sullivtr/terraform-provider-graphql?logo=github&style=flat-square"></a>
+    <a href="https://github.com/sullivtr/terraform-provider-graphql/releases/latest"><img alt="Release" src="https://goreportcard.com/badge/github.com/sullivtr/terraform-provider-graphql?style=flat-square"></a>
   </p>
 </p>
 ---
