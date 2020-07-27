@@ -31,7 +31,7 @@ func dataSourceGraphql() *schema.Resource {
 }
 
 func dataSourceGraphqlQuery(d *schema.ResourceData, m interface{}) error {
-	queryResponseBytes, err := QueryExecute(d, m, "query", "query_variables")
+	queryResponseBytes, err := queryExecute(d, m, "query", "query_variables")
 	if err != nil {
 		return err
 	}

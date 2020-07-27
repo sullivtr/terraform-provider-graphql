@@ -4,14 +4,14 @@
   <h3 align="center">Terraform GraphQL Provider</h3>
 
   <p align="center">
-    <a href="https://github.com/sullivtr/terraform-provider-graphql/actions?query=workflow%3Abuild"><img alt="Build" src="https://github.com/sullivtr/terraform-provider-graphql/workflows/build/badge.svg"></a>
-    <a href="https://github.com/sullivtr/terraform-provider-graphql/actions?query=workflow%3A%22acceptance+tests%22"><img alt="Acceptance Tests" src="https://github.com/sullivtr/terraform-provider-graphql/workflows/acceptance%20tests/badge.svg"></a>
-    <a href="https://github.com/sullivtr/terraform-provider-graphql/actions?query=workflow%3A%22e2e+tests%22"><img alt="E2E Test" src="https://github.com/sullivtr/terraform-provider-graphql/workflows/e2e%20tests/badge.svg"></a>
+    <a href="https://github.com/sullivtr/terraform-provider-graphql/actions?query=workflow%3Abuild"><img alt="Build" src="https://img.shields.io/github/workflow/status/sullivtr/terraform-provider-graphql/build?label=build&logo=github&style=flat-square"></a>
+    <a href="https://github.com/sullivtr/terraform-provider-graphql/actions?query=workflow%3A%22acceptance+tests%22"><img alt="Acceptance Tests" src="https://img.shields.io/github/workflow/status/sullivtr/terraform-provider-graphql/acceptance%20tests?label=acceptance%20tests&logo=github&style=flat-square"></a>
+    <a href="https://github.com/sullivtr/terraform-provider-graphql/actions?query=workflow%3A%22e2e+tests%22"><img alt="E2E Test" src="https://img.shields.io/github/workflow/status/sullivtr/terraform-provider-graphql/e2e%20tests?label=e2e%20test&logo=github&style=flat-square"></a>
     <a href="https://codecov.io/gh/sullivtr/terraform-provider-graphql">
-      <img src="https://codecov.io/gh/sullivtr/terraform-provider-graphql/branch/master/graph/badge.svg" />
+      <img src="https://img.shields.io/codecov/c/github/sullivtr/terraform-provider-graphql?logo=codecov&style=flat-square" />
     </a>
-    <a href="https://github.com/sullivtr/terraform-provider-graphql/releases/latest"><img alt="Release" src="https://img.shields.io/github/v/release/sullivtr/terraform-provider-graphql"></a>
-    <a href="https://img.shields.io/github/downloads/sullivtr/terraform-provider-graphql/total?color=orange"><img alt="GitHub release" src="https://img.shields.io/github/downloads/sullivtr/terraform-provider-graphql/total?color=orange"></a>
+    <a href="https://github.com/sullivtr/terraform-provider-graphql/releases/latest"><img alt="Release" src="https://img.shields.io/github/v/release/sullivtr/terraform-provider-graphql?logo=github&style=flat-square"></a>
+    <a href="https://github.com/sullivtr/terraform-provider-graphql/releases/latest"><img alt="Release" src="https://goreportcard.com/badge/github.com/sullivtr/terraform-provider-graphql?style=flat-square"></a>
   </p>
 </p>
 

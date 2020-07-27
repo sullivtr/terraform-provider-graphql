@@ -9,11 +9,11 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
-func QueryExecute(d *schema.ResourceData, m interface{}, querySource, variableSource string) ([]byte, error) {
+func queryExecute(d *schema.ResourceData, m interface{}, querySource, variableSource string) ([]byte, error) {
 	query := d.Get(querySource).(string)
 	variables := d.Get(variableSource).(map[string]interface{})
-	apiURL := m.(*GraphqlProviderConfig).GQLServerUrl
-	headers := m.(*GraphqlProviderConfig).RequestHeaders
+	apiURL := m.(*graphqlProviderConfig).GQLServerUrl
+	headers := m.(*graphqlProviderConfig).RequestHeaders
 
 	var queryBodyBuffer bytes.Buffer
 

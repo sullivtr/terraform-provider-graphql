@@ -16,11 +16,11 @@ func TestComputeMutationVariableKeys(t *testing.T) {
 		t.Fatalf("Unable to unmarshal json response body %v", err)
 	}
 
-	compute_keys := make(map[string]interface{})
-	compute_keys["id_key"] = "todo.id"
-	compute_keys["other_computed_value"] = "todo.otherComputedValue"
+	computeKeys := make(map[string]interface{})
+	computeKeys["id_key"] = "todo.id"
+	computeKeys["other_computed_value"] = "todo.otherComputedValue"
 
-	m, err := computeMutationVariableKeys(compute_keys, robj)
+	m, err := computeMutationVariableKeys(computeKeys, robj)
 	if err != nil {
 		t.Fatalf("Unable to compute mutation keys from response object %v", err)
 	}

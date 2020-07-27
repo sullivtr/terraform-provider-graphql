@@ -9,16 +9,16 @@ import (
 )
 
 const (
-	read_data_response = `{"data": {"todo": {"id": "1", "text": "something todo", "userId": "900"}}}`
-	query_url          = "http://mock-gql-url.io"
+	readDataResponse = `{"data": {"todo": {"id": "1", "text": "something todo", "userId": "900"}}}`
+	queryUrl         = "http://mock-gql-url.io"
 
-	data_source_config = `
+	dataSourceConfig = `
 	data "graphql_query" "basic_query" {
 		query_variables = {}
 		query     =  file("../e2e/test_basic/queries/readQuery")
 	}
 `
-	resource_config_create = `
+	resourceConfigCreate = `
 	resource "graphql_mutation" "basic_mutation" {
 		mutation_variables = {
 			"text" = "something todo"
@@ -38,7 +38,7 @@ const (
 		}
 	}
 `
-	resource_config_update = `
+	resourceConfigUpdate = `
 	resource "graphql_mutation" "basic_mutation" {
 		mutation_variables = {
 			"text" = "something else"
@@ -69,7 +69,7 @@ func mockGqlServerResponse(req *http.Request) (*http.Response, error) {
 	reqBody := string(reqBytes)
 
 	if strings.Contains(reqBody, "findTodos") {
-		return httpmock.NewStringResponse(200, read_data_response), nil
+		return httpmock.NewStringResponse(200, readDataResponse), nil
 	}
 
 	return httpmock.NewStringResponse(200, ""), nil

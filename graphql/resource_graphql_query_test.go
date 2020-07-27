@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	os.Setenv("TF_GRAPHQL_URL", query_url)
+	os.Setenv("TF_GRAPHQL_URL", queryUrl)
 	os.Setenv("TF_ACC", "1")
 }
 
@@ -18,7 +18,7 @@ func TestAccGraphqlMutation_full(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("POST", query_url, mockGqlServerResponse)
+	httpmock.RegisterResponder("POST", queryUrl, mockGqlServerResponse)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -26,18 +26,18 @@ func TestAccGraphqlMutation_full(t *testing.T) {
 		CheckDestroy: testAccGraphqlMutationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: resource_config_create,
+				Config: resourceConfigCreate,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_update_operation_variables.id", "1"),
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_update_operation_variables.text", "something todo"),
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_update_operation_variables.userId", "900"),
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_delete_operation_variables.id", "1"),
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_delete_operation_variables.testvar1", "testval1"),
-					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "query_response", read_data_response),
+					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "query_response", readDataResponse),
 				),
 			},
 			{
-				Config: resource_config_update,
+				Config: resourceConfigUpdate,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_update_operation_variables.id", "1"),
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_update_operation_variables.text", "something else"),
