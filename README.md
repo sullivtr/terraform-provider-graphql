@@ -36,6 +36,6 @@ A [Terraform](https://terraform.io) [GraphQL](https://graphql.org/) provider to 
    
 # License
 
-Apache2 - See the included LICENSE file for more details.
+MPL-2 - See the included LICENSE file for more details.
 
 
