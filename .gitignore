@@ -1,9 +1,9 @@
 .terraform/**
 terraform-provider-graphql
-test/test_basic/terraform.tfstate
-test/test_basic/terraform.tfstate.backup
-test/test_basic/terraform.d
-test/test_basic/.terraform
+e2e/test_basic/terraform.tfstate
+e2e/test_basic/terraform.tfstate.backup
+e2e/test_basic/terraform.d
+e2e/test_basic/.terraform
 dist/
 *.log
 .secrets

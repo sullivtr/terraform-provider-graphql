@@ -31,7 +31,7 @@ jobs:
       uses: goreleaser/goreleaser-action@v2.1.1
       with:
         version: latest
-        args: release --snapshot --skip-validate --skip-publish
+        args: release --snapshot --skip-validate --skip-publish --skip-sign
 
     - name: Run test
       run: make test
