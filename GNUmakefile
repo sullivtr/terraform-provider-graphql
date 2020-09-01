@@ -14,14 +14,14 @@ clean: ## cleans previously built binaries
 	rm -rf ./dist
 
 build: clean fetch ## publishes in dry run mode
-	$(GOPATH)/bin/goreleaser --skip-publish --snapshot
+	$(GOPATH)/bin/goreleaser --skip-publish --snapshot --skip-sign 
 
 
 .PHONY: test copyplugins
 
 copyplugins: ## copy plugins to test folders
-	$(eval COPY_FILES := $(wildcard ./dist/terraform-provider-graphql*/*))
-	$(eval OS_ARCH := $(patsubst ./dist/terraform-provider-graphql_%/terraform-provider-graphql, %, $(COPY_FILES)))
+	$(eval COPY_FILES := $(wildcard ./dist/terraform-provider-graphql*/))
+	$(eval OS_ARCH := $(patsubst ./dist/terraform-provider-graphql_%/, %, $(COPY_FILES)))
 	$(eval TEST_FOLDERS := $(foreach p,$(OS_ARCH), $(patsubst %,%terraform.d/plugins/$p,$(TEST_DESTS))))
 	@sleep 1
 	@mkdir -p $(TEST_FOLDERS)

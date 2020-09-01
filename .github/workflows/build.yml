@@ -26,4 +26,6 @@ jobs:
       with:
         version: latest
         args: release --snapshot --skip-validate --skip-publish
+      env:
+        GPG_FINGERPRINT: ${{ secrets.GPG_FINGERPRINT }}
 
