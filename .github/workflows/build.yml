@@ -33,5 +33,5 @@ jobs:
         version: latest
         args: release --snapshot --skip-validate --skip-publish
       env:
-        GPG_FINGERPRINT: ${{ secrets.GPG_FINGERPRINT }}
+        GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
 
