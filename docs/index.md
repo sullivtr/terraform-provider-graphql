@@ -16,4 +16,4 @@ provider "graphql" {
 ```
 
 ## Full documentation: 
-This provider's extensive docmentation can be found here: [https://sullivtr.github.io/terraform-provider-graphql/docs/provider.html](https://sullivtr.github.io/terraform-provider-graphql/docs/provider.html)
+This provider's extensive documentation can be found here: [https://sullivtr.github.io/terraform-provider-graphql/docs/provider.html](https://sullivtr.github.io/terraform-provider-graphql/docs/provider.html)
