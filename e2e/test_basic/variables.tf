@@ -5,3 +5,11 @@ variable "todo_text" {
 variable "todo_user_id" {
   type = string
 }
+
+variable "compute_mutation_keys" {
+  type = map(string)
+}
+
+variable "compute_from_create" {
+  type = bool
+}

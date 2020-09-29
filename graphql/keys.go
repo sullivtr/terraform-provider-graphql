@@ -49,7 +49,7 @@ func getResourceKey(m map[string]interface{}, ks ...string) (val interface{}, er
 	}
 }
 
-func hashString(v []byte) int {
+func hash(v []byte) int {
 	queryResponseObj := make(map[string]interface{})
 	_ = json.Unmarshal(v, &queryResponseObj)
 	out, err := json.Marshal(queryResponseObj)

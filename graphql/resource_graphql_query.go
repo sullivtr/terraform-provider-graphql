@@ -2,6 +2,7 @@ package graphql
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -55,6 +56,10 @@ func resourceGraphqlMutation() *schema.Resource {
 				},
 				Required: true,
 			},
+			"compute_from_create": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 			"computed_update_operation_variables": {
 				Type: schema.TypeMap,
 				Elem: &schema.Schema{
@@ -99,9 +104,14 @@ func resourceGraphqlMutationCreateUpdate(d *schema.ResourceData, m interface{}) 
 			return err
 		}
 
-		existingHash := hashString(queryResponseObj)
-		if err := d.Set("existing_hash", string(existingHash)); err != nil {
+		existingHash := hash(queryResponseObj)
+		if err := d.Set("existing_hash", fmt.Sprint(existingHash)); err != nil {
 			return err
+		}
+
+		computeFromCreate := d.Get("compute_from_create").(bool)
+		if computeFromCreate {
+			computeMutationVariables(queryResponseObj, d)
 		}
 
 	} else {
@@ -120,16 +130,13 @@ func resourceGraphqlMutationCreateUpdate(d *schema.ResourceData, m interface{}) 
 			return err
 		}
 	}
-	objID := hashString(queryResponseObj)
-	d.SetId(string(objID))
+	objID := hash(queryResponseObj)
+	d.SetId(fmt.Sprint(objID))
 
 	return resourceGraphqlRead(d, m)
 }
 
 func resourceGraphqlRead(d *schema.ResourceData, m interface{}) error {
-	dataKeys := d.Get("compute_mutation_keys").(map[string]interface{})
-	mutationVariables := d.Get("mutation_variables").(map[string]interface{})
-	deleteMutationVariables := d.Get("delete_mutation_variables").(map[string]interface{})
 	queryResponseBytes, err := queryExecute(d, m, "read_query", "read_query_variables")
 	if err != nil {
 		return err
@@ -138,8 +145,29 @@ func resourceGraphqlRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
+	computeFromCreate := d.Get("compute_from_create").(bool)
+	if !computeFromCreate {
+		computeMutationVariables(queryResponseBytes, d)
+	}
+
+	return nil
+}
+
+func resourceGraphqlMutationDelete(d *schema.ResourceData, m interface{}) error {
+	_, err := queryExecute(d, m, "delete_mutation", "computed_delete_operation_variables")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func computeMutationVariables(queryResponseBytes []byte, d *schema.ResourceData) error {
+	dataKeys := d.Get("compute_mutation_keys").(map[string]interface{})
+	mutationVariables := d.Get("mutation_variables").(map[string]interface{})
+	deleteMutationVariables := d.Get("delete_mutation_variables").(map[string]interface{})
+
 	var robj = make(map[string]interface{})
-	err = json.Unmarshal(queryResponseBytes, &robj)
+	err := json.Unmarshal(queryResponseBytes, &robj)
 	if err != nil {
 		return err
 	}
@@ -170,13 +198,5 @@ func resourceGraphqlRead(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	return nil
-}
-
-func resourceGraphqlMutationDelete(d *schema.ResourceData, m interface{}) error {
-	_, err := queryExecute(d, m, "delete_mutation", "computed_delete_operation_variables")
-	if err != nil {
-		return err
-	}
 	return nil
 }
