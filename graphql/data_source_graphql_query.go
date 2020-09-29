@@ -37,7 +37,7 @@ func dataSourceGraphqlQuery(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return err
 	}
-	objID := hashString(queryResponseBytes)
+	objID := hash(queryResponseBytes)
 	d.SetId(fmt.Sprint(objID))
 	if err := d.Set("query_response", string(queryResponseBytes)); err != nil {
 		return err

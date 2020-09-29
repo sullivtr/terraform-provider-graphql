@@ -24,17 +24,17 @@ resource "graphql_mutation" "basic_mutation" {
     "testvar1" = "testval2"
   }
   read_query_variables = {}
-  create_mutation = file("./queries/createMutation")
-  update_mutation = file("./queries/updateMutation")
-  delete_mutation = file("./queries/deleteMutation")
-  read_query      = file("./queries/readQuery")
+  create_mutation = file("../../testdata/createMutation")
+  update_mutation = file("../../testdata/updateMutation")
+  delete_mutation = file("../../testdata/deleteMutation")
+  read_query      = file("../../testdata/readQuery")
 
   compute_mutation_keys = var.compute_mutation_keys
 }
 
 data "graphql_query" "basic_query" {
   depends_on = [graphql_mutation.basic_mutation]
-  query = file("./queries/readQuery")
+  query = file("../../testdata/readQuery")
   query_variables = {}
 }
 

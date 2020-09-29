@@ -1,9 +1,0 @@
-mutation deleteTodo($id: String!) {
-  deleteTodo(input: $id) {
-    user {
-      id
-    }
-    text
-    done
-  }
-}

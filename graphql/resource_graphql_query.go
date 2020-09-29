@@ -104,9 +104,14 @@ func resourceGraphqlMutationCreateUpdate(d *schema.ResourceData, m interface{}) 
 			return err
 		}
 
-		existingHash := hashString(queryResponseObj)
+		existingHash := hash(queryResponseObj)
 		if err := d.Set("existing_hash", fmt.Sprint(existingHash)); err != nil {
 			return err
+		}
+
+		computeFromCreate := d.Get("compute_from_create").(bool)
+		if computeFromCreate {
+			computeMutationVariables(queryResponseObj, d)
 		}
 
 	} else {
@@ -125,14 +130,8 @@ func resourceGraphqlMutationCreateUpdate(d *schema.ResourceData, m interface{}) 
 			return err
 		}
 	}
-	objID := hashString(queryResponseObj)
+	objID := hash(queryResponseObj)
 	d.SetId(fmt.Sprint(objID))
-
-	computeFromCreate := d.Get("compute_from_create").(bool)
-
-	if computeFromCreate && mutationExistsHash == "" {
-		computeMutationVariables(queryResponseObj, d)
-	}
 
 	return resourceGraphqlRead(d, m)
 }
