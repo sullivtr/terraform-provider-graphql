@@ -20,6 +20,8 @@ resource "graphql_mutation" "basic_mutation" {
     "email" = "thewurst@jimmydean.com"
   }
 
+  compute_from_create = false
+
   compute_mutation_keys = {
     "id" = "user.id"
   }
@@ -77,6 +79,13 @@ resource "graphql_mutation" "basic_mutation" {
   
   **See the "Handling Update & Destroy" section below** for an overview of the `compute_mutation_keys` input usage. 
 
+### compute_from_create
+  - **Required**: false
+  - **Type**: bool
+  - **Description**: A bool to determine if computed keys should be computed based off of the response from the create request, or the read request.
+  
+  **See the "Handling Update & Destroy" section below** for an overview of the `compute_mutation_keys` input usage. 
+
 ## Outputs
 
 ### query_response
@@ -92,6 +101,10 @@ resource "graphql_mutation" "basic_mutation" {
 ### computed_delete_operation_variables
   - **Type**: map(string)
   - **Desciption**: A computed map that combines any computed variables with the `delete_mutation_variables` input based on what is provided in the `compute_mutation_keys` input. 
+  
+### computed_read_operation_variables
+  - **Type**: map(string)
+  - **Desciption**: A computed map that combines any computed variables with the `read_mutation_variables` input based on what is provided in the `compute_mutation_keys` input. 
 
 ## Handling Update & Destroy
 

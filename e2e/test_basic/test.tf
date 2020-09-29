@@ -23,7 +23,9 @@ resource "graphql_mutation" "basic_mutation" {
   delete_mutation_variables = {
     "testvar1" = "testval2"
   }
-  read_query_variables = {}
+  read_query_variables = {
+    "testvar1" = "testval2"
+  }
   create_mutation = file("../../testdata/createMutation")
   update_mutation = file("../../testdata/updateMutation")
   delete_mutation = file("../../testdata/deleteMutation")
@@ -45,6 +47,10 @@ output "mutation_output" {
 
 output "query_output" {
   value = data.graphql_query.basic_query
+}
+
+output "computed_read_variables" {
+  value = graphql_mutation.basic_mutation.computed_read_operation_variables
 }
 
 output "computed_delete_variables" {

@@ -12,7 +12,6 @@ const (
 	readDataResponse   = `{"data": {"todo": {"id": "1", "text": "something todo", "userId": "900"}}}`
 	createDataResponse = `{"data": {"createTodo": {"id": "2"}}}`
 	queryUrl           = "http://mock-gql-url.io"
-	createUrl          = "http://mock-gql-url.io/create"
 
 	dataSourceConfig = `
 	data "graphql_query" "basic_query" {
@@ -50,7 +49,9 @@ const (
 		delete_mutation_variables = {
 			"testvar1" = "testval1"
 		}
-		read_query_variables = {}
+		read_query_variables = {
+			"testvar1" = "testval1"
+		}
 		create_mutation = file("../testdata/createMutation")
 		update_mutation = file("../testdata/updateMutation")
 		delete_mutation = file("../testdata/deleteMutation")
