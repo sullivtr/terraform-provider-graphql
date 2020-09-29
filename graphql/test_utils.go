@@ -9,8 +9,9 @@ import (
 )
 
 const (
-	readDataResponse = `{"data": {"todo": {"id": "1", "text": "something todo", "userId": "900"}}}`
-	queryUrl         = "http://mock-gql-url.io"
+	readDataResponse   = `{"data": {"todo": {"id": "1", "text": "something todo", "userId": "900"}}}`
+	createDataResponse = `{"data": {"createTodo": {"id": "1", "text": "something todo", "userId": "900"}}}`
+	queryUrl           = "http://mock-gql-url.io"
 
 	dataSourceConfig = `
 	data "graphql_query" "basic_query" {
@@ -35,6 +36,29 @@ const (
 
 		compute_mutation_keys = {
 			"id" = "todo.id"
+		}
+	}
+`
+
+	resourceConfigComputeMutationKeysOnCreate = `
+	resource "graphql_mutation" "basic_mutation" {
+		mutation_variables = {
+			"text" = "something todo"
+			"userId" = "900"
+		}
+		delete_mutation_variables = {
+			"testvar1" = "testval1"
+		}
+		read_query_variables = {}
+		create_mutation = file("../e2e/test_basic/queries/createMutation")
+		update_mutation = file("../e2e/test_basic/queries/updateMutation")
+		delete_mutation = file("../e2e/test_basic/queries/deleteMutation")
+		read_query      = file("../e2e/test_basic/queries/readQuery")
+
+		compute_from_create = true
+
+		compute_mutation_keys = {
+			"id" = "createTodo.id"
 		}
 	}
 `

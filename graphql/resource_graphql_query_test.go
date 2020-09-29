@@ -46,6 +46,14 @@ func TestAccGraphqlMutation_full(t *testing.T) {
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_delete_operation_variables.testvar1", "testval1"),
 				),
 			},
+			{
+				Config: resourceConfigComputeMutationKeysOnCreate,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_update_operation_variables.id", "1"),
+					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_delete_operation_variables.id", "1"),
+					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_delete_operation_variables.testvar1", "testval1"),
+				),
+			},
 		},
 	})
 }

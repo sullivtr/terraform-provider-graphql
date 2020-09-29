@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    graphql = {
+      source  = "terraform.example.com/examplecorp/graphql"
+      version = "1.0.0"
+    }
+  }
+}
+
 provider "graphql" {
   url = "http://localhost:8080/query"
   headers = {
@@ -6,6 +15,7 @@ provider "graphql" {
 }
 
 resource "graphql_mutation" "basic_mutation" {
+  compute_from_create = var.compute_from_create
   mutation_variables = {
     "text" = var.todo_text
     "userId" = var.todo_user_id
@@ -19,9 +29,7 @@ resource "graphql_mutation" "basic_mutation" {
   delete_mutation = file("./queries/deleteMutation")
   read_query      = file("./queries/readQuery")
 
-  compute_mutation_keys = {
-    "id" = "todo.id"
-  }
+  compute_mutation_keys = var.compute_mutation_keys
 }
 
 data "graphql_query" "basic_query" {

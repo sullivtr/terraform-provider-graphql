@@ -8,10 +8,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestBasicCreateUpdateMutations(t *testing.T) {
+const (
+	initialTextOutput = "\\\"text\\\":\\\"Here is something todo\\\""
+	updatedTextOutput = "\\\"text\\\":\\\"Todo has been updated\\\""
+)
 
-	initialTextOutput := "\\\"text\\\":\\\"Here is something todo\\\""
-	updatedTextOutput := "\\\"text\\\":\\\"Todo has been updated\\\""
+func TestBasicCreateUpdateMutations(t *testing.T) {
 
 	varFileCreate := []string{"./variable_initial_create.tfvars"}
 	varFileUpdate := []string{"./variable_update.tfvars"}
@@ -51,4 +53,30 @@ func TestBasicCreateUpdateMutations(t *testing.T) {
 
 	terraform.Destroy(t, terraformOptionsUpdate)
 	assert.NoFileExists(t, "./gql-server/test.json")
+}
+
+func TestBasicValidateComputeMutationKeysFromCreate(t *testing.T) {
+
+	varFileComputeFromCreate := []string{"./variable_compute_from_create.tfvars"}
+
+	terraformOptionsComputeFromCreate := &terraform.Options{
+		TerraformDir: "./test_basic",
+		VarFiles:     varFileComputeFromCreate,
+		Logger:       logger.Discard,
+	}
+
+	// Validate compute mutation keys from create
+	terraform.InitAndApply(t, terraformOptionsComputeFromCreate)
+	assert.FileExists(t, "./gql-server/test.json")
+	output, _ := terraform.OutputE(t, terraformOptionsComputeFromCreate, "mutation_output")
+	assert.Contains(t, output, initialTextOutput)
+
+	// Validate data source output
+	dataSourceOutput, _ := terraform.OutputE(t, terraformOptionsComputeFromCreate, "query_output")
+	assert.Contains(t, dataSourceOutput, initialTextOutput)
+
+	// Validate computed delete variables
+	deleteVariableOutput, _ := terraform.OutputE(t, terraformOptionsComputeFromCreate, "computed_delete_variables")
+	assert.Contains(t, deleteVariableOutput, "\"id\" =")
+	assert.Contains(t, deleteVariableOutput, "\"testvar1\" =")
 }
