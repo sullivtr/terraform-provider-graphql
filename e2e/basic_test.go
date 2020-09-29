@@ -76,6 +76,11 @@ func TestBasicValidateComputeMutationKeysFromCreate(t *testing.T) {
 	assert.Contains(t, dataSourceOutput, initialTextOutput)
 
 	// Validate computed delete variables
+	readVariableUpdate, _ := terraform.OutputE(t, terraformOptionsComputeFromCreate, "computed_read_variables")
+	assert.Contains(t, readVariableUpdate, "\"id\" =")
+	assert.Contains(t, readVariableUpdate, "\"testvar1\" =")
+
+	// Validate computed delete variables
 	deleteVariableOutput, _ := terraform.OutputE(t, terraformOptionsComputeFromCreate, "computed_delete_variables")
 	assert.Contains(t, deleteVariableOutput, "\"id\" =")
 	assert.Contains(t, deleteVariableOutput, "\"testvar1\" =")

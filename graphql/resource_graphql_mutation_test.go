@@ -65,6 +65,8 @@ func TestAccGraphqlMutation_computefromcreate(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_update_operation_variables.id", "2"),
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_delete_operation_variables.id", "2"),
+					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_read_operation_variables.id", "2"),
+					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_read_operation_variables.testvar1", "testval1"),
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_delete_operation_variables.testvar1", "testval1"),
 				),
 			},

@@ -60,6 +60,13 @@ func resourceGraphqlMutation() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			"computed_read_operation_variables": {
+				Type: schema.TypeMap,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Computed: true,
+			},
 			"computed_update_operation_variables": {
 				Type: schema.TypeMap,
 				Elem: &schema.Schema{
@@ -137,7 +144,19 @@ func resourceGraphqlMutationCreateUpdate(d *schema.ResourceData, m interface{}) 
 }
 
 func resourceGraphqlRead(d *schema.ResourceData, m interface{}) error {
-	queryResponseBytes, err := queryExecute(d, m, "read_query", "read_query_variables")
+
+	queryVariables := d.Get("read_query_variables").(map[string]interface{})
+	computedVariables := d.Get("computed_read_operation_variables").(map[string]interface{})
+
+	for k, v := range queryVariables {
+		computedVariables[k] = v
+	}
+
+	if err := d.Set("computed_read_operation_variables", computedVariables); err != nil {
+		return err
+	}
+
+	queryResponseBytes, err := queryExecute(d, m, "read_query", "computed_read_operation_variables")
 	if err != nil {
 		return err
 	}
@@ -164,6 +183,7 @@ func resourceGraphqlMutationDelete(d *schema.ResourceData, m interface{}) error 
 func computeMutationVariables(queryResponseBytes []byte, d *schema.ResourceData) error {
 	dataKeys := d.Get("compute_mutation_keys").(map[string]interface{})
 	mutationVariables := d.Get("mutation_variables").(map[string]interface{})
+	readQueryVariables := d.Get("read_query_variables").(map[string]interface{})
 	deleteMutationVariables := d.Get("delete_mutation_variables").(map[string]interface{})
 
 	var robj = make(map[string]interface{})
@@ -177,6 +197,18 @@ func computeMutationVariables(queryResponseBytes []byte, d *schema.ResourceData)
 	if err != nil {
 		log.Printf("[ERROR] Unable to compute mutation variable keys: %s ", err)
 	} else {
+		// Combine computed read mutation variables with provided input variables
+		rvks := make(map[string]string)
+		for k, v := range readQueryVariables {
+			rvks[k] = v.(string)
+		}
+		for k, v := range mvks {
+			rvks[k] = v
+		}
+		if err := d.Set("computed_read_operation_variables", rvks); err != nil {
+			return err
+		}
+
 		// Combine computed delete mutation variables with provided input variables
 		dvks := make(map[string]string)
 		for k, v := range deleteMutationVariables {

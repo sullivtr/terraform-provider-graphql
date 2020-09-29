@@ -43,6 +43,7 @@ resource "graphql_mutation" "basic_mutation" {
 * `read_query` - (Required) A GraphQL query that will be used to query the api resource after it has been created.
 
 * `compute_mutation_keys` - (Required) A map representing the hierarchy of your response object leading to the object properties that will be used during a terraform destroy & update operation.
+* `compute_from_create` - A bool to determine if computed keys should be computed based off of the response from the create request, or the read request. Default: false
 
 
 ## Attribute Reference
@@ -52,7 +53,9 @@ resource "graphql_mutation" "basic_mutation" {
 
 * `computed_update_operation_variables` - A computed map that combines any computed variables with the `mutation_variables` input based on what is provided in the `compute_mutation_keys` input. This is also useful for outputing properties of the response object and using it on other resources.
   
-* `computed_delete_operation_variables` - A computed map that combines any computed variables with the `delete_mutation_variables` input based on what is provided in the `compute_mutation_keys` input. 
+* `computed_delete_operation_variables` - A computed map that combines any computed variables with the `delete_mutation_variables` input based on what is provided in the `compute_mutation_keys` input.
+
+* `computed_read_operation_variables` - A computed map that combines any computed variables with the `read_query_variables` input based on what is provided in the `compute_mutation_keys` input. 
 
 
 ->**Note** For a full guide on using this provider, see the full documentation site located at [https://sullivtr.github.io/terraform-provider-graphql/docs/provider.html](https://sullivtr.github.io/terraform-provider-graphql/docs/provider.html)
