@@ -2,6 +2,7 @@ package graphql
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -104,7 +105,7 @@ func resourceGraphqlMutationCreateUpdate(d *schema.ResourceData, m interface{}) 
 		}
 
 		existingHash := hashString(queryResponseObj)
-		if err := d.Set("existing_hash", string(existingHash)); err != nil {
+		if err := d.Set("existing_hash", fmt.Sprint(existingHash)); err != nil {
 			return err
 		}
 
@@ -125,7 +126,7 @@ func resourceGraphqlMutationCreateUpdate(d *schema.ResourceData, m interface{}) 
 		}
 	}
 	objID := hashString(queryResponseObj)
-	d.SetId(string(objID))
+	d.SetId(fmt.Sprint(objID))
 
 	computeFromCreate := d.Get("compute_from_create").(bool)
 
