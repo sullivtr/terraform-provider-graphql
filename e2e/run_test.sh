@@ -1,3 +1,5 @@
+#!/bin/bash
+
 GO111MODULE=on
 cd gql-server
 (go get && go run server.go &)

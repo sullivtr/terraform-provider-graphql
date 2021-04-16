@@ -1,11 +1,13 @@
 package graphql
 
 import (
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/terraform"
+	"context"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func Provider() terraform.ResourceProvider {
+func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"url": {
@@ -29,16 +31,16 @@ func Provider() terraform.ResourceProvider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"graphql_query": dataSourceGraphql(),
 		},
-		ConfigureFunc: graphqlConfigure,
+		ConfigureContextFunc: graphqlConfigure,
 	}
 }
 
-func graphqlConfigure(d *schema.ResourceData) (interface{}, error) {
+func graphqlConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	config := &graphqlProviderConfig{
 		GQLServerUrl:   d.Get("url").(string),
 		RequestHeaders: d.Get("headers").(map[string]interface{}),
 	}
-	return config, nil
+	return config, diag.Diagnostics{}
 }
 
 type graphqlProviderConfig struct {

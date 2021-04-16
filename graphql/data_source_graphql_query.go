@@ -1,9 +1,11 @@
 package graphql
 
 import (
+	"context"
 	"fmt"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceGraphql() *schema.Resource {
@@ -28,19 +30,19 @@ func dataSourceGraphql() *schema.Resource {
 				Computed:    true,
 			},
 		},
-		Read: dataSourceGraphqlQuery,
+		ReadContext: dataSourceGraphqlQuery,
 	}
 }
 
-func dataSourceGraphqlQuery(d *schema.ResourceData, m interface{}) error {
-	queryResponseBytes, err := queryExecute(d, m, "query", "query_variables")
+func dataSourceGraphqlQuery(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	queryResponseBytes, err := queryExecute(ctx, d, m, "query", "query_variables")
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	objID := hash(queryResponseBytes)
 	d.SetId(fmt.Sprint(objID))
 	if err := d.Set("query_response", string(queryResponseBytes)); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	return nil
 }
