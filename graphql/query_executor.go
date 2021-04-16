@@ -2,14 +2,15 @@ package graphql
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func queryExecute(d *schema.ResourceData, m interface{}, querySource, variableSource string) ([]byte, error) {
+func queryExecute(ctx context.Context, d *schema.ResourceData, m interface{}, querySource, variableSource string) ([]byte, error) {
 	query := d.Get(querySource).(string)
 	variables := d.Get(variableSource).(map[string]interface{})
 	apiURL := m.(*graphqlProviderConfig).GQLServerUrl
@@ -26,7 +27,7 @@ func queryExecute(d *schema.ResourceData, m interface{}, querySource, variableSo
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", apiURL, &queryBodyBuffer)
+	req, err := http.NewRequestWithContext(ctx, "POST", apiURL, &queryBodyBuffer)
 	if err != nil {
 		return nil, err
 	}

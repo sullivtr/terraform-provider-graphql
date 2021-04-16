@@ -1,11 +1,13 @@
 package graphql
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceGraphqlMutation() *schema.Resource {
@@ -92,28 +94,28 @@ func resourceGraphqlMutation() *schema.Resource {
 				Computed:    true,
 			},
 		},
-		Create: resourceGraphqlMutationCreateUpdate,
-		Update: resourceGraphqlMutationCreateUpdate,
-		Read:   resourceGraphqlRead,
-		Delete: resourceGraphqlMutationDelete,
+		CreateContext: resourceGraphqlMutationCreateUpdate,
+		UpdateContext: resourceGraphqlMutationCreateUpdate,
+		ReadContext:   resourceGraphqlRead,
+		DeleteContext: resourceGraphqlMutationDelete,
 	}
 }
 
-func resourceGraphqlMutationCreateUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceGraphqlMutationCreateUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	mutationVariables := d.Get("mutation_variables").(map[string]interface{})
 	var queryResponseObj []byte
 	var err error
 	mutationExistsHash := d.Get("existing_hash").(string)
 
 	if mutationExistsHash == "" {
-		queryResponseObj, err = queryExecute(d, m, "create_mutation", "mutation_variables")
+		queryResponseObj, err = queryExecute(ctx, d, m, "create_mutation", "mutation_variables")
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 
 		existingHash := hash(queryResponseObj)
 		if err := d.Set("existing_hash", fmt.Sprint(existingHash)); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 
 		computeFromCreate := d.Get("compute_from_create").(bool)
@@ -129,21 +131,21 @@ func resourceGraphqlMutationCreateUpdate(d *schema.ResourceData, m interface{}) 
 		}
 
 		if err := d.Set("computed_update_operation_variables", computedVariables); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 
-		queryResponseObj, err = queryExecute(d, m, "update_mutation", "computed_update_operation_variables")
+		queryResponseObj, err = queryExecute(ctx, d, m, "update_mutation", "computed_update_operation_variables")
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 	objID := hash(queryResponseObj)
 	d.SetId(fmt.Sprint(objID))
 
-	return resourceGraphqlRead(d, m)
+	return resourceGraphqlRead(ctx, d, m)
 }
 
-func resourceGraphqlRead(d *schema.ResourceData, m interface{}) error {
+func resourceGraphqlRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 
 	queryVariables := d.Get("read_query_variables").(map[string]interface{})
 	computedVariables := d.Get("computed_read_operation_variables").(map[string]interface{})
@@ -153,15 +155,15 @@ func resourceGraphqlRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if err := d.Set("computed_read_operation_variables", computedVariables); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	queryResponseBytes, err := queryExecute(d, m, "read_query", "computed_read_operation_variables")
+	queryResponseBytes, err := queryExecute(ctx, d, m, "read_query", "computed_read_operation_variables")
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if err := d.Set("query_response", string(queryResponseBytes)); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	computeFromCreate := d.Get("compute_from_create").(bool)
@@ -169,13 +171,13 @@ func resourceGraphqlRead(d *schema.ResourceData, m interface{}) error {
 		computeMutationVariables(queryResponseBytes, d)
 	}
 
-	return nil
+	return diag.Diagnostics{}
 }
 
-func resourceGraphqlMutationDelete(d *schema.ResourceData, m interface{}) error {
-	_, err := queryExecute(d, m, "delete_mutation", "computed_delete_operation_variables")
+func resourceGraphqlMutationDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	_, err := queryExecute(ctx, d, m, "delete_mutation", "computed_delete_operation_variables")
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	return nil
 }
