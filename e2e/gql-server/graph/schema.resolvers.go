@@ -101,7 +101,7 @@ func (r *mutationResolver) DeleteTodo(ctx context.Context, input string) (*model
 	return &model.Todo{}, nil
 }
 
-func (r *queryResolver) Todo(ctx context.Context, id string) (*model.Todo, error) {
+func (r *queryResolver) Todo(ctx context.Context) (*model.Todo, error) {
 	jsonFile, err := os.Open("./test.json")
 	if err != nil {
 		fmt.Println(err)
@@ -112,9 +112,6 @@ func (r *queryResolver) Todo(ctx context.Context, id string) (*model.Todo, error
 
 	var todoResult model.Todo
 	_ = json.Unmarshal([]byte(byteValue), &todoResult)
-	if todoResult.ID != id {
-		return nil, fmt.Errorf("TODO not found")
-	}
 	return &todoResult, nil
 }
 
