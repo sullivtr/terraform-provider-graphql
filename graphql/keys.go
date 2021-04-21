@@ -21,7 +21,6 @@ func buildResourceKeyArgs(key string) []string {
 
 		copy(split[1:], split[0:])
 		split[0] = "data"
-		fmt.Println(split)
 
 	}
 	return split
