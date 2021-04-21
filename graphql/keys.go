@@ -16,9 +16,13 @@ func buildResourceKeyArgs(key string) []string {
 	split := strings.Split(key, ".")
 	frk := split[0]
 	if frk != "data" {
+		// Append placeholder for the "data" parent in GraphQL response
 		split = append(split, "_")
+
 		copy(split[1:], split[0:])
 		split[0] = "data"
+		fmt.Println(split)
+
 	}
 	return split
 }
