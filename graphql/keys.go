@@ -85,10 +85,10 @@ func getResourceKey(m map[string]interface{}, ks ...string) (val interface{}, er
 		return nil, fmt.Errorf("mutation_key not found")
 	} else if len(ks) == 1 {
 		return val, nil // use value of root
-	} else if m, ok = val.(map[string]interface{}); !ok { // If value is an object, return error
+	} else if m, ok = val.(map[string]interface{}); !ok { // If value is non an object, return error
 		return nil, fmt.Errorf("malformed structure at %#v", val)
 	} else {
-		// grab value for the next property
+		// parse value for the next property
 		return getResourceKey(m, ks[1:]...)
 	}
 }
