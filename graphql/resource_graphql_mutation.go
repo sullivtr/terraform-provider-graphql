@@ -120,7 +120,9 @@ func resourceGraphqlMutationCreateUpdate(ctx context.Context, d *schema.Resource
 
 		computeFromCreate := d.Get("compute_from_create").(bool)
 		if computeFromCreate {
-			computeMutationVariables(queryResponseObj, d)
+			if err := computeMutationVariables(queryResponseObj, d); err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 	} else {
@@ -168,7 +170,9 @@ func resourceGraphqlRead(ctx context.Context, d *schema.ResourceData, m interfac
 
 	computeFromCreate := d.Get("compute_from_create").(bool)
 	if !computeFromCreate {
-		computeMutationVariables(queryResponseBytes, d)
+		if err := computeMutationVariables(queryResponseBytes, d); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return diag.Diagnostics{}
