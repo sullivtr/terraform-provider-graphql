@@ -21,8 +21,9 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) 
 
 	todo := model.Todo{
 		Text: input.Text,
-		ID:   fmt.Sprintf("T%d", rand.Int()),
+		ID:   rand.Int(),
 		User: &model.User{ID: input.UserID, Name: "user " + input.UserID},
+		List: input.List,
 	}
 
 	content, _ := json.MarshalIndent(todo, "", " ")

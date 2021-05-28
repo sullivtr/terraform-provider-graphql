@@ -13,7 +13,9 @@ data "graphql_query" "basic_query" {
 
 ## Argument Reference
 
-* `query_variables` - (Required) A map of any variables that will be used in your query
+* `query_variables` - (Required) A map of any variables that will be used in your query. Each variable's value is interpreted as JSON when possible.
+
+> NOTE: If a query variable is a number that must be interpreted as a string, it should be wrapped in quotations. For example `"marVar" = "\"123\""`.
 
 * `query` - (Required) The graphql query. (See basic example below for what that looks like.)
 

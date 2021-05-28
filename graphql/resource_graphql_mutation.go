@@ -202,7 +202,16 @@ func computeMutationVariables(queryResponseBytes []byte, d *schema.ResourceData)
 		// Combine computed read mutation variables with provided input variables
 		rvks := make(map[string]string)
 		for k, v := range readQueryVariables {
-			rvks[k] = v.(string)
+			// rvks[k] = v.(string)
+			if _, ok := v.(string); ok {
+				rvks[k] = v.(string)
+			} else {
+				bytes, err := json.Marshal(v)
+				if err != nil {
+					return err
+				}
+				rvks[k] = string(bytes)
+			}
 		}
 		for k, v := range mvks {
 			rvks[k] = v
@@ -214,7 +223,15 @@ func computeMutationVariables(queryResponseBytes []byte, d *schema.ResourceData)
 		// Combine computed delete mutation variables with provided input variables
 		dvks := make(map[string]string)
 		for k, v := range deleteMutationVariables {
-			dvks[k] = v.(string)
+			if _, ok := v.(string); ok {
+				dvks[k] = v.(string)
+			} else {
+				bytes, err := json.Marshal(v)
+				if err != nil {
+					return err
+				}
+				dvks[k] = string(bytes)
+			}
 		}
 		for k, v := range mvks {
 			dvks[k] = v
@@ -225,7 +242,15 @@ func computeMutationVariables(queryResponseBytes []byte, d *schema.ResourceData)
 
 		// Combine computed update mutation variables with provided input variables
 		for k, v := range mutationVariables {
-			mvks[k] = v.(string)
+			if _, ok := v.(string); ok {
+				mvks[k] = v.(string)
+			} else {
+				bytes, err := json.Marshal(v)
+				if err != nil {
+					return err
+				}
+				mvks[k] = string(bytes)
+			}
 		}
 		if err := d.Set("computed_update_operation_variables", mvks); err != nil {
 			return err
