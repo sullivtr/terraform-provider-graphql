@@ -6,14 +6,12 @@ require (
 	cloud.google.com/go/storage v1.12.0 // indirect
 	github.com/aws/aws-sdk-go v1.34.33 // indirect
 	github.com/fatih/color v1.9.0 // indirect
-	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/terraform v0.12.1
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.5.0
 	github.com/jarcoal/httpmock v1.0.6
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.7 // indirect
 	github.com/mitchellh/mapstructure v1.3.3 // indirect
-	github.com/spf13/afero v1.4.0 // indirect
 	github.com/stretchr/testify v1.6.1
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a // indirect
 	golang.org/x/net v0.0.0-20200927032502-5d4f70055728 // indirect
