@@ -1,10 +1,11 @@
-mutation createTodo($text: String!, $userId: String!) {
-  createTodo(input:{text: $text, userId: $userId}) {
+mutation createTodo($text: String!, $userId: String!, $list: [String!]!) {
+  createTodo(input:{text: $text, userId: $userId, list: $list}) {
     user {
       id
     }
     id
     text
+    list
     done
   }
 }

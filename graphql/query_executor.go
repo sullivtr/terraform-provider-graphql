@@ -12,7 +12,7 @@ import (
 
 func queryExecute(ctx context.Context, d *schema.ResourceData, m interface{}, querySource, variableSource string) ([]byte, error) {
 	query := d.Get(querySource).(string)
-	variables := d.Get(variableSource).(map[string]interface{})
+	inputVariables := d.Get(variableSource).(map[string]interface{})
 	apiURL := m.(*graphqlProviderConfig).GQLServerUrl
 	headers := m.(*graphqlProviderConfig).RequestHeaders
 
@@ -20,7 +20,20 @@ func queryExecute(ctx context.Context, d *schema.ResourceData, m interface{}, qu
 
 	queryObj := gqlQuery{
 		Query:     query,
-		Variables: variables,
+		Variables: make(map[string]interface{}), // Create an empty map to be populated below
+	}
+
+	// Populate gqlQuery variables
+	for k, v := range inputVariables {
+		// Convert any json string inputs to a struct for complex GraphQL inputs
+		js, isJS := isJSON(v)
+
+		if isJS {
+			queryObj.Variables[k] = js
+		} else {
+			// If the input is just a simple string/not JSON
+			queryObj.Variables[k] = v
+		}
 	}
 
 	if err := json.NewEncoder(&queryBodyBuffer).Encode(queryObj); err != nil {
@@ -48,4 +61,14 @@ func queryExecute(ctx context.Context, d *schema.ResourceData, m interface{}, qu
 	body, _ := ioutil.ReadAll(resp.Body)
 
 	return body, nil
+}
+
+// isJSON will check if s can be interpreted as valid JSON, and return an unmarshalled struct representing the JSON if it can.
+func isJSON(s interface{}) (interface{}, bool) {
+	var js interface{}
+	err := json.Unmarshal([]byte(s.(string)), &js)
+	if err != nil {
+		return nil, false
+	}
+	return js, true
 }

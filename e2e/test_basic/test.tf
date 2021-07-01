@@ -18,8 +18,10 @@ resource "graphql_mutation" "basic_mutation" {
   compute_from_create = var.compute_from_create
   mutation_variables = {
     "text" = var.todo_text
-    "userId" = var.todo_user_id
+    "userId" = "\"${var.todo_user_id}\""
+    "list" = "[\"this\", \"that\"]"
   }
+  
   delete_mutation_variables = {
     "testvar1" = "testval2"
   }

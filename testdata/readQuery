@@ -6,5 +6,6 @@ query findTodos{
     user {
       name
     }
+    list
   }
 }

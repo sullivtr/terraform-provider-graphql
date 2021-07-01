@@ -1,10 +1,11 @@
-mutation updateTodo($id: String!, $text: String!, $userId: String!) {
-  updateTodo(id: $id, input:{text: $text, userId: $userId}) {
+mutation updateTodo($id: String!, $text: String!, $userId: String!, $list: [String!]!) {
+  updateTodo(id: $id, input:{text: $text, userId: $userId, list: $list}) {
     user {
       id
     }
     id
     text
+    list
     done
   }
 }

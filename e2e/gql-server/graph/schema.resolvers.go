@@ -23,6 +23,7 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) 
 		Text: input.Text,
 		ID:   fmt.Sprintf("T%d", rand.Int()),
 		User: &model.User{ID: input.UserID, Name: "user " + input.UserID},
+		List: input.List,
 	}
 
 	content, _ := json.MarshalIndent(todo, "", " ")
@@ -67,6 +68,7 @@ func (r *mutationResolver) UpdateTodo(ctx context.Context, id string, input mode
 			Text: input.Text,
 			ID:   id,
 			User: &model.User{ID: input.UserID, Name: "user " + input.UserID},
+			List: input.List,
 		}
 		content, _ := json.MarshalIndent(&todo, "", " ")
 		_ = ioutil.WriteFile("./test.json", content, 0755)

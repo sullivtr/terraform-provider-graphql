@@ -9,7 +9,8 @@ resource "graphql_mutation" "basic_mutation" {
   mutation_variables = {
     "name" = "Jimmy Dean"
     "email" = "thewurst@jimmydean.com"
-    "phone" = "1234567890"
+    "phone" = "\"1234567890\"" // Interpret as string
+    "age" = "25" // This is interpreted as an integer
   }
   read_query_variables = {
     "email" = "thewurst@jimmydean.com"
@@ -27,12 +28,14 @@ resource "graphql_mutation" "basic_mutation" {
 ```
 
 ## Argument Reference
-* `mutation_variables` - (Required) A map of any variables that will be used in your create & update mutation. 
+* `mutation_variables` - (Required) A map of any variables that will be used in your create & update mutation. Each variable's value is interpreted as JSON when possible.
+  >NOTE: If a mutation variable is a number that must be interpreted as a string, it should be wrapped in quotations. For example `"marVar" = "\"123\""`.
 
-* `read_query_variables` - (Optional) A map of any variables that will be used in the read query for the resource's lifecycle. 
+* `read_query_variables` - (Optional) A map of any variables that will be used in the read query for the resource's lifecycle. Each variable's value is interpreted as JSON when possible.
+   >NOTE: If a query variable is a number that must be interpreted as a string, it should be wrapped in quotations. For example `"marVar" = "\"123\""`.
 
-* `delete_mutation_variables` - (Optional) A map of any variables that will be used in the delete mutation for the resource's lifecycle (This is automatically combined with any computed variables). 
-  >NOTE: delete_mutation_variables are merged with any variables that are computed based on the compute_mutation_keys input. The result is the computed_delete_operation_variables output (similar to computed_update_operation_variables).
+* `delete_mutation_variables` - (Optional) A map of any variables that will be used in the delete mutation for the resource's lifecycle (This is automatically combined with any computed variables). Each variable's value is interpreted as JSON when possible.
+  >NOTE: delete_mutation_variables are merged with any variables that are computed based on the compute_mutation_keys input. The result is the computed_delete_operation_variables output (similar to computed_update_operation_variables). If a delete mutation variable is a number that must be interpreted as a string, it should be wrapped in quotations. For example `"marVar" = "\"123\""`.
 
 * `create_mutation` - (Required) A GraphQL mutation that will be used to create the api resource.
    
