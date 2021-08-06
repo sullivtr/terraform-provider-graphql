@@ -11,6 +11,7 @@ import (
 const (
 	readDataResponse   = `{"data": {"todo": {"id": "1", "text": "something todo", "userId": "900"}}}`
 	createDataResponse = `{"data": {"createTodo": {"id": "2"}}}`
+	errDataResponse    = `{"data": {}, errors: [{message: "bad things happened"}]}`
 	queryUrl           = "http://mock-gql-url.io"
 
 	dataSourceConfig = `
@@ -99,6 +100,10 @@ func mockGqlServerResponse(req *http.Request) (*http.Response, error) {
 	}
 
 	return httpmock.NewStringResponse(200, ""), nil
+}
+
+func mockGqlServerResponseError(req *http.Request) (*http.Response, error) {
+	return httpmock.NewStringResponse(200, errDataResponse), nil
 }
 
 func mockGqlServerResponseCreate(req *http.Request) (*http.Response, error) {
