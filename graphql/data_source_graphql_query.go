@@ -35,14 +35,23 @@ func dataSourceGraphql() *schema.Resource {
 }
 
 func dataSourceGraphqlQuery(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	queryResponseBytes, err := queryExecute(ctx, d, m, "query", "query_variables")
+	var diags diag.Diagnostics
+	queryResponse, resBytes, err := queryExecute(ctx, d, m, "query", "query_variables")
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	objID := hash(queryResponseBytes)
+
+	if queryResponse.Errors != nil && len(queryResponse.Errors) > 0 {
+		for _, queryErr := range queryResponse.Errors {
+			diags = append(diags, diag.Diagnostic{Severity: diag.Error, Detail: queryErr.Message})
+		}
+
+	}
+
+	objID := hash(resBytes)
 	d.SetId(fmt.Sprint(objID))
-	if err := d.Set("query_response", string(queryResponseBytes)); err != nil {
+	if err := d.Set("query_response", string(resBytes)); err != nil {
 		return diag.FromErr(err)
 	}
-	return nil
+	return diags
 }

@@ -103,24 +103,29 @@ func resourceGraphqlMutation() *schema.Resource {
 
 func resourceGraphqlMutationCreateUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	mutationVariables := d.Get("mutation_variables").(map[string]interface{})
-	var queryResponseObj []byte
+	var resBytes []byte
+	var queryResponse *GqlQueryResponse
 	var err error
 	mutationExistsHash := d.Get("existing_hash").(string)
 
 	if mutationExistsHash == "" {
-		queryResponseObj, err = queryExecute(ctx, d, m, "create_mutation", "mutation_variables")
+		queryResponse, resBytes, err = queryExecute(ctx, d, m, "create_mutation", "mutation_variables")
 		if err != nil {
 			return diag.FromErr(err)
 		}
 
-		existingHash := hash(queryResponseObj)
+		if queryErrors := queryResponse.ProcessErrors(); queryErrors != nil {
+			return *queryErrors
+		}
+
+		existingHash := hash(resBytes)
 		if err := d.Set("existing_hash", fmt.Sprint(existingHash)); err != nil {
 			return diag.FromErr(err)
 		}
 
 		computeFromCreate := d.Get("compute_from_create").(bool)
 		if computeFromCreate {
-			if err := computeMutationVariables(queryResponseObj, d); err != nil {
+			if err := computeMutationVariables(resBytes, d); err != nil {
 				return diag.FromErr(err)
 			}
 		}
@@ -136,12 +141,16 @@ func resourceGraphqlMutationCreateUpdate(ctx context.Context, d *schema.Resource
 			return diag.FromErr(err)
 		}
 
-		queryResponseObj, err = queryExecute(ctx, d, m, "update_mutation", "computed_update_operation_variables")
+		queryResponse, resBytes, err = queryExecute(ctx, d, m, "update_mutation", "computed_update_operation_variables")
 		if err != nil {
 			return diag.FromErr(err)
 		}
+
+		if queryErrors := queryResponse.ProcessErrors(); queryErrors != nil {
+			return *queryErrors
+		}
 	}
-	objID := hash(queryResponseObj)
+	objID := hash(resBytes)
 	d.SetId(fmt.Sprint(objID))
 
 	return resourceGraphqlRead(ctx, d, m)
@@ -160,17 +169,22 @@ func resourceGraphqlRead(ctx context.Context, d *schema.ResourceData, m interfac
 		return diag.FromErr(err)
 	}
 
-	queryResponseBytes, err := queryExecute(ctx, d, m, "read_query", "computed_read_operation_variables")
+	queryResponse, resBytes, err := queryExecute(ctx, d, m, "read_query", "computed_read_operation_variables")
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	if err := d.Set("query_response", string(queryResponseBytes)); err != nil {
+
+	if queryErrors := queryResponse.ProcessErrors(); queryErrors != nil {
+		return *queryErrors
+	}
+
+	if err := d.Set("query_response", string(resBytes)); err != nil {
 		return diag.FromErr(err)
 	}
 
 	computeFromCreate := d.Get("compute_from_create").(bool)
 	if !computeFromCreate {
-		if err := computeMutationVariables(queryResponseBytes, d); err != nil {
+		if err := computeMutationVariables(resBytes, d); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -179,10 +193,15 @@ func resourceGraphqlRead(ctx context.Context, d *schema.ResourceData, m interfac
 }
 
 func resourceGraphqlMutationDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	_, err := queryExecute(ctx, d, m, "delete_mutation", "computed_delete_operation_variables")
+	queryResponse, _, err := queryExecute(ctx, d, m, "delete_mutation", "computed_delete_operation_variables")
 	if err != nil {
 		return diag.FromErr(err)
 	}
+
+	if queryErrors := queryResponse.ProcessErrors(); queryErrors != nil {
+		return *queryErrors
+	}
+
 	return nil
 }
 
