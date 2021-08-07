@@ -114,7 +114,7 @@ func resourceGraphqlMutationCreateUpdate(ctx context.Context, d *schema.Resource
 			return diag.FromErr(err)
 		}
 
-		if queryErrors := queryResponse.ProcessErrors(); queryErrors != nil {
+		if queryErrors := queryResponse.ProcessErrors(); queryErrors.HasError() {
 			return *queryErrors
 		}
 
@@ -146,7 +146,7 @@ func resourceGraphqlMutationCreateUpdate(ctx context.Context, d *schema.Resource
 			return diag.FromErr(err)
 		}
 
-		if queryErrors := queryResponse.ProcessErrors(); queryErrors != nil {
+		if queryErrors := queryResponse.ProcessErrors(); queryErrors.HasError() {
 			return *queryErrors
 		}
 	}
@@ -174,7 +174,7 @@ func resourceGraphqlRead(ctx context.Context, d *schema.ResourceData, m interfac
 		return diag.FromErr(err)
 	}
 
-	if queryErrors := queryResponse.ProcessErrors(); queryErrors != nil {
+	if queryErrors := queryResponse.ProcessErrors(); queryErrors.HasError() {
 		return *queryErrors
 	}
 
@@ -198,7 +198,7 @@ func resourceGraphqlMutationDelete(ctx context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	if queryErrors := queryResponse.ProcessErrors(); queryErrors != nil {
+	if queryErrors := queryResponse.ProcessErrors(); queryErrors.HasError() {
 		return *queryErrors
 	}
 

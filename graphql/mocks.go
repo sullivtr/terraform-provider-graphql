@@ -1,9 +1,7 @@
 package graphql
 
 import (
-	"io/ioutil"
 	"net/http"
-	"strings"
 
 	"github.com/jarcoal/httpmock"
 )
@@ -17,7 +15,19 @@ const (
 	dataSourceConfig = `
 	data "graphql_query" "basic_query" {
 		query_variables = {}
-		query     =  file("../testdata/readQuery")
+		query     =  <<-EOT
+		query findTodos{
+			todo {
+			  id
+			  text
+			  done
+			  user {
+				name
+			  }
+			  list
+			}
+		  }
+		EOT
 	}
 `
 	resourceConfigCreate = `
@@ -30,10 +40,60 @@ const (
 			"testvar1" = "testval1"
 		}
 		read_query_variables = {}
-		create_mutation = file("../testdata/createMutation")
-		update_mutation = file("../testdata/updateMutation")
-		delete_mutation = file("../testdata/deleteMutation")
-		read_query      = file("../testdata/readQuery")
+		
+		create_mutation = <<-EOT
+		mutation createTodo($text: String!, $userId: String!, $list: [String!]!) {
+			createTodo(input:{text: $text, userId: $userId, list: $list}) {
+			  user {
+				id
+			  }
+			  id
+			  text
+			  list
+			  done
+			}
+		  }
+		EOT
+
+		update_mutation = <<-EOT
+		mutation updateTodo($id: String!, $text: String!, $userId: String!, $list: [String!]!) {
+			updateTodo(id: $id, input:{text: $text, userId: $userId, list: $list}) {
+			  user {
+				id
+			  }
+			  id
+			  text
+			  list
+			  done
+			}
+		  }
+		EOT
+
+		delete_mutation = <<-EOT
+		mutation deleteTodo($id: String!) {
+			deleteTodo(input: $id) {
+			  user {
+				id
+			  }
+			  text
+			  done
+			}
+		  }
+		EOT
+
+		read_query = <<-EOT
+		query findTodos{
+			todo {
+			  id
+			  text
+			  done
+			  user {
+				name
+			  }
+			  list
+			}
+		  }
+		EOT
 
 		compute_mutation_keys = {
 			"id" = "todo.id"
@@ -53,10 +113,60 @@ const (
 		read_query_variables = {
 			"testvar1" = "testval1"
 		}
-		create_mutation = file("../testdata/createMutation")
-		update_mutation = file("../testdata/updateMutation")
-		delete_mutation = file("../testdata/deleteMutation")
-		read_query      = file("../testdata/readQuery")
+
+		create_mutation = <<-EOT
+		mutation createTodo($text: String!, $userId: String!, $list: [String!]!) {
+			createTodo(input:{text: $text, userId: $userId, list: $list}) {
+			  user {
+				id
+			  }
+			  id
+			  text
+			  list
+			  done
+			}
+		  }
+		EOT
+
+		update_mutation = <<-EOT
+		mutation updateTodo($id: String!, $text: String!, $userId: String!, $list: [String!]!) {
+			updateTodo(id: $id, input:{text: $text, userId: $userId, list: $list}) {
+			  user {
+				id
+			  }
+			  id
+			  text
+			  list
+			  done
+			}
+		  }
+		EOT
+
+		delete_mutation = <<-EOT
+		mutation deleteTodo($id: String!) {
+			deleteTodo(input: $id) {
+			  user {
+				id
+			  }
+			  text
+			  done
+			}
+		  }
+		EOT
+
+		read_query      = <<-EOT
+		query findTodos{
+			todo {
+			  id
+			  text
+			  done
+			  user {
+				name
+			  }
+			  list
+			}
+		  }
+		EOT
 
 		compute_from_create = true
 
@@ -75,10 +185,56 @@ const (
 			"testvar1" = "testval1"
 		}
 		read_query_variables = {}
-		create_mutation = file("../testdata/createMutation")
-		update_mutation = file("../testdata/updateMutation")
-		delete_mutation = file("../testdata/deleteMutation")
-		read_query      = file("../testdata/readQuery")
+		create_mutation = <<-EOT
+		mutation createTodo($text: String!, $userId: String!, $list: [String!]!) {
+			createTodo(input:{text: $text, userId: $userId, list: $list}) {
+			  user {
+				id
+			  }
+			  id
+			  text
+			  list
+			  done
+			}
+		  }
+		EOT
+		update_mutation = <<-EOT
+		mutation updateTodo($id: String!, $text: String!, $userId: String!, $list: [String!]!) {
+			updateTodo(id: $id, input:{text: $text, userId: $userId, list: $list}) {
+			  user {
+				id
+			  }
+			  id
+			  text
+			  list
+			  done
+			}
+		  }
+		EOT
+		delete_mutation = <<-EOT
+		mutation deleteTodo($id: String!) {
+			deleteTodo(input: $id) {
+			  user {
+				id
+			  }
+			  text
+			  done
+			}
+		  }
+		EOT
+		read_query      = <<-EOT
+		query findTodos{
+			todo {
+			  id
+			  text
+			  done
+			  user {
+				name
+			  }
+			  list
+			}
+		  }
+		EOT
 
 		compute_mutation_keys = {
 			"id" = "todo.id"
@@ -88,18 +244,7 @@ const (
 )
 
 func mockGqlServerResponse(req *http.Request) (*http.Response, error) {
-	reqBytes, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	reqBody := string(reqBytes)
-
-	if strings.Contains(reqBody, "findTodos") {
-		return httpmock.NewStringResponse(200, readDataResponse), nil
-	}
-
-	return httpmock.NewStringResponse(200, ""), nil
+	return httpmock.NewStringResponse(200, readDataResponse), nil
 }
 
 func mockGqlServerResponseError(req *http.Request) (*http.Response, error) {
@@ -107,16 +252,5 @@ func mockGqlServerResponseError(req *http.Request) (*http.Response, error) {
 }
 
 func mockGqlServerResponseCreate(req *http.Request) (*http.Response, error) {
-	reqBytes, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	reqBody := string(reqBytes)
-
-	if strings.Contains(reqBody, "createTodo") {
-		return httpmock.NewStringResponse(200, createDataResponse), nil
-	}
-
-	return httpmock.NewStringResponse(200, ""), nil
+	return httpmock.NewStringResponse(200, createDataResponse), nil
 }

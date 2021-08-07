@@ -41,11 +41,8 @@ func dataSourceGraphqlQuery(ctx context.Context, d *schema.ResourceData, m inter
 		return diag.FromErr(err)
 	}
 
-	if queryResponse.Errors != nil && len(queryResponse.Errors) > 0 {
-		for _, queryErr := range queryResponse.Errors {
-			diags = append(diags, diag.Diagnostic{Severity: diag.Error, Detail: queryErr.Message})
-		}
-
+	if queryErrors := queryResponse.ProcessErrors(); queryErrors.HasError() {
+		return *queryErrors
 	}
 
 	objID := hash(resBytes)

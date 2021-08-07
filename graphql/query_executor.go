@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -62,7 +63,7 @@ func queryExecute(ctx context.Context, d *schema.ResourceData, m interface{}, qu
 
 	var gqlResponse GqlQueryResponse
 	if err := json.Unmarshal(body, &gqlResponse); err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("FUCKSHIT: %v ---> %s", err, string(body))
 	}
 
 	return &gqlResponse, body, nil
