@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func queryExecute(ctx context.Context, d *schema.ResourceData, m interface{}, querySource, variableSource string) ([]byte, error) {
+func queryExecute(ctx context.Context, d *schema.ResourceData, m interface{}, querySource, variableSource string) (*GqlQueryResponse, []byte, error) {
 	query := d.Get(querySource).(string)
 	inputVariables := d.Get(variableSource).(map[string]interface{})
 	apiURL := m.(*graphqlProviderConfig).GQLServerUrl
@@ -18,12 +19,12 @@ func queryExecute(ctx context.Context, d *schema.ResourceData, m interface{}, qu
 
 	var queryBodyBuffer bytes.Buffer
 
-	queryObj := gqlQuery{
+	queryObj := GqlQuery{
 		Query:     query,
 		Variables: make(map[string]interface{}), // Create an empty map to be populated below
 	}
 
-	// Populate gqlQuery variables
+	// Populate GqlQuery variables
 	for k, v := range inputVariables {
 		// Convert any json string inputs to a struct for complex GraphQL inputs
 		js, isJS := isJSON(v)
@@ -37,12 +38,12 @@ func queryExecute(ctx context.Context, d *schema.ResourceData, m interface{}, qu
 	}
 
 	if err := json.NewEncoder(&queryBodyBuffer).Encode(queryObj); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	req, err := http.NewRequestWithContext(ctx, "POST", apiURL, &queryBodyBuffer)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	for key, value := range headers {
@@ -54,13 +55,18 @@ func queryExecute(ctx context.Context, d *schema.ResourceData, m interface{}, qu
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer resp.Body.Close()
 
 	body, _ := ioutil.ReadAll(resp.Body)
 
-	return body, nil
+	var gqlResponse GqlQueryResponse
+	if err := json.Unmarshal(body, &gqlResponse); err != nil {
+		return nil, nil, fmt.Errorf("FUCKSHIT: %v ---> %s", err, string(body))
+	}
+
+	return &gqlResponse, body, nil
 }
 
 // isJSON will check if s can be interpreted as valid JSON, and return an unmarshalled struct representing the JSON if it can.

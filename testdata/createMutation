@@ -6,6 +6,5 @@ mutation createTodo($text: String!, $userId: String!, $list: [String!]!) {
     id
     text
     list
-    done
   }
 }

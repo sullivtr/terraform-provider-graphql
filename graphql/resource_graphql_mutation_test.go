@@ -2,6 +2,7 @@ package graphql
 
 import (
 	"os"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -45,7 +46,27 @@ func TestAccGraphqlMutation_full(t *testing.T) {
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_delete_operation_variables.id", "1"),
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_delete_operation_variables.testvar1", "testval1"),
 				),
-			}},
+			},
+		},
+	})
+}
+
+func TestAccGraphqlMutation_expectError(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder("POST", queryUrl, mockGqlServerResponseError)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccGraphqlMutationResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      resourceConfigCreate,
+				ExpectError: regexp.MustCompile("bad things happened"),
+			},
+		},
 	})
 }
 

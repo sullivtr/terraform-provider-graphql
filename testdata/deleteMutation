@@ -4,6 +4,5 @@ mutation deleteTodo($id: String!) {
       id
     }
     text
-    done
   }
 }

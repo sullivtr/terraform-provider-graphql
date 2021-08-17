@@ -78,6 +78,7 @@ func (r *mutationResolver) UpdateTodo(ctx context.Context, id string, input mode
 
 	var todoResultAfterUpdate model.Todo
 	_ = json.Unmarshal([]byte(byteValueReadAfterUpdate), &todoResultAfterUpdate)
+	fmt.Println("Update successful")
 	return &todoResultAfterUpdate, nil
 }
 
@@ -104,6 +105,7 @@ func (r *mutationResolver) DeleteTodo(ctx context.Context, input string) (*model
 }
 
 func (r *queryResolver) Todo(ctx context.Context) (*model.Todo, error) {
+	fmt.Println("Reading todo")
 	jsonFile, err := os.Open("./test.json")
 	if err != nil {
 		fmt.Println(err)
@@ -114,6 +116,7 @@ func (r *queryResolver) Todo(ctx context.Context) (*model.Todo, error) {
 
 	var todoResult model.Todo
 	_ = json.Unmarshal([]byte(byteValue), &todoResult)
+	fmt.Println("TODO read successful")
 	return &todoResult, nil
 }
 

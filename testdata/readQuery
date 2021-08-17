@@ -2,7 +2,6 @@ query findTodos{
   todo {
     id
     text
-    done
     user {
       name
     }
