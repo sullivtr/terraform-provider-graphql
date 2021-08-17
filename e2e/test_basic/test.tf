@@ -2,7 +2,7 @@ terraform {
   required_providers {
     graphql = {
       source  = "terraform.example.com/examplecorp/graphql"
-      version = "1.0.0"
+      version = "2.0.0"
     }
   }
 }

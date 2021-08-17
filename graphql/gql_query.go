@@ -20,7 +20,7 @@ func (r *GqlQueryResponse) ProcessErrors() *diag.Diagnostics {
 	var diags diag.Diagnostics
 	if r.Errors != nil && len(r.Errors) > 0 {
 		for _, queryErr := range r.Errors {
-			diags = append(diags, diag.Diagnostic{Severity: diag.Error, Detail: queryErr.Message})
+			diags = append(diags, diag.Diagnostic{Summary: queryErr.Message, Severity: diag.Error, Detail: queryErr.Message})
 		}
 	}
 	return &diags
