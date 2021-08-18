@@ -62,6 +62,12 @@ func resourceGraphqlMutation() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			"force_replace": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "If true, all updates will first delete the resource and recreate it.",
+			},
 			"computed_read_operation_variables": {
 				Type: schema.TypeMap,
 				Elem: &schema.Schema{
@@ -107,6 +113,7 @@ func resourceGraphqlMutationCreateUpdate(ctx context.Context, d *schema.Resource
 	var queryResponse *GqlQueryResponse
 	var err error
 	mutationExistsHash := d.Get("existing_hash").(string)
+	forceReplace := d.Get("force_replace").(bool)
 
 	if mutationExistsHash == "" {
 		queryResponse, resBytes, err = queryExecute(ctx, d, m, "create_mutation", "mutation_variables")
@@ -131,6 +138,21 @@ func resourceGraphqlMutationCreateUpdate(ctx context.Context, d *schema.Resource
 		}
 
 	} else {
+		// If force_replace is true, empty the existing hash, delete the resource, and recreate it with updated manifest.
+		// This feature enables management of GraphQL API resources that do not support update operations.
+		// See https://github.com/sullivtr/terraform-provider-graphql/issues/37 for details on this particular use-case.
+		if forceReplace {
+			if err := d.Set("existing_hash", ""); err != nil {
+				return diag.FromErr(err)
+			}
+
+			if err := resourceGraphqlMutationDelete(ctx, d, m); err.HasError() {
+				return err
+			}
+
+			return resourceGraphqlMutationCreateUpdate(ctx, d, m)
+		}
+
 		computedVariables := d.Get("computed_update_operation_variables").(map[string]interface{})
 
 		for k, v := range mutationVariables {
