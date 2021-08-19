@@ -108,33 +108,14 @@ func resourceGraphqlMutation() *schema.Resource {
 }
 
 func resourceGraphqlMutationCreateUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	mutationVariables := d.Get("mutation_variables").(map[string]interface{})
 	var resBytes []byte
-	var queryResponse *GqlQueryResponse
-	var err error
+	var errDiags diag.Diagnostics
 	mutationExistsHash := d.Get("existing_hash").(string)
 	forceReplace := d.Get("force_replace").(bool)
 
 	if mutationExistsHash == "" {
-		queryResponse, resBytes, err = queryExecute(ctx, d, m, "create_mutation", "mutation_variables")
-		if err != nil {
-			return diag.FromErr(err)
-		}
-
-		if queryErrors := queryResponse.ProcessErrors(); queryErrors.HasError() {
-			return *queryErrors
-		}
-
-		existingHash := hash(resBytes)
-		if err := d.Set("existing_hash", fmt.Sprint(existingHash)); err != nil {
-			return diag.FromErr(err)
-		}
-
-		computeFromCreate := d.Get("compute_from_create").(bool)
-		if computeFromCreate {
-			if err := computeMutationVariables(resBytes, d); err != nil {
-				return diag.FromErr(err)
-			}
+		if resBytes, errDiags = executeCreateHook(ctx, d, m); errDiags.HasError() {
+			return errDiags
 		}
 
 	} else {
@@ -142,34 +123,17 @@ func resourceGraphqlMutationCreateUpdate(ctx context.Context, d *schema.Resource
 		// This feature enables management of GraphQL API resources that do not support update operations.
 		// See https://github.com/sullivtr/terraform-provider-graphql/issues/37 for details on this particular use-case.
 		if forceReplace {
-			if err := d.Set("existing_hash", ""); err != nil {
-				return diag.FromErr(err)
+			if errDiags = executeDeleteHook(ctx, d, m); errDiags.HasError() {
+				return errDiags
 			}
 
-			if err := resourceGraphqlMutationDelete(ctx, d, m); err.HasError() {
-				return err
+			if resBytes, errDiags = executeCreateHook(ctx, d, m); errDiags.HasError() {
+				return errDiags
 			}
-
-			return resourceGraphqlMutationCreateUpdate(ctx, d, m)
-		}
-
-		computedVariables := d.Get("computed_update_operation_variables").(map[string]interface{})
-
-		for k, v := range mutationVariables {
-			computedVariables[k] = v
-		}
-
-		if err := d.Set("computed_update_operation_variables", computedVariables); err != nil {
-			return diag.FromErr(err)
-		}
-
-		queryResponse, resBytes, err = queryExecute(ctx, d, m, "update_mutation", "computed_update_operation_variables")
-		if err != nil {
-			return diag.FromErr(err)
-		}
-
-		if queryErrors := queryResponse.ProcessErrors(); queryErrors.HasError() {
-			return *queryErrors
+		} else {
+			if resBytes, errDiags = executeUpdateHook(ctx, d, m); errDiags.HasError() {
+				return errDiags
+			}
 		}
 	}
 	objID := hash(resBytes)
@@ -215,6 +179,60 @@ func resourceGraphqlRead(ctx context.Context, d *schema.ResourceData, m interfac
 }
 
 func resourceGraphqlMutationDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	if errDiags := executeDeleteHook(ctx, d, m); errDiags.HasError() {
+		return errDiags
+	}
+	d.SetId("")
+	return nil
+}
+
+func executeCreateHook(ctx context.Context, d *schema.ResourceData, m interface{}) ([]byte, diag.Diagnostics) {
+	queryResponse, resBytes, err := queryExecute(ctx, d, m, "create_mutation", "mutation_variables")
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+
+	if queryErrors := queryResponse.ProcessErrors(); queryErrors.HasError() {
+		return nil, *queryErrors
+	}
+
+	existingHash := hash(resBytes)
+	if err := d.Set("existing_hash", fmt.Sprint(existingHash)); err != nil {
+		return nil, diag.FromErr(err)
+	}
+
+	computeFromCreate := d.Get("compute_from_create").(bool)
+	if computeFromCreate {
+		if err := computeMutationVariables(resBytes, d); err != nil {
+			return nil, diag.FromErr(err)
+		}
+	}
+	return resBytes, nil
+}
+
+func executeUpdateHook(ctx context.Context, d *schema.ResourceData, m interface{}) ([]byte, diag.Diagnostics) {
+	computedVariables := d.Get("computed_update_operation_variables").(map[string]interface{})
+	mutationVariables := d.Get("mutation_variables").(map[string]interface{})
+	for k, v := range mutationVariables {
+		computedVariables[k] = v
+	}
+
+	if err := d.Set("computed_update_operation_variables", computedVariables); err != nil {
+		return nil, diag.FromErr(err)
+	}
+
+	queryResponse, resBytes, err := queryExecute(ctx, d, m, "update_mutation", "computed_update_operation_variables")
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+
+	if queryErrors := queryResponse.ProcessErrors(); queryErrors.HasError() {
+		return nil, *queryErrors
+	}
+	return resBytes, nil
+}
+
+func executeDeleteHook(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	queryResponse, _, err := queryExecute(ctx, d, m, "delete_mutation", "computed_delete_operation_variables")
 	if err != nil {
 		return diag.FromErr(err)
@@ -226,7 +244,6 @@ func resourceGraphqlMutationDelete(ctx context.Context, d *schema.ResourceData, 
 
 	return nil
 }
-
 func computeMutationVariables(queryResponseBytes []byte, d *schema.ResourceData) error {
 	dataKeys := d.Get("compute_mutation_keys").(map[string]interface{})
 	mutationVariables := d.Get("mutation_variables").(map[string]interface{})

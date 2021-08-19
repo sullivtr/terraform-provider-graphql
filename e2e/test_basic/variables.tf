@@ -13,3 +13,8 @@ variable "compute_mutation_keys" {
 variable "compute_from_create" {
   type = bool
 }
+
+variable "force_replace" {
+  type = bool
+  default = false
+}
