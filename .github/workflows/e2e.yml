@@ -31,7 +31,7 @@ jobs:
       uses: goreleaser/goreleaser-action@v2.1.1
       with:
         version: latest
-        args: release --snapshot --skip-validate --skip-publish --skip-sign -f ../../.goreleaser-e2e-build.yml
+        args: release --snapshot --skip-validate --skip-publish --skip-sign -f .goreleaser-e2e-build.yml
 
     - name: Run test
       run: make test
