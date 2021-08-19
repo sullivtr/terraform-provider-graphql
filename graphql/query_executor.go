@@ -63,7 +63,7 @@ func queryExecute(ctx context.Context, d *schema.ResourceData, m interface{}, qu
 
 	var gqlResponse GqlQueryResponse
 	if err := json.Unmarshal(body, &gqlResponse); err != nil {
-		return nil, nil, fmt.Errorf("FUCKSHIT: %v ---> %s", err, string(body))
+		return nil, nil, fmt.Errorf("unable to parse graphql server response: %v ---> %s", err, string(body))
 	}
 
 	return &gqlResponse, body, nil

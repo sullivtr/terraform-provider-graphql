@@ -42,11 +42,6 @@ data "graphql_query" "basic_query" {
   query_variables = {}
 }
 
-
-output "mutation_output" {
-  value = graphql_mutation.basic_mutation
-}
-
 output "query_output" {
   value = data.graphql_query.basic_query
 }

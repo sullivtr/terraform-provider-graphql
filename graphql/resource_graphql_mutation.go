@@ -65,7 +65,6 @@ func resourceGraphqlMutation() *schema.Resource {
 			"force_replace": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Default:     false,
 				Description: "If true, all updates will first delete the resource and recreate it.",
 			},
 			"computed_read_operation_variables": {
@@ -100,44 +99,48 @@ func resourceGraphqlMutation() *schema.Resource {
 				Computed:    true,
 			},
 		},
-		CreateContext: resourceGraphqlMutationCreateUpdate,
-		UpdateContext: resourceGraphqlMutationCreateUpdate,
+		CreateContext: resourceGraphqlMutationCreate,
+		UpdateContext: resourceGraphqlMutationUpdate,
 		ReadContext:   resourceGraphqlRead,
 		DeleteContext: resourceGraphqlMutationDelete,
 	}
 }
 
-func resourceGraphqlMutationCreateUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceGraphqlMutationCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var resBytes []byte
 	var errDiags diag.Diagnostics
-	mutationExistsHash := d.Get("existing_hash").(string)
-	forceReplace := d.Get("force_replace").(bool)
 
-	if mutationExistsHash == "" {
-		if resBytes, errDiags = executeCreateHook(ctx, d, m); errDiags.HasError() {
+	if resBytes, errDiags = executeCreateHook(ctx, d, m); errDiags.HasError() {
+		return errDiags
+	}
+
+	objID := hash(resBytes)
+	d.SetId(fmt.Sprint(objID))
+
+	resourceGraphqlRead(ctx, d, m)
+	return errDiags
+}
+
+func resourceGraphqlMutationUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var errDiags diag.Diagnostics
+
+	// If force_replace is true, empty the existing hash, delete the resource, and recreate it with updated manifest.
+	// This feature enables management of GraphQL API resources that do not support update operations.
+	// See https://github.com/sullivtr/terraform-provider-graphql/issues/37 for details on this particular use-case.
+	forceReplace := d.Get("force_replace").(bool)
+	if forceReplace {
+		if errDiags = executeDeleteHook(ctx, d, m); errDiags.HasError() {
 			return errDiags
 		}
 
+		if _, errDiags = executeCreateHook(ctx, d, m); errDiags.HasError() {
+			return errDiags
+		}
 	} else {
-		// If force_replace is true, empty the existing hash, delete the resource, and recreate it with updated manifest.
-		// This feature enables management of GraphQL API resources that do not support update operations.
-		// See https://github.com/sullivtr/terraform-provider-graphql/issues/37 for details on this particular use-case.
-		if forceReplace {
-			if errDiags = executeDeleteHook(ctx, d, m); errDiags.HasError() {
-				return errDiags
-			}
-
-			if resBytes, errDiags = executeCreateHook(ctx, d, m); errDiags.HasError() {
-				return errDiags
-			}
-		} else {
-			if resBytes, errDiags = executeUpdateHook(ctx, d, m); errDiags.HasError() {
-				return errDiags
-			}
+		if _, errDiags = executeUpdateHook(ctx, d, m); errDiags.HasError() {
+			return errDiags
 		}
 	}
-	objID := hash(resBytes)
-	d.SetId(fmt.Sprint(objID))
 
 	return resourceGraphqlRead(ctx, d, m)
 }
@@ -152,12 +155,12 @@ func resourceGraphqlRead(ctx context.Context, d *schema.ResourceData, m interfac
 	}
 
 	if err := d.Set("computed_read_operation_variables", computedVariables); err != nil {
-		return diag.FromErr(err)
+		return diag.FromErr(fmt.Errorf("unable to set computed_read_operation_variables: %w", err))
 	}
 
 	queryResponse, resBytes, err := queryExecute(ctx, d, m, "read_query", "computed_read_operation_variables")
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.FromErr(fmt.Errorf("unable to execute read query: %w", err))
 	}
 
 	if queryErrors := queryResponse.ProcessErrors(); queryErrors.HasError() {
@@ -171,11 +174,11 @@ func resourceGraphqlRead(ctx context.Context, d *schema.ResourceData, m interfac
 	computeFromCreate := d.Get("compute_from_create").(bool)
 	if !computeFromCreate {
 		if err := computeMutationVariables(resBytes, d); err != nil {
-			return diag.FromErr(err)
+			return diag.FromErr(fmt.Errorf("unable to compute keys: %w", err))
 		}
 	}
 
-	return diag.Diagnostics{}
+	return nil
 }
 
 func resourceGraphqlMutationDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -189,7 +192,7 @@ func resourceGraphqlMutationDelete(ctx context.Context, d *schema.ResourceData, 
 func executeCreateHook(ctx context.Context, d *schema.ResourceData, m interface{}) ([]byte, diag.Diagnostics) {
 	queryResponse, resBytes, err := queryExecute(ctx, d, m, "create_mutation", "mutation_variables")
 	if err != nil {
-		return nil, diag.FromErr(err)
+		return nil, diag.FromErr(fmt.Errorf("unable to execute create query: %w", err))
 	}
 
 	if queryErrors := queryResponse.ProcessErrors(); queryErrors.HasError() {
@@ -204,7 +207,7 @@ func executeCreateHook(ctx context.Context, d *schema.ResourceData, m interface{
 	computeFromCreate := d.Get("compute_from_create").(bool)
 	if computeFromCreate {
 		if err := computeMutationVariables(resBytes, d); err != nil {
-			return nil, diag.FromErr(err)
+			return nil, diag.FromErr(fmt.Errorf("unable to compute keys: %w", err))
 		}
 	}
 	return resBytes, nil
@@ -218,12 +221,12 @@ func executeUpdateHook(ctx context.Context, d *schema.ResourceData, m interface{
 	}
 
 	if err := d.Set("computed_update_operation_variables", computedVariables); err != nil {
-		return nil, diag.FromErr(err)
+		return nil, diag.FromErr(fmt.Errorf("unable to set computed_update_operation_variables: %w", err))
 	}
 
 	queryResponse, resBytes, err := queryExecute(ctx, d, m, "update_mutation", "computed_update_operation_variables")
 	if err != nil {
-		return nil, diag.FromErr(err)
+		return nil, diag.FromErr(fmt.Errorf("unable to execute update query: %w", err))
 	}
 
 	if queryErrors := queryResponse.ProcessErrors(); queryErrors.HasError() {
@@ -235,7 +238,7 @@ func executeUpdateHook(ctx context.Context, d *schema.ResourceData, m interface{
 func executeDeleteHook(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	queryResponse, _, err := queryExecute(ctx, d, m, "delete_mutation", "computed_delete_operation_variables")
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.FromErr(fmt.Errorf("unable to execute delete query: %w", err))
 	}
 
 	if queryErrors := queryResponse.ProcessErrors(); queryErrors.HasError() {
