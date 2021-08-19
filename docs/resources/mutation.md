@@ -47,6 +47,7 @@ resource "graphql_mutation" "basic_mutation" {
 
 * `compute_mutation_keys` - (Required) A map representing the hierarchy of your response object leading to the object properties that will be used during a terraform destroy & update operation.
 * `compute_from_create` - A bool to determine if computed keys should be computed based off of the response from the create request, or the read request. Default: false
+* `force_replace` - A bool to determine if the resource should always be replaced (deleted and recreated) during update lifecycle hooks. Default: false
 
 
 ## Attribute Reference

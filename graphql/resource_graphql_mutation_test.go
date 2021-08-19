@@ -95,6 +95,42 @@ func TestAccGraphqlMutation_computefromcreate(t *testing.T) {
 	})
 }
 
+func TestAccGraphqlMutation_force_replace(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder("POST", queryUrl, mockGqlServerResponse)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccGraphqlMutationResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: resourceConfigCreate,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_update_operation_variables.id", "1"),
+					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_update_operation_variables.text", "something todo"),
+					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_update_operation_variables.userId", "900"),
+					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_delete_operation_variables.id", "1"),
+					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_delete_operation_variables.testvar1", "testval1"),
+					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "query_response", readDataResponse),
+				),
+			},
+			{
+				Config: resourceConfigUpdateForceReplace,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_update_operation_variables.id", "1"),
+					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_update_operation_variables.text", "forced replacement"),
+					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_update_operation_variables.userId", "500"),
+					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_delete_operation_variables.id", "1"),
+					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_delete_operation_variables.testvar1", "testval1"),
+				),
+			},
+		},
+	})
+}
+
 func testAccGraphqlMutationResourceDestroy(s *terraform.State) error {
 	resource.TestCheckNoResourceAttr("graphql_mutation.basic_mutation", "id")
 	return nil

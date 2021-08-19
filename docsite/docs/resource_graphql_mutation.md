@@ -86,6 +86,10 @@ resource "graphql_mutation" "basic_mutation" {
   
   **See the "Handling Update & Destroy" section below** for an overview of the `compute_mutation_keys` input usage. 
 
+### force_replace
+  - **Required**: false
+  - **Type**: bool
+  - **Description**: A bool to determine if the resource should always be replaced (deleted and recreated) during update lifecycle hooks.
 ## Outputs
 
 ### query_response

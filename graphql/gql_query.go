@@ -1,6 +1,10 @@
 package graphql
 
-import "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+import (
+	"fmt"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+)
 
 type GqlQuery struct {
 	Query     string                 `json:"query,omitempty"`
@@ -20,7 +24,8 @@ func (r *GqlQueryResponse) ProcessErrors() *diag.Diagnostics {
 	var diags diag.Diagnostics
 	if r.Errors != nil && len(r.Errors) > 0 {
 		for _, queryErr := range r.Errors {
-			diags = append(diags, diag.Diagnostic{Summary: queryErr.Message, Severity: diag.Error, Detail: queryErr.Message})
+			msg := fmt.Sprintf("graphql server error: %s", queryErr.Message)
+			diags = append(diags, diag.Diagnostic{Summary: msg, Severity: diag.Error, Detail: msg})
 		}
 	}
 	return &diags
