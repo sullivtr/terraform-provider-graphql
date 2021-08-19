@@ -241,6 +241,73 @@ const (
 		}
 	}
 `
+	resourceConfigUpdateForceReplace = `
+	resource "graphql_mutation" "basic_mutation" {
+		force_replace = true
+		mutation_variables = {
+			"text" = "forced replacement"
+			"userId" = "500"
+		}
+		delete_mutation_variables = {
+			"testvar1" = "testval1"
+		}
+		read_query_variables = {}
+		create_mutation = <<-EOT
+		mutation createTodo($text: String!, $userId: String!, $list: [String!]!) {
+			createTodo(input:{text: $text, userId: $userId, list: $list}) {
+			  user {
+				id
+			  }
+			  id
+			  text
+			  list
+			  done
+			}
+		  }
+		EOT
+		update_mutation = <<-EOT
+		mutation updateTodo($id: String!, $text: String!, $userId: String!, $list: [String!]!) {
+			updateTodo(id: $id, input:{text: $text, userId: $userId, list: $list}) {
+			  user {
+				id
+			  }
+			  id
+			  text
+			  list
+			  done
+			}
+		  }
+		EOT
+		delete_mutation = <<-EOT
+		mutation deleteTodo($id: String!) {
+			deleteTodo(input: $id) {
+			  user {
+				id
+			  }
+			  text
+			  done
+			}
+		  }
+		EOT
+		read_query      = <<-EOT
+		query findTodos{
+			todo {
+			  id
+			  text
+			  done
+			  user {
+				name
+			  }
+			  list
+			}
+		  }
+		EOT
+
+		compute_mutation_keys = {
+			"id" = "todo.id"
+		}
+	}
+`
 )
 
 func mockGqlServerResponse(req *http.Request) (*http.Response, error) {
