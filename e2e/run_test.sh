@@ -15,7 +15,7 @@ GREEN='\033[0;32m'
 NC='\033[0m'
 
 if [ $exit_status -ne 0 ]; then
-  $exit_status=1
+  exit_status=1
   echo -e $"\n${RED}TESTING FAILED. Review test logs for details.${NC}\n"
 else
   echo -e $"\n${GREEN}TESTING COMPLETED SUCCESSFULLY${NC}\n"
