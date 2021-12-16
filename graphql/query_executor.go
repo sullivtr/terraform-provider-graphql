@@ -46,11 +46,11 @@ func queryExecute(ctx context.Context, d *schema.ResourceData, m interface{}, qu
 		return nil, nil, err
 	}
 
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	req.Header.Set("Accept", "application/json; charset=utf-8")
 	for key, value := range headers {
 		req.Header.Set(key, value.(string))
 	}
-	req.Header.Set("Content-Type", "application/json; charset=utf-8")
-	req.Header.Set("Accept", "application/json; charset=utf-8")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
