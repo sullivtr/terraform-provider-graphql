@@ -6,8 +6,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -53,6 +55,11 @@ func queryExecute(ctx context.Context, d *schema.ResourceData, m interface{}, qu
 	req.Header.Set("Accept", "application/json; charset=utf-8")
 
 	client := &http.Client{}
+	if logging.IsDebugOrHigher() {
+		log.Printf("[DEBUG] Enabling HTTP requests/responses tracing")
+		client.Transport = logging.NewTransport("GraphQL", http.DefaultTransport)
+	}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, nil, err
