@@ -1,5 +1,7 @@
 package graph
 
+//go:generate go run github.com/99designs/gqlgen
+
 import "github.com/sullivtr/terraform-provider-graphql/gql-server/graph/model"
 
 // This file will not be regenerated automatically.
