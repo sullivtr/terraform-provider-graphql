@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 GO111MODULE=on
 cd gql-server
 (go get && go run server.go &)
