@@ -16,6 +16,37 @@ import (
 	"github.com/sullivtr/terraform-provider-graphql/gql-server/graph/model"
 )
 
+func (r *mutationResolver) LoginAPI(ctx context.Context, apiKey string) (*model.LoginAPI, error) {
+	fmt.Println("Running LoginAPI query")
+
+	loginAPI := model.LoginAPI{
+		AccessToken: apiKey, // Noop access key conversion into an access token
+	}
+
+	content, _ := json.MarshalIndent(loginAPI, "", " ")
+	err := ioutil.WriteFile("./loginAPI.json", content, 0755)
+
+	if err != nil {
+		log.Fatalf("Error: %s", err)
+	}
+
+	fmt.Println("Opening loginAPI.json")
+
+	jsonFile, err := os.Open("./loginAPI.json")
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer jsonFile.Close()
+
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	fmt.Println(string(byteValue))
+
+	var loginAPIResult model.LoginAPI
+	_ = json.Unmarshal([]byte(byteValue), &loginAPIResult)
+	return &loginAPIResult, nil
+}
+
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
 	fmt.Println("Running create query")
 

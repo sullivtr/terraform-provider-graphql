@@ -43,9 +43,14 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	LoginAPI struct {
+		AccessToken func(childComplexity int) int
+	}
+
 	Mutation struct {
 		CreateTodo func(childComplexity int, input model.NewTodo) int
 		DeleteTodo func(childComplexity int, input string) int
+		LoginAPI   func(childComplexity int, apiKey string) int
 		UpdateTodo func(childComplexity int, id string, input model.NewTodo) int
 	}
 
@@ -67,6 +72,7 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
+	LoginAPI(ctx context.Context, apiKey string) (*model.LoginAPI, error)
 	CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error)
 	UpdateTodo(ctx context.Context, id string, input model.NewTodo) (*model.Todo, error)
 	DeleteTodo(ctx context.Context, input string) (*model.Todo, error)
@@ -89,6 +95,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "LoginAPI.accessToken":
+		if e.complexity.LoginAPI.AccessToken == nil {
+			break
+		}
+
+		return e.complexity.LoginAPI.AccessToken(childComplexity), true
 
 	case "Mutation.createTodo":
 		if e.complexity.Mutation.CreateTodo == nil {
@@ -113,6 +126,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DeleteTodo(childComplexity, args["input"].(string)), true
+
+	case "Mutation.loginAPI":
+		if e.complexity.Mutation.LoginAPI == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_loginAPI_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.LoginAPI(childComplexity, args["apiKey"].(string)), true
 
 	case "Mutation.updateTodo":
 		if e.complexity.Mutation.UpdateTodo == nil {
@@ -243,6 +268,10 @@ var sources = []*ast.Source{
 #
 # https://gqlgen.com/getting-started/
 
+type LoginAPI {
+  accessToken: String!
+}
+
 type Todo {
   id: ID!
   text: String!
@@ -266,6 +295,7 @@ input NewTodo {
 }
 
 type Mutation {
+  loginAPI(apiKey: String!): LoginAPI!
   createTodo(input: NewTodo!): Todo!
   updateTodo(id: ID!, input: NewTodo!): Todo!
   deleteTodo(input: String!): Todo!
@@ -302,6 +332,20 @@ func (ec *executionContext) field_Mutation_deleteTodo_args(ctx context.Context, 
 		}
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_loginAPI_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["apiKey"]; ok {
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["apiKey"] = arg0
 	return args, nil
 }
 
@@ -376,6 +420,81 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _LoginAPI_accessToken(ctx context.Context, field graphql.CollectedField, obj *model.LoginAPI) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "LoginAPI",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AccessToken, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_loginAPI(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_loginAPI_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().LoginAPI(rctx, args["apiKey"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.LoginAPI)
+	fc.Result = res
+	return ec.marshalNLoginAPI2ᚖgithubᚗcomᚋsullivtrᚋterraformᚑproviderᚑgraphqlᚋgqlᚑserverᚋgraphᚋmodelᚐLoginAPI(ctx, field.Selections, res)
+}
 
 func (ec *executionContext) _Mutation_createTodo(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
@@ -1894,6 +2013,33 @@ func (ec *executionContext) unmarshalInputNewTodo(ctx context.Context, obj inter
 
 // region    **************************** object.gotpl ****************************
 
+var loginAPIImplementors = []string{"LoginAPI"}
+
+func (ec *executionContext) _LoginAPI(ctx context.Context, sel ast.SelectionSet, obj *model.LoginAPI) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, loginAPIImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("LoginAPI")
+		case "accessToken":
+			out.Values[i] = ec._LoginAPI_accessToken(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -1909,6 +2055,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
+		case "loginAPI":
+			out.Values[i] = ec._Mutation_loginAPI(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "createTodo":
 			out.Values[i] = ec._Mutation_createTodo(ctx, field)
 			if out.Values[i] == graphql.Null {
@@ -2318,6 +2469,20 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNLoginAPI2githubᚗcomᚋsullivtrᚋterraformᚑproviderᚑgraphqlᚋgqlᚑserverᚋgraphᚋmodelᚐLoginAPI(ctx context.Context, sel ast.SelectionSet, v model.LoginAPI) graphql.Marshaler {
+	return ec._LoginAPI(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNLoginAPI2ᚖgithubᚗcomᚋsullivtrᚋterraformᚑproviderᚑgraphqlᚋgqlᚑserverᚋgraphᚋmodelᚐLoginAPI(ctx context.Context, sel ast.SelectionSet, v *model.LoginAPI) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._LoginAPI(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNNewTodo2githubᚗcomᚋsullivtrᚋterraformᚑproviderᚑgraphqlᚋgqlᚑserverᚋgraphᚋmodelᚐNewTodo(ctx context.Context, v interface{}) (model.NewTodo, error) {
