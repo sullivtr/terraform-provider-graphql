@@ -3,9 +3,14 @@
 set -euo pipefail
 
 GO111MODULE=on
+
 cd gql-server
 rm -f test.json loginAPI.json
-(go get && go run server.go &)
+go get
+go run server.go &
+SERVER_PPID=$!
+trap "echo \"Stopping graphql test server (PPID $SERVER_PPID)\" ; pkill -P $SERVER_PPID" EXIT
+
 sleep 2
 cd ..
 go test -i
@@ -23,8 +28,5 @@ if [ $exit_status -ne 0 ]; then
 else
   echo -e $"\n${GREEN}TESTING COMPLETED SUCCESSFULLY${NC}\n"
 fi
-
-echo "Stopping graphql test server"
-kill $(lsof -t -i:8080)
 
 exit $exit_status
