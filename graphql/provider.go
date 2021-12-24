@@ -15,7 +15,6 @@ func Provider() *schema.Provider {
 			"url": {
 				Required:    true,
 				Type:        schema.TypeString,
-				ForceNew:    true,
 				DefaultFunc: schema.EnvDefaultFunc("TF_GRAPHQL_URL", nil),
 			},
 			"headers": {
@@ -24,7 +23,6 @@ func Provider() *schema.Provider {
 					Type: schema.TypeString,
 				},
 				Optional: true,
-				ForceNew: true,
 			},
 			"oauth2_login_query": {
 				Type:     schema.TypeString,
