@@ -29,7 +29,7 @@ provider "graphql" {
   oauth2_login_query_variables = {
     "apiKey" = "5555-44-33-99"
   }
-  oauth2_login_query_value_attribute = "data.loginAPI.accessToken"
+  oauth2_login_query_value_attribute = "loginAPI.accessToken"
 }
 ```
 
@@ -45,7 +45,7 @@ In addition to [generic `provider` arguments](https://www.terraform.io/docs/conf
 
 * `oauth2_login_query_variables` - (Optional) A map of any variables that will be used in your OAuth 2.0 login query. Each variable's value is interpreted as JSON when possible. Note: you must also define `oauth2_login_query` and `oauth2_login_query_value_attribute` when using `oauth2_login_query_variables`.
 
-* `oauth2_login_query_value_attribute` - (Optional) The dot-separated path to the attribute containing the access token value that will be extracted from the OAuth 2.0 login query or mutation response (it must start with `data.`, e.g. `data.loginAPI.accessToken`). Note: you must also define `oauth2_login_query` and `oauth2_login_query_variables` when using `oauth2_login_query_value_attribute`.
+* `oauth2_login_query_value_attribute` - (Optional) The dot-separated path to the attribute containing the access token value that will be extracted from the OAuth 2.0 login query or mutation response `data` (e.g. `loginAPI.accessToken`). Note: you must also define `oauth2_login_query` and `oauth2_login_query_variables` when using `oauth2_login_query_value_attribute`.
 
 ## Full documentation
 

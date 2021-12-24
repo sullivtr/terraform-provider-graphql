@@ -2,7 +2,6 @@ package graphql
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -63,7 +62,7 @@ func graphqlConfigure(ctx context.Context, d *schema.ResourceData) (interface{},
 	oauth2LoginQueryValueAttribute := d.Get("oauth2_login_query_value_attribute").(string)
 
 	if oauth2LoginQuery != "" && len(oauth2LoginQueryVariables) > 0 && oauth2LoginQueryValueAttribute != "" {
-		queryResponse, resBytes, err := queryExecute(ctx, d, config, "oauth2_login_query", "oauth2_login_query_variables")
+		queryResponse, _, err := queryExecute(ctx, d, config, "oauth2_login_query", "oauth2_login_query_variables")
 		if err != nil {
 			return nil, diag.FromErr(fmt.Errorf("unable to execute oauth2_login_query: %w", err))
 		}
@@ -72,13 +71,8 @@ func graphqlConfigure(ctx context.Context, d *schema.ResourceData) (interface{},
 			return nil, *queryErrors
 		}
 
-		var queryResponseData map[string]interface{}
-		if err := json.Unmarshal(resBytes, &queryResponseData); err != nil {
-			return nil, diag.FromErr(err)
-		}
-
 		var value string
-		if value, err = getOAuth2LoginQueryAttributeValue(oauth2LoginQueryValueAttribute, queryResponseData); err != nil {
+		if value, err = getOAuth2LoginQueryAttributeValue(oauth2LoginQueryValueAttribute, queryResponse.Data); err != nil {
 			return nil, diag.FromErr(err)
 		}
 
@@ -104,7 +98,7 @@ type graphqlProviderConfig struct {
 }
 
 func getOAuth2LoginQueryAttributeValue(attribute string, data map[string]interface{}) (string, error) {
-	resourceKeyArgs := buildResourceKeyArgs(attribute)
+	resourceKeyArgs := buildResourceKeyArgs(attribute)[1:] // Drop the leading `data` segment
 	value, err := getResourceKey(data, resourceKeyArgs...)
 	if err != nil {
 		return "", err

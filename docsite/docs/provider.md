@@ -38,7 +38,7 @@ provider "graphql" {
   oauth2_login_query_variables = {
     "apiKey" = "5555-44-33-99"
   }
-  oauth2_login_query_value_attribute = "data.loginAPI.accessToken"
+  oauth2_login_query_value_attribute = "loginAPI.accessToken"
 }
 ```
 
@@ -67,4 +67,4 @@ provider "graphql" {
 ### oauth2_login_query_value_attribute
   - **Required**: `false`
   - **Type**: `string`
-  - **Description**: The dot-separated path to the attribute containing the access token value that will be extracted from the OAuth 2.0 login query or mutation response (it must start with `data.`, e.g. `data.loginAPI.accessToken`). Note: you must also define `oauth2_login_query` and `oauth2_login_query_variables` when using `oauth2_login_query_value_attribute`.
+  - **Description**: The dot-separated path to the attribute containing the access token value that will be extracted from the OAuth 2.0 login query or mutation response `data` (e.g. `loginAPI.accessToken`). Note: you must also define `oauth2_login_query` and `oauth2_login_query_variables` when using `oauth2_login_query_value_attribute`.

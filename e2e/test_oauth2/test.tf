@@ -14,7 +14,7 @@ provider "graphql" {
   oauth2_login_query_variables = {
     "apiKey" = "5555-44-33-99"
   }
-  oauth2_login_query_value_attribute = "data.loginAPI.accessToken"
+  oauth2_login_query_value_attribute = "loginAPI.accessToken"
 }
 
 resource "graphql_mutation" "basic_mutation" {
