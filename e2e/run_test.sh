@@ -4,6 +4,7 @@ set -euo pipefail
 
 GO111MODULE=on
 cd gql-server
+rm -f test.json loginAPI.json
 (go get && go run server.go &)
 sleep 2
 cd ..

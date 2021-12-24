@@ -1,5 +1,6 @@
 .terraform/**
 terraform-provider-graphql
+e2e/gql-server/*.json
 e2e/test_*/terraform.tfstate
 e2e/test_*/terraform.tfstate.backup
 e2e/test_*/terraform.d
