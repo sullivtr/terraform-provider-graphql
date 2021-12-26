@@ -91,9 +91,8 @@ func graphqlConfigure(ctx context.Context, d *schema.ResourceData) (interface{},
 }
 
 type graphqlProviderConfig struct {
-	GQLServerUrl   string
-	RequestHeaders map[string]interface{}
-
+	GQLServerUrl                string
+	RequestHeaders              map[string]interface{}
 	RequestAuthorizationHeaders map[string]interface{}
 }
 
