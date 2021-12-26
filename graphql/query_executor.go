@@ -18,6 +18,7 @@ func queryExecute(ctx context.Context, d *schema.ResourceData, m interface{}, qu
 	inputVariables := d.Get(variableSource).(map[string]interface{})
 	apiURL := m.(*graphqlProviderConfig).GQLServerUrl
 	headers := m.(*graphqlProviderConfig).RequestHeaders
+	authorizationHeaders := m.(*graphqlProviderConfig).RequestAuthorizationHeaders
 
 	var queryBodyBuffer bytes.Buffer
 
@@ -50,6 +51,9 @@ func queryExecute(ctx context.Context, d *schema.ResourceData, m interface{}, qu
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	req.Header.Set("Accept", "application/json; charset=utf-8")
+	for key, value := range authorizationHeaders {
+		req.Header.Set(key, value.(string))
+	}
 	for key, value := range headers {
 		req.Header.Set(key, value.(string))
 	}

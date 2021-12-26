@@ -14,7 +14,6 @@ func dataSourceGraphql() *schema.Resource {
 			"query": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"query_variables": {
 				Type: schema.TypeMap,
@@ -22,7 +21,6 @@ func dataSourceGraphql() *schema.Resource {
 					Type: schema.TypeString,
 				},
 				Required: true,
-				ForceNew: true,
 			},
 			"query_response": {
 				Type:        schema.TypeString,

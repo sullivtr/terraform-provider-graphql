@@ -11,8 +11,10 @@ fetch: ## download makefile dependencies
 	@hash goreleaser 2>/dev/null || go get -u -v github.com/goreleaser/goreleaser
 
 clean: ## cleans previously built binaries and test folders
-	@rm -rf $(TEST_DESTS)/.terraform;
-	@rm -rf $(TEST_DESTS)/terraform.d;
+	@for f in $(TEST_DESTS); do \
+	  rm -rf $$f/.terraform; \
+	  rm -rf $$f/terraform.d; \
+	done
 	@rm -rf ./dist;
 
 build: clean fetch ## publishes in dry run mode

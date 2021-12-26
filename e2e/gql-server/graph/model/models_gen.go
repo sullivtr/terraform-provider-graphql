@@ -2,6 +2,10 @@
 
 package model
 
+type LoginAPI struct {
+	AccessToken string `json:"accessToken"`
+}
+
 type NewTodo struct {
 	Text   string    `json:"text"`
 	UserID string    `json:"userId"`
