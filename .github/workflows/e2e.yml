@@ -2,36 +2,35 @@ name: e2e tests
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]  
+    branches: [master]
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
-    - name: Checkout
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
 
-    - name: Set up Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.16
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.0.5
+          terraform_wrapper: false
 
-    - name: Set up Terraform
-      uses: hashicorp/setup-terraform@v1
-      with:
-        terraform_version: 1.0.5
-        terraform_wrapper: false
+      - name: Build
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          version: latest
+          args: release --snapshot --skip-validate --skip-publish --skip-sign -f .goreleaser-e2e-build.yml
 
-    - name: Build
-      uses: goreleaser/goreleaser-action@v2.1.1
-      with:
-        version: latest
-        args: release --snapshot --skip-validate --skip-publish --skip-sign -f .goreleaser-e2e-build.yml
-
-    - name: Run test
-      run: make test
+      - name: Run test
+        run: make test
