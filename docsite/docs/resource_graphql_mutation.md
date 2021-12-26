@@ -213,7 +213,7 @@ mutation deleteUser($userID: String!) {
 ### Read Query Example
 ```hcl
 mutation getUserByEmail($email: String!) {
-  deleteUser(userInput: {
+  getUserByEmail(userInput: {
     email: $email
   }) {
     id,
