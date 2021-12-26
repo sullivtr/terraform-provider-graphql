@@ -62,7 +62,8 @@
 <li>The easiest way to install third-party terraform plugins like this on is to place the dowloaded binary in <code>~/.terraform.d/plugins/</code>.</li>
 </ul>
 <h2><a class="anchor" aria-hidden="true" id="provider-configuration"></a><a href="#provider-configuration" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Provider Configuration</h2>
-<p>This provider has only two configuration inputs: <code>url</code> &amp; <code>headers</code></p>
+<p>This provider has several configuration inputs.</p>
+<p>In most cases, only <code>url</code> &amp; <code>headers</code> are used, e.g.:</p>
 <pre><code class="hljs css language-hcl"><span class="token keyword">provider<span class="token type variable"> "graphql" </span></span><span class="token punctuation">{</span>
   <span class="token property">url</span> <span class="token punctuation">=</span> <span class="token string">"https://your-graphql-server-url"</span>
   <span class="token property">headers</span> <span class="token punctuation">=</span> <span class="token punctuation">{</span>
@@ -72,15 +73,46 @@
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
+<p>In some advanced cases where the GraphQL server exposes an endpoint to perform OAuth 2.0 authentication, instead of using <code>headers</code>, you can use <code>oauth2_login_query</code>, <code>oauth2_login_query_variables</code> and <code>oauth2_login_query_value_attribute</code>, e.g.:</p>
+<pre><code class="hljs css language-hcl"><span class="token keyword">provider<span class="token type variable"> "graphql" </span></span><span class="token punctuation">{</span>
+  <span class="token property">url</span> <span class="token punctuation">=</span> <span class="token string">"https://your-graphql-server-url"</span>
+
+  <span class="token property">oauth2_login_query</span> <span class="token punctuation">=</span> <span class="token string">"mutation loginAPI($apiKey: String!) {loginAPI(apiKey: $apiKey) {accessToken}}"</span>
+  <span class="token property">oauth2_login_query_variables</span> <span class="token punctuation">=</span> <span class="token punctuation">{</span>
+    <span class="token property">"apiKey"</span> <span class="token punctuation">=</span> <span class="token string">"5555-44-33-99"</span>
+  <span class="token punctuation">}</span>
+  <span class="token property">oauth2_login_query_value_attribute</span> <span class="token punctuation">=</span> <span class="token string">"loginAPI.accessToken"</span>
+<span class="token punctuation">}</span>
+</code></pre>
 <h2><a class="anchor" aria-hidden="true" id="inputs"></a><a href="#inputs" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Inputs</h2>
 <h3><a class="anchor" aria-hidden="true" id="url"></a><a href="#url" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>url</h3>
 <ul>
+<li><strong>Required</strong>: <code>true</code></li>
 <li><strong>Type</strong>: <code>string</code></li>
-<li><strong>Description</strong>: <code>The GraphQL API url that the provider will use to make requests</code></li>
+<li><strong>Description</strong>: The GraphQL API url that the provider will use to make requests.</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="headers"></a><a href="#headers" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>headers</h3>
 <ul>
+<li><strong>Required</strong>: <code>false</code></li>
 <li><strong>Type</strong>: <code>map(string)</code></li>
-<li><strong>Desciption</strong>: <code>Any http headers that the GraphQL API requires. (eg; Authentication; x-api-key; etc)</code></li>
+<li><strong>Desciption</strong>: Any http headers that the GraphQL API server requires (e.g. <code>Authentication</code>, <code>x-api-key</code>, etc.).</li>
 </ul>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-next button" href="/terraform-provider-graphql/docs/data_graphql_query"><span>graphql_query</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#synopsis">Synopsis</a></li><li><a href="#provider-installation">Provider Installation</a></li><li><a href="#provider-configuration">Provider Configuration</a></li><li><a href="#inputs">Inputs</a><ul class="toc-headings"><li><a href="#url">url</a></li><li><a href="#headers">headers</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="copyright">Copyright © 2021 Tyler R. Sullivan</section></footer></div></body></html>
+<h3><a class="anchor" aria-hidden="true" id="oauth2_login_query"></a><a href="#oauth2_login_query" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>oauth2_login_query</h3>
+<ul>
+<li><strong>Required</strong>: <code>false</code></li>
+<li><strong>Type</strong>: <code>string</code></li>
+<li><strong>Description</strong>: The GraphQL query or mutation used to retrieve an OAuth 2.0 access token from the GraphQL server. It will be executed once during provider initialization. Be aware that renewal is not implemented, which may cause issue with short-lived access tokens. Note: you must also define <code>oauth2_login_query_variables</code> and <code>oauth2_login_query_value_attribute</code> when using <code>oauth2_login_query</code>.</li>
+</ul>
+<h3><a class="anchor" aria-hidden="true" id="oauth2_login_query_variables"></a><a href="#oauth2_login_query_variables" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>oauth2_login_query_variables</h3>
+<ul>
+<li><strong>Required</strong>: <code>false</code></li>
+<li><strong>Type</strong>: <code>map(string)</code></li>
+<li><strong>Desciption</strong>: A map of any variables that will be used in your OAuth 2.0 login query. Each variable's value is interpreted as JSON when possible. Note: you must also define <code>oauth2_login_query</code> and <code>oauth2_login_query_value_attribute</code> when using <code>oauth2_login_query_variables</code>.</li>
+</ul>
+<h3><a class="anchor" aria-hidden="true" id="oauth2_login_query_value_attribute"></a><a href="#oauth2_login_query_value_attribute" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>oauth2_login_query_value_attribute</h3>
+<ul>
+<li><strong>Required</strong>: <code>false</code></li>
+<li><strong>Type</strong>: <code>string</code></li>
+<li><strong>Description</strong>: The dot-separated path to the attribute containing the access token value that will be extracted from the OAuth 2.0 login query or mutation response <code>data</code> (e.g. <code>loginAPI.accessToken</code>). Note: you must also define <code>oauth2_login_query</code> and <code>oauth2_login_query_variables</code> when using <code>oauth2_login_query_value_attribute</code>.</li>
+</ul>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-next button" href="/terraform-provider-graphql/docs/data_graphql_query"><span>graphql_query</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#synopsis">Synopsis</a></li><li><a href="#provider-installation">Provider Installation</a></li><li><a href="#provider-configuration">Provider Configuration</a></li><li><a href="#inputs">Inputs</a><ul class="toc-headings"><li><a href="#url">url</a></li><li><a href="#headers">headers</a></li><li><a href="#oauth2_login_query">oauth2_login_query</a></li><li><a href="#oauth2_login_query_variables">oauth2_login_query_variables</a></li><li><a href="#oauth2_login_query_value_attribute">oauth2_login_query_value_attribute</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="copyright">Copyright © 2021 Tyler R. Sullivan</section></footer></div></body></html>
