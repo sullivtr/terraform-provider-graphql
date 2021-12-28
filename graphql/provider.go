@@ -98,7 +98,7 @@ type graphqlProviderConfig struct {
 
 func getOAuth2LoginQueryAttributeValue(attribute string, data map[string]interface{}) (string, error) {
 	resourceKeyArgs := buildResourceKeyArgs(attribute)[1:] // Drop the leading `data` segment
-	value, err := getResourceKey(data, resourceKeyArgs...)
+	value, err := getResourceKV(data, resourceKeyArgs...)
 	if err != nil {
 		return "", err
 	}

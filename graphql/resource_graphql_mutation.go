@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -117,8 +118,11 @@ func resourceGraphqlMutationCreate(ctx context.Context, d *schema.ResourceData, 
 	objID := hash(resBytes)
 	d.SetId(fmt.Sprint(objID))
 
-	resourceGraphqlRead(ctx, d, m)
-	return errDiags
+	if errDiags.HasError() {
+		return errDiags
+	}
+
+	return resourceGraphqlRead(ctx, d, m)
 }
 
 func resourceGraphqlMutationUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -146,7 +150,7 @@ func resourceGraphqlMutationUpdate(ctx context.Context, d *schema.ResourceData, 
 }
 
 func resourceGraphqlRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-
+	diags := diag.Diagnostics{}
 	queryVariables := d.Get("read_query_variables").(map[string]interface{})
 	computedVariables := d.Get("computed_read_operation_variables").(map[string]interface{})
 
@@ -165,6 +169,24 @@ func resourceGraphqlRead(ctx context.Context, d *schema.ResourceData, m interfac
 
 	if queryErrors := queryResponse.ProcessErrors(); queryErrors.HasError() {
 		return *queryErrors
+	}
+
+	diff, err := computeQueryResponseDiff(resBytes, d)
+	if diff != "" {
+		e := make(map[string]interface{})
+		if err := d.Set("mutation_variables", e); err != nil {
+			return diag.FromErr(err)
+		}
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Warning,
+			Summary: `Resource server state has drifted from terraform state. The server state will be overwritten. 
+If you are on terraform version < 1.0.0, you will have to reconcile server state manaually.`,
+			Detail: fmt.Sprintf("DIFF:\n%s", diff),
+		})
+		return diags
+	}
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	if err := d.Set("query_response", string(resBytes)); err != nil {
@@ -247,6 +269,37 @@ func executeDeleteHook(ctx context.Context, d *schema.ResourceData, m interface{
 
 	return nil
 }
+
+func computeQueryResponseDiff(queryResponseBytes []byte, d *schema.ResourceData) (string, error) {
+	mutationVariables := d.Get("mutation_variables").(map[string]interface{})
+	currentQueryResponse := d.Get("query_response").(string)
+
+	if currentQueryResponse == "" {
+		return "", nil
+	}
+
+	oldQueryResponseObj := make(map[string]interface{})
+	err := json.Unmarshal([]byte(currentQueryResponse), &oldQueryResponseObj)
+	if err != nil {
+		return "", err
+	}
+
+	newQueryResponseObj := make(map[string]interface{})
+	err = json.Unmarshal(queryResponseBytes, &newQueryResponseObj)
+	if err != nil {
+		return "", err
+	}
+
+	diff := cmp.Diff(oldQueryResponseObj, newQueryResponseObj)
+	if diff != "" {
+		for k := range mutationVariables {
+			mutationVariables[k] = ""
+		}
+	}
+
+	return diff, nil
+}
+
 func computeMutationVariables(queryResponseBytes []byte, d *schema.ResourceData) error {
 	dataKeys := d.Get("compute_mutation_keys").(map[string]interface{})
 	mutationVariables := d.Get("mutation_variables").(map[string]interface{})

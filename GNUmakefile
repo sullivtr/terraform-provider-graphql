@@ -20,6 +20,8 @@ clean: ## cleans previously built binaries and test folders
 build: clean fetch ## publishes in dry run mode
 	$(GOPATH)/bin/goreleaser --skip-publish --snapshot --skip-sign 
 
+builde2e: clean fetch ## publishes in dry run mode
+	$(GOPATH)/bin/goreleaser --skip-publish --snapshot --skip-sign -f .goreleaser-e2e-build.yml 
 
 .PHONY: test copyplugins
 

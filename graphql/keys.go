@@ -29,7 +29,7 @@ func computeMutationVariableKeys(keyMaps map[string]interface{}, responseObject 
 	var mvks = make(map[string]string)
 	for k, v := range keyMaps {
 		resourceKeyArgs := buildResourceKeyArgs(v.(string))
-		key, err := getResourceKey(responseObject, resourceKeyArgs...)
+		key, err := getResourceKV(responseObject, resourceKeyArgs...)
 		if err != nil {
 			return nil, err
 		}
@@ -38,7 +38,7 @@ func computeMutationVariableKeys(keyMaps map[string]interface{}, responseObject 
 	return mvks, nil
 }
 
-func getResourceKey(m map[string]interface{}, ks ...string) (val interface{}, err error) {
+func getResourceKV(m map[string]interface{}, ks ...string) (val interface{}, err error) {
 	var ok bool
 
 	if len(ks) == 0 {
@@ -76,7 +76,7 @@ func getResourceKey(m map[string]interface{}, ks ...string) (val interface{}, er
 				break
 			}
 		}
-		return getResourceKey(obj, ks[1:]...)
+		return getResourceKV(obj, ks[1:]...)
 	}
 
 	// The expected key is not nested inside of an array, so grab its value or continue walking the object tree
@@ -88,7 +88,7 @@ func getResourceKey(m map[string]interface{}, ks ...string) (val interface{}, er
 		return nil, fmt.Errorf("malformed structure at %#v", val)
 	} else {
 		// parse value for the next property
-		return getResourceKey(m, ks[1:]...)
+		return getResourceKV(m, ks[1:]...)
 	}
 }
 

@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go/storage v1.12.0 // indirect
 	github.com/aws/aws-sdk-go v1.34.33 // indirect
 	github.com/fatih/color v1.9.0 // indirect
+	github.com/google/go-cmp v0.5.6
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.7.0
 	github.com/jarcoal/httpmock v1.0.6
 	github.com/mattn/go-colorable v0.1.7 // indirect
