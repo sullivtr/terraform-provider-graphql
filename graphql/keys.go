@@ -92,6 +92,39 @@ func getResourceKey(m map[string]interface{}, ks ...string) (val interface{}, er
 	}
 }
 
+func mapQueryResponseInputKey(m map[string]interface{}, value, prev string, parentKeys []string) (key string, ok bool) {
+	for k, v := range m {
+		var jsonV string
+		if str, isString := v.(string); !isString {
+			bytes, err := json.Marshal(v)
+			if err != nil {
+				return
+			}
+			jsonV = string(bytes)
+		} else {
+			jsonV = str
+		}
+
+		if jsonV == value {
+			if len(parentKeys) != 0 {
+				newPrev := parentKeys[len(parentKeys)-1]
+				if newPrev != prev {
+					parentKeys = parentKeys[:len(parentKeys)-1]
+				}
+			}
+
+			parentKeys = append(parentKeys, k)
+			key = strings.Join(parentKeys, ".")
+			ok = true
+			return
+		} else if nv, isMap := v.(map[string]interface{}); isMap {
+			parentKeys = append(parentKeys, k)
+			key, ok = mapQueryResponseInputKey(nv, value, k, parentKeys)
+		}
+	}
+	return
+}
+
 func hash(v []byte) int {
 	queryResponseObj := make(map[string]interface{})
 	_ = json.Unmarshal(v, &queryResponseObj)
