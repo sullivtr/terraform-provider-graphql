@@ -3,6 +3,7 @@ query findTodos{
     id
     text
     user {
+      id
       name
     }
     list
