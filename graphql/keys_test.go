@@ -3,10 +3,13 @@ package graphql
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+var datablob = `{"data": {"someField": "someValue", "items": ["itemValueOne", "itemValueTwo"], "otherItems": [{"field1": "value1", "field2": "value2"}, {"field1": "value3", "field2": "value4"}]}}`
 
 func TestComputeMutationVariableKeys(t *testing.T) {
 	cases := []struct {
@@ -79,4 +82,59 @@ func TestComputeMutationVariableKeys(t *testing.T) {
 			}
 		}
 	}
+}
+
+func TestMapQueryResponse(t *testing.T) {
+	var foo map[string]interface{}
+	err := json.Unmarshal([]byte(datablob), &foo)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+
+	cases := []struct {
+		value     string
+		expectKey string
+	}{
+		{
+			value:     "value1",
+			expectKey: "data.otherItems[0].field1",
+		},
+		{
+			value:     "itemValueOne",
+			expectKey: "data.items[0]",
+		},
+		{
+			value:     "someValue",
+			expectKey: "data.someField",
+		},
+		{
+			value:     "anotherListValue1",
+			expectKey: "data.funItems[0].anotherList[0]",
+		},
+	}
+
+	for i, c := range cases {
+		keyOut, _ := mapQueryResponseInputKey(foo, c.value, "", nil)
+		assert.Equal(t, c.expectKey, keyOut, "test case %d", i)
+		ks := strings.Split(keyOut, ".")
+		_, err = getResourceKey(foo, ks...)
+		assert.NoError(t, err, "test case %d", i)
+	}
+
+}
+
+func TestMapQueryResponseJSONString(t *testing.T) {
+	var foo map[string]interface{}
+	err := json.Unmarshal([]byte(datablob), &foo)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+
+	items := []string{"itemValueOne", "itemValueTwo"}
+	jsonV, _ := json.Marshal(items)
+	itemsValueKey, _ := mapQueryResponseInputKey(foo, string(jsonV), "", nil)
+	assert.Equal(t, "data.items", itemsValueKey)
+	ks := strings.Split(itemsValueKey, ".")
+	_, err = getResourceKey(foo, ks...)
+	assert.NoError(t, err)
 }

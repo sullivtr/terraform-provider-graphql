@@ -70,6 +70,9 @@ func getResourceKey(m map[string]interface{}, ks ...string) (val interface{}, er
 		var obj map[string]interface{}
 		for i := range items {
 			if index == int64(i) {
+				if strValue, ok := items[i].(string); ok {
+					return strValue, nil
+				}
 				if obj, ok = items[i].(map[string]interface{}); !ok {
 					return nil, fmt.Errorf("malformed structure at provided index: %d", i)
 				}
@@ -92,34 +95,72 @@ func getResourceKey(m map[string]interface{}, ks ...string) (val interface{}, er
 	}
 }
 
-func mapQueryResponseInputKey(m map[string]interface{}, value, prev string, parentKeys []string) (key string, ok bool) {
-	for k, v := range m {
-		var jsonV string
-		if str, isString := v.(string); !isString {
-			bytes, err := json.Marshal(v)
-			if err != nil {
-				return
+func mapQueryResponseInputKey(m interface{}, value, prev string, parentKeys []string) (key string, ok bool) {
+	if mapObj, isMap := m.(map[string]interface{}); isMap {
+		for k, v := range mapObj {
+			var jsonV string
+			// Check if v is a string, and if not, marshal it as a json string for comparison
+			if str, isString := v.(string); !isString {
+				bytes, err := json.Marshal(v)
+				if err != nil {
+					return
+				}
+				jsonV = string(bytes)
+			} else {
+				jsonV = str
 			}
-			jsonV = string(bytes)
-		} else {
-			jsonV = str
-		}
 
-		if jsonV == value {
-			if len(parentKeys) != 0 {
-				newPrev := parentKeys[len(parentKeys)-1]
-				if newPrev != prev {
-					parentKeys = parentKeys[:len(parentKeys)-1]
+			// If jsonV and input value are the same, we have found our match.
+			if strings.Compare(jsonV, value) == 0 || jsonV == value {
+				if len(parentKeys) != 0 && !strings.Contains(parentKeys[len(parentKeys)-1], "[") {
+					newPrev := parentKeys[len(parentKeys)-1]
+					if newPrev != prev {
+						parentKeys = parentKeys[:len(parentKeys)-1]
+					}
+				}
+
+				parentKeys = append(parentKeys, k)
+				key = strings.Join(parentKeys, ".")
+				ok = true
+				return
+			} else if slice, isSlice := v.([]interface{}); isSlice { // If v is a slice, we need to loop over items in the slice
+				// key, ok, parentKeys = handleSlice(slice, value, parentKeys, prev)
+
+				for i, iv := range slice {
+					// if the items in the slice are strings, we can simply compare its values
+					if innerStr, valueIsString := iv.(string); valueIsString {
+						if innerStr == value {
+							if len(parentKeys) != 0 && !strings.Contains(parentKeys[len(parentKeys)-1], "[") {
+								newPrev := parentKeys[len(parentKeys)-1]
+								if newPrev != prev {
+									parentKeys = parentKeys[:len(parentKeys)-1]
+								}
+							}
+							parentKeys = append(parentKeys, fmt.Sprintf("%s[%d]", k, i))
+							key = strings.Join(parentKeys, ".")
+							ok = true
+							return
+						}
+					} else if innerObj, isObject := iv.(map[string]interface{}); isObject { // If v is an object, traverse the object futher
+						parentKeys = append(parentKeys, fmt.Sprintf("%s[%d]", k, i))
+						key, ok = mapQueryResponseInputKey(innerObj, value, k, parentKeys)
+						if !ok {
+							parentKeys = parentKeys[:len(parentKeys)-1]
+							continue
+						}
+						return
+					} else {
+						parentKeys = parentKeys[:len(parentKeys)-1]
+						continue
+					}
+				}
+			} else if nv, isMap := v.(map[string]interface{}); isMap {
+				parentKeys = append(parentKeys, k)
+				key, ok = mapQueryResponseInputKey(nv, value, k, parentKeys)
+				if !ok {
+					continue
 				}
 			}
-
-			parentKeys = append(parentKeys, k)
-			key = strings.Join(parentKeys, ".")
-			ok = true
-			return
-		} else if nv, isMap := v.(map[string]interface{}); isMap {
-			parentKeys = append(parentKeys, k)
-			key, ok = mapQueryResponseInputKey(nv, value, k, parentKeys)
 		}
 	}
 	return
