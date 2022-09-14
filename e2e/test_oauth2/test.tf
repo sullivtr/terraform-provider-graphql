@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     graphql = {
-      source  = "registry.terraform.io/sullivtr/graphql"
+      source  = "terraform.example.com/sullivtr/graphql"
       version = "2.0.0-local"
     }
   }
