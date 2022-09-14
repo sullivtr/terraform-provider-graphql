@@ -35,7 +35,4 @@ jobs:
       - name: Run test
         run: |
           make copyplugins
-          cd e2e/test_basic && terraform init
-          cd ../../
-          cd e2e/test_oauth2 && terraform init && cd ../../
           make test
