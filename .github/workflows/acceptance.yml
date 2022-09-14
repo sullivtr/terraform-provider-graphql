@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -27,12 +27,12 @@ jobs:
           terraform_wrapper: false
 
       - name: Run test
-        run: go test -v ./... | awk '!/\[no test files\]/ {print}'
+        run: go test -v -coverprofile=cover.out ./... | awk '!/\[no test files\]/ {print}'
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./cp.out
+          file: ./cover.out
           name: codecov-umbrella
           fail_ci_if_error: false
