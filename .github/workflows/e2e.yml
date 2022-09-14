@@ -36,5 +36,6 @@ jobs:
         run: |
           make copyplugins
           tree dist
-          tree e2e/test_basic/terraform.d
+          tree ~/.terraform.d
+          lsstat ~/.terraform.d/plugins
           make test
