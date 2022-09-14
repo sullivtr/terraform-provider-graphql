@@ -60,6 +60,50 @@ func TestBasicCreateUpdateMutations(t *testing.T) {
 	assert.NoFileExists(t, "./gql-server/test.json")
 }
 
+func TestBasicCreateUpdateMutationsRemoteStateVerificationDisabled(t *testing.T) {
+
+	varFileCreate := []string{"./variable_initial_create_remote_state_verify_disabled.tfvars"}
+	varFileUpdate := []string{"./variable_update.tfvars"}
+	terraformOptionsCreate := &terraform.Options{
+		// Set the path to the Terraform code that will be tested.
+		TerraformDir: "./test_basic",
+		VarFiles:     varFileCreate,
+		Logger:       logger.Discard,
+	}
+
+	terraformOptionsUpdate := &terraform.Options{
+		TerraformDir: "./test_basic",
+		VarFiles:     varFileUpdate,
+		Logger:       logger.Discard,
+	}
+
+	// Ensure workspace is clean
+	assert.NoFileExists(t, "./gql-server/test.json")
+
+	terraform.InitAndApply(t, terraformOptionsCreate)
+
+	// Validate creation
+	assert.FileExists(t, "./gql-server/test.json")
+
+	// Validate data source output
+	dataSourceOutput, _ := terraform.OutputJsonE(t, terraformOptionsCreate, "query_output")
+	assert.Contains(t, dataSourceOutput, initialTextOutput)
+
+	// Validate computed delete variables
+	deleteVariableOutput, _ := terraform.OutputJsonE(t, terraformOptionsCreate, "computed_delete_variables")
+	assert.Contains(t, deleteVariableOutput, idOutPut)
+	assert.Contains(t, deleteVariableOutput, testVarComputed)
+
+	// Run update & validate changes
+	terraform.InitAndApply(t, terraformOptionsUpdate)
+	updatedOutput, _ := terraform.OutputJsonE(t, terraformOptionsUpdate, "query_output")
+	assert.Contains(t, updatedOutput, updatedTextOutput)
+	assert.NotContains(t, updatedOutput, initialTextOutput)
+
+	terraform.Destroy(t, terraformOptionsUpdate)
+	assert.NoFileExists(t, "./gql-server/test.json")
+}
+
 func TestBasicForceReplace(t *testing.T) {
 
 	varFileCreate := []string{"./variable_initial_create.tfvars"}

@@ -35,7 +35,7 @@ copyplugins: ## copy plugins to test folders
 		done; \
 	done
 
-test: copyplugins ## test
+test: ## test
 	@cd e2e && $(MAKE) test
 
 fulltest: build test ## build and test
