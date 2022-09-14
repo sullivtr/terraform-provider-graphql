@@ -33,4 +33,4 @@ jobs:
           args: release --snapshot --skip-validate --skip-publish --skip-sign -f .goreleaser-e2e-build.yml
 
       - name: Run test
-        run: make copyplugins && make test
+        run: make copyplugins && ls e2e/test_basic/terraform.d && make test
