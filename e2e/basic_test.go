@@ -36,7 +36,7 @@ func TestBasicCreateUpdateMutations(t *testing.T) {
 	// Ensure workspace is clean
 	assert.NoFileExists(t, "./gql-server/test.json")
 
-	terraform.InitAndApply(t, terraformOptionsCreate)
+	terraform.Apply(t, terraformOptionsCreate)
 
 	// Validate creation
 	assert.FileExists(t, "./gql-server/test.json")
@@ -51,7 +51,7 @@ func TestBasicCreateUpdateMutations(t *testing.T) {
 	assert.Contains(t, deleteVariableOutput, testVarComputed)
 
 	// Run update & validate changes
-	terraform.InitAndApply(t, terraformOptionsUpdate)
+	terraform.Apply(t, terraformOptionsUpdate)
 	updatedOutput, _ := terraform.OutputJsonE(t, terraformOptionsUpdate, "query_output")
 	assert.Contains(t, updatedOutput, updatedTextOutput)
 	assert.NotContains(t, updatedOutput, initialTextOutput)
@@ -80,7 +80,7 @@ func TestBasicCreateUpdateMutationsRemoteStateVerificationDisabled(t *testing.T)
 	// Ensure workspace is clean
 	assert.NoFileExists(t, "./gql-server/test.json")
 
-	terraform.InitAndApply(t, terraformOptionsCreate)
+	terraform.Apply(t, terraformOptionsCreate)
 
 	// Validate creation
 	assert.FileExists(t, "./gql-server/test.json")
@@ -95,7 +95,7 @@ func TestBasicCreateUpdateMutationsRemoteStateVerificationDisabled(t *testing.T)
 	assert.Contains(t, deleteVariableOutput, testVarComputed)
 
 	// Run update & validate changes
-	terraform.InitAndApply(t, terraformOptionsUpdate)
+	terraform.Apply(t, terraformOptionsUpdate)
 	updatedOutput, _ := terraform.OutputJsonE(t, terraformOptionsUpdate, "query_output")
 	assert.Contains(t, updatedOutput, updatedTextOutput)
 	assert.NotContains(t, updatedOutput, initialTextOutput)
@@ -124,7 +124,7 @@ func TestBasicForceReplace(t *testing.T) {
 	// Ensure workspace is clean
 	assert.NoFileExists(t, "./gql-server/test.json")
 
-	terraform.InitAndApply(t, terraformOptionsCreate)
+	terraform.Apply(t, terraformOptionsCreate)
 
 	// Validate creation
 	assert.FileExists(t, "./gql-server/test.json")
@@ -139,7 +139,7 @@ func TestBasicForceReplace(t *testing.T) {
 	assert.Contains(t, deleteVariableOutput, testVarComputed)
 
 	// Run update & validate changes
-	terraform.InitAndApply(t, terraformOptionsUpdate)
+	terraform.Apply(t, terraformOptionsUpdate)
 	updatedOutput, _ := terraform.OutputJsonE(t, terraformOptionsUpdate, "query_output")
 	assert.Contains(t, updatedOutput, updatedTextOutputForceReplace)
 	assert.NotContains(t, updatedOutput, initialTextOutput)
@@ -161,7 +161,7 @@ func TestBasicValidateComputeMutationKeysFromCreate(t *testing.T) {
 	// Ensure workspace is clean
 	assert.NoFileExists(t, "./gql-server/test.json")
 
-	terraform.InitAndApply(t, terraformOptionsComputeFromCreate)
+	terraform.Apply(t, terraformOptionsComputeFromCreate)
 
 	// Validate compute mutation keys from create
 	assert.FileExists(t, "./gql-server/test.json")
