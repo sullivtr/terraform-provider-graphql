@@ -25,12 +25,14 @@ func TestBasicCreateUpdateMutations(t *testing.T) {
 		TerraformDir: "./test_basic",
 		VarFiles:     varFileCreate,
 		Logger:       logger.Discard,
+		PluginDir:    "./test_basic/terraform.d/plugins",
 	}
 
 	terraformOptionsUpdate := &terraform.Options{
 		TerraformDir: "./test_basic",
 		VarFiles:     varFileUpdate,
 		Logger:       logger.Discard,
+		PluginDir:    "./test_basic/terraform.d/plugins",
 	}
 
 	// Ensure workspace is clean
@@ -69,12 +71,14 @@ func TestBasicCreateUpdateMutationsRemoteStateVerificationDisabled(t *testing.T)
 		TerraformDir: "./test_basic",
 		VarFiles:     varFileCreate,
 		Logger:       logger.Discard,
+		PluginDir:    "./test_basic/terraform.d/plugins",
 	}
 
 	terraformOptionsUpdate := &terraform.Options{
 		TerraformDir: "./test_basic",
 		VarFiles:     varFileUpdate,
 		Logger:       logger.Discard,
+		PluginDir:    "./test_basic/terraform.d/plugins",
 	}
 
 	// Ensure workspace is clean
@@ -113,12 +117,14 @@ func TestBasicForceReplace(t *testing.T) {
 		TerraformDir: "./test_basic",
 		VarFiles:     varFileCreate,
 		Logger:       logger.Discard,
+		PluginDir:    "./test_basic/terraform.d/plugins",
 	}
 
 	terraformOptionsUpdate := &terraform.Options{
 		TerraformDir: "./test_basic",
 		VarFiles:     varFileUpdate,
 		Logger:       logger.Discard,
+		PluginDir:    "./test_basic/terraform.d/plugins",
 	}
 
 	// Ensure workspace is clean
@@ -156,6 +162,7 @@ func TestBasicValidateComputeMutationKeysFromCreate(t *testing.T) {
 		TerraformDir: "./test_basic",
 		VarFiles:     varFileComputeFromCreate,
 		Logger:       logger.Discard,
+		PluginDir:    "./test_basic/terraform.d/plugins",
 	}
 
 	// Ensure workspace is clean
