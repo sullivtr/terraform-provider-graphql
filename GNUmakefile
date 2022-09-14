@@ -26,12 +26,12 @@ build: clean fetch ## publishes in dry run mode
 copyplugins: ## copy plugins to test folders
 	$(eval COPY_FILES := $(filter %/, $(wildcard ./dist/terraform-provider-graphql*/)))
 	$(eval OS_ARCH := $(patsubst ./dist/terraform-provider-graphql_%/, %, $(COPY_FILES)))
-	$(eval TEST_FOLDERS := $(foreach p,$(OS_ARCH), ~/.terraform.d/plugins/terraform.example.com/sullivtr/graphql/2.0.0-local/$p))
+	$(eval TEST_FOLDERS := $(foreach p,$(OS_ARCH), ~/tf_e2e/cache/terraform.example.com/sullivtr/graphql/2.0.0-local/$p))
 	@sleep 1
 	@mkdir -p $(TEST_FOLDERS);
 	@for o in $(OS_ARCH); do \
 		for f in $(TEST_DESTS); do \
-	    	cp ./dist/terraform-provider-graphql_$$o/* ~/.terraform.d/plugins/terraform.example.com/sullivtr/graphql/2.0.0-local/$$o; \
+	    	cp ./dist/terraform-provider-graphql_$$o/* ~/tf_e2e/cache/terraform.example.com/sullivtr/graphql/2.0.0-local/$$o; \
 		done; \
 	done
 

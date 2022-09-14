@@ -4,6 +4,7 @@ set -euo pipefail
 
 GO111MODULE=on
 
+export TF_PLUGIN_CACHE_DIR=~/tf_e2e/cache
 cd gql-server
 rm -f test.json loginAPI.json
 go get
