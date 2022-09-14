@@ -101,6 +101,12 @@ func resourceGraphqlMutation() *schema.Resource {
 				},
 				Computed: true,
 			},
+			"enable_remote_state_verification": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: "A pre v2.4.0 backward-compatibility flag. Set to `false` to disable resource remote state verification during reads.",
+			},
 			"existing_hash": {
 				Type:        schema.TypeString,
 				Description: "Represents the state of existence of a mutation in order to support intelligent updates.",
@@ -158,6 +164,7 @@ func resourceGraphqlRead(ctx context.Context, d *schema.ResourceData, m interfac
 	queryVariables := d.Get("read_query_variables").(map[string]interface{})
 	computedVariables := d.Get("computed_read_operation_variables").(map[string]interface{})
 	queryResponseInputKeyMap := d.Get("query_response_input_key_map").(map[string]interface{})
+	enableRemoteStateReconciliation := d.Get("enable_remote_state_verification").(bool)
 
 	for k, v := range queryVariables {
 		computedVariables[k] = v
@@ -180,42 +187,44 @@ func resourceGraphqlRead(ctx context.Context, d *schema.ResourceData, m interfac
 		return diag.FromErr(err)
 	}
 
-	mappedKeys := make(map[string]interface{})
-	mutationVars := d.Get("mutation_variables").(map[string]interface{})
+	if enableRemoteStateReconciliation {
+		mappedKeys := make(map[string]interface{})
+		mutationVars := d.Get("mutation_variables").(map[string]interface{})
 
-	for k, v := range mutationVars {
-		key, ok := mapQueryResponseInputKey(queryResponse.Data, v.(string), "", nil)
-		if !ok {
-			if qrk, found := queryResponseInputKeyMap[k]; !found || qrk == "" {
-				mutationVars[k] = ""
-			} else {
-				ks := strings.Split(qrk.(string), ".")
-				remoteVal, err := getResourceKey(queryResponse.Data, ks...)
-				if err != nil {
+		for k, v := range mutationVars {
+			key, ok := mapQueryResponseInputKey(queryResponse.Data, v.(string), "", nil)
+			if !ok {
+				if qrk, found := queryResponseInputKeyMap[k]; !found || qrk == "" {
 					mutationVars[k] = ""
-				}
-
-				if _, isString := remoteVal.(string); !isString {
-					bytes, err := json.Marshal(remoteVal)
-					if err != nil {
-						return diag.FromErr(err)
-					}
-					mutationVars[k] = string(bytes)
 				} else {
-					mutationVars[k] = remoteVal
+					ks := strings.Split(qrk.(string), ".")
+					remoteVal, err := getResourceKey(queryResponse.Data, ks...)
+					if err != nil {
+						mutationVars[k] = ""
+					}
+
+					if _, isString := remoteVal.(string); !isString {
+						bytes, err := json.Marshal(remoteVal)
+						if err != nil {
+							return diag.FromErr(err)
+						}
+						mutationVars[k] = string(bytes)
+					} else {
+						mutationVars[k] = remoteVal
+					}
 				}
+
 			}
-
+			mappedKeys[k] = key
 		}
-		mappedKeys[k] = key
-	}
 
-	if err := d.Set("query_response_input_key_map", mappedKeys); err != nil {
-		return diag.FromErr(err)
-	}
+		if err := d.Set("query_response_input_key_map", mappedKeys); err != nil {
+			return diag.FromErr(err)
+		}
 
-	if err := d.Set("mutation_variables", mutationVars); err != nil {
-		return diag.FromErr(err)
+		if err := d.Set("mutation_variables", mutationVars); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	computeFromCreate := d.Get("compute_from_create").(bool)
