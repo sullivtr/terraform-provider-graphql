@@ -18,14 +18,14 @@ func TestOAuth2CreateUpdateMutations(t *testing.T) {
 		TerraformDir: "./test_oauth2",
 		VarFiles:     varFileCreate,
 		Logger:       logger.Discard,
-		PluginDir:    "./test_oauth2/terraform.d/plugins",
+		PluginDir:    "~/.terraform.d/plugins",
 	}
 
 	terraformOptionsUpdate := &terraform.Options{
 		TerraformDir: "./test_oauth2",
 		VarFiles:     varFileUpdate,
 		Logger:       logger.Discard,
-		PluginDir:    "./test_oauth2/terraform.d/plugins",
+		PluginDir:    "~/.terraform.d/plugins",
 	}
 
 	// Ensure workspace is clean
@@ -68,14 +68,14 @@ func TestOAuth2ForceReplace(t *testing.T) {
 		TerraformDir: "./test_oauth2",
 		VarFiles:     varFileCreate,
 		Logger:       logger.Discard,
-		PluginDir:    "./test_oauth2/terraform.d/plugins",
+		PluginDir:    "~/.terraform.d/plugins",
 	}
 
 	terraformOptionsUpdate := &terraform.Options{
 		TerraformDir: "./test_oauth2",
 		VarFiles:     varFileUpdate,
 		Logger:       logger.Discard,
-		PluginDir:    "./test_oauth2/terraform.d/plugins",
+		PluginDir:    "~/.terraform.d/plugins",
 	}
 
 	// Ensure workspace is clean
@@ -117,7 +117,7 @@ func TestOAuth2ValidateComputeMutationKeysFromCreate(t *testing.T) {
 		TerraformDir: "./test_oauth2",
 		VarFiles:     varFileComputeFromCreate,
 		Logger:       logger.Discard,
-		PluginDir:    "./test_oauth2/terraform.d/plugins",
+		PluginDir:    "~/.terraform.d/plugins",
 	}
 
 	// Ensure workspace is clean
