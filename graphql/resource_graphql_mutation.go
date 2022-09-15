@@ -66,6 +66,7 @@ func resourceGraphqlMutation() *schema.Resource {
 			"force_replace": {
 				Type:        schema.TypeBool,
 				Optional:    true,
+				Default:     false,
 				Description: "If true, all updates will first delete the resource and recreate it.",
 			},
 			"computed_read_operation_variables": {
@@ -142,6 +143,7 @@ func resourceGraphqlMutationUpdate(ctx context.Context, d *schema.ResourceData, 
 	// This feature enables management of GraphQL API resources that do not support update operations.
 	// See https://github.com/sullivtr/terraform-provider-graphql/issues/37 for details on this particular use-case.
 	forceReplace := d.Get("force_replace").(bool)
+	fmt.Println(forceReplace)
 	if forceReplace {
 		if errDiags = executeDeleteHook(ctx, d, m); errDiags.HasError() {
 			return errDiags

@@ -13,7 +13,7 @@ const (
 	readDataResponseResponseForceReplace            = `{"data": {"todo": {"id": "1", "text": "forced replacement", "userId": "500"}}}`
 	readDataResponseUpdateRemoteStateVerifyDisabled = `{"data": {"todo": {"id": "1", "text": "something else", "userId": "500"}}}`
 	createDataResponse                              = `{"data": {"createTodo": {"id": "2"}}}`
-	errDataResponse                                 = `{"data": {}, errors: [{message: "bad things happened"}]}`
+	errDataResponse                                 = `{"data": {}, "errors": [{"message": "bad things happened"}]}`
 	queryUrl                                        = "http://mock-gql-url.io"
 	queryUrlUpdate                                  = "http://mock-gql-url-update.io"
 
@@ -254,6 +254,7 @@ const (
 `
 	resourceConfigUpdate = `
 	resource "graphql_mutation" "basic_mutation" {
+		force_replace = false
 		mutation_variables = {
 			"text" = "something else"
 			"userId" = "500"
