@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	os.Setenv("TF_GRAPHQL_URL", queryUrl)
+	// os.Setenv("TF_GRAPHQL_URL", queryUrl)
 	os.Setenv("TF_ACC", "1")
 }
 
@@ -20,6 +20,7 @@ func TestAccGraphqlMutation_full(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder("POST", queryUrl, mockGqlServerResponse)
+	httpmock.RegisterResponder("POST", queryUrlUpdate, mockGqlServerResponseUpdate)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -27,7 +28,8 @@ func TestAccGraphqlMutation_full(t *testing.T) {
 		CheckDestroy: testAccGraphqlMutationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: resourceConfigCreate,
+				Config:    resourceConfigCreate,
+				PreConfig: setupBasicCreate,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_update_operation_variables.id", "1"),
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_update_operation_variables.text", "something todo"),
@@ -38,7 +40,8 @@ func TestAccGraphqlMutation_full(t *testing.T) {
 				),
 			},
 			{
-				Config: resourceConfigUpdate,
+				Config:    resourceConfigUpdate,
+				PreConfig: setupBasicUpdate,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_update_operation_variables.id", "1"),
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_update_operation_variables.text", "something else"),
@@ -64,6 +67,7 @@ func TestAccGraphqlMutation_expectError(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      resourceConfigCreate,
+				PreConfig:   setupBasicCreate,
 				ExpectError: regexp.MustCompile("bad things happened"),
 			},
 		},
@@ -82,7 +86,9 @@ func TestAccGraphqlMutation_computefromcreate(t *testing.T) {
 		CheckDestroy: testAccGraphqlMutationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: resourceConfigComputeMutationKeysOnCreate,
+				Config:             resourceConfigComputeMutationKeysOnCreate,
+				PreConfig:          setupBasicCreate,
+				ExpectNonEmptyPlan: true,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_update_operation_variables.id", "2"),
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_delete_operation_variables.id", "2"),
@@ -100,6 +106,7 @@ func TestAccGraphqlMutation_force_replace(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder("POST", queryUrl, mockGqlServerResponse)
+	httpmock.RegisterResponder("POST", queryUrlUpdate, mockGqlServerResponseForceReplace)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -107,7 +114,8 @@ func TestAccGraphqlMutation_force_replace(t *testing.T) {
 		CheckDestroy: testAccGraphqlMutationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: resourceConfigCreate,
+				Config:    resourceConfigCreate,
+				PreConfig: setupBasicCreate,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_update_operation_variables.id", "1"),
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_update_operation_variables.text", "something todo"),
@@ -118,7 +126,8 @@ func TestAccGraphqlMutation_force_replace(t *testing.T) {
 				),
 			},
 			{
-				Config: resourceConfigUpdateForceReplace,
+				Config:    resourceConfigUpdateForceReplace,
+				PreConfig: setupBasicUpdate,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_update_operation_variables.id", "1"),
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_update_operation_variables.text", "forced replacement"),
@@ -136,6 +145,7 @@ func TestAccGraphqlMutation_remote_verify_disable(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder("POST", queryUrl, mockGqlServerResponse)
+	httpmock.RegisterResponder("POST", queryUrlUpdate, mockGqlServerResponseRemoteStateVerifyDisabled)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -143,7 +153,8 @@ func TestAccGraphqlMutation_remote_verify_disable(t *testing.T) {
 		CheckDestroy: testAccGraphqlMutationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: resourceConfigCreateRemoteStateVerificationDisabled,
+				Config:    resourceConfigCreateRemoteStateVerificationDisabled,
+				PreConfig: setupBasicCreate,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_update_operation_variables.id", "1"),
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_update_operation_variables.text", "something todo"),
@@ -151,6 +162,18 @@ func TestAccGraphqlMutation_remote_verify_disable(t *testing.T) {
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_delete_operation_variables.id", "1"),
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_delete_operation_variables.testvar1", "testval1"),
 					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "query_response", readDataResponse),
+				),
+			},
+			{
+				Config:    resourceConfigCreateRemoteStateVerificationDisabled,
+				PreConfig: setupBasicUpdate,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_update_operation_variables.id", "1"),
+					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_update_operation_variables.text", "something todo"),
+					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_update_operation_variables.userId", "900"),
+					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_delete_operation_variables.id", "1"),
+					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "computed_delete_operation_variables.testvar1", "testval1"),
+					resource.TestCheckResourceAttr("graphql_mutation.basic_mutation", "query_response", readDataResponseUpdateRemoteStateVerifyDisabled),
 				),
 			},
 		},
