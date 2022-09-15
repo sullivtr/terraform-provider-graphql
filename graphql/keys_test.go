@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var datablob = `{"data": {"someField": "someValue", "items": ["itemValueOne", "itemValueTwo"], "otherItems": [{"field1": "value1", "field2": "value2"}, {"field1": "value3", "field2": "value4"}]}}`
+var datablob = `{"data": {"someField": "someValue", "items": ["itemValueOne", "itemValueTwo"], "otherItems": [{"field1": "value1", "field2": "value2"}, {"field1": "value3", "field2": "value4"}, {"nestedList": ["nestedListValue"]}]}}`
 
 func TestComputeMutationVariableKeys(t *testing.T) {
 	cases := []struct {
@@ -29,6 +29,16 @@ func TestComputeMutationVariableKeys(t *testing.T) {
 			expectedValues: map[string]interface{}{"id_key": "second_id"},
 		},
 		{
+			body:           `{"data": {"todos": ["stringval"]}}`,
+			computeKeys:    map[string]interface{}{"id_key": "todos[0]"},
+			expectedValues: map[string]interface{}{"id_key": "stringval"},
+		},
+		{
+			body:           `{"data": {"todos": ["notanobject", "another"]}}`,
+			computeKeys:    map[string]interface{}{"id_key": "todos[1]"},
+			expectedValues: map[string]interface{}{"id_key": "another"},
+		},
+		{
 			body:             `{"data": {"todos": [{"id": "computed_id"}, {"id": "second_id"}]}}`,
 			computeKeys:      map[string]interface{}{"id_key": "todos[3].id"},
 			expectedErrorMsg: "provided index, 3, out of range for items in object todos with length of 2",
@@ -42,11 +52,6 @@ func TestComputeMutationVariableKeys(t *testing.T) {
 			body:             `{"data": {"todo": {"id": "computed_id"}}}`,
 			computeKeys:      map[string]interface{}{"id_key": "todo[0].notreal"},
 			expectedErrorMsg: "structure at key [todo] must be an array",
-		},
-		{
-			body:             `{"data": {"todos": ["notanobject"]}}`,
-			computeKeys:      map[string]interface{}{"id_key": "todos[0].id"},
-			expectedErrorMsg: "malformed structure at provided index: 0",
 		},
 		{
 			body:             `{"data": {"todos": [{"id": "computed_id"}, {"id": "second_id"}]}}`,
@@ -108,8 +113,8 @@ func TestMapQueryResponse(t *testing.T) {
 			expectKey: "data.someField",
 		},
 		{
-			value:     "anotherListValue1",
-			expectKey: "data.funItems[0].anotherList[0]",
+			value:     "nestedListValue",
+			expectKey: "data.otherItems[2].nestedList[0]",
 		},
 	}
 

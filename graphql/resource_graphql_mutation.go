@@ -66,6 +66,7 @@ func resourceGraphqlMutation() *schema.Resource {
 			"force_replace": {
 				Type:        schema.TypeBool,
 				Optional:    true,
+				Default:     false,
 				Description: "If true, all updates will first delete the resource and recreate it.",
 			},
 			"computed_read_operation_variables": {
@@ -142,6 +143,7 @@ func resourceGraphqlMutationUpdate(ctx context.Context, d *schema.ResourceData, 
 	// This feature enables management of GraphQL API resources that do not support update operations.
 	// See https://github.com/sullivtr/terraform-provider-graphql/issues/37 for details on this particular use-case.
 	forceReplace := d.Get("force_replace").(bool)
+	fmt.Println(forceReplace)
 	if forceReplace {
 		if errDiags = executeDeleteHook(ctx, d, m); errDiags.HasError() {
 			return errDiags
@@ -163,7 +165,6 @@ func resourceGraphqlRead(ctx context.Context, d *schema.ResourceData, m interfac
 
 	queryVariables := d.Get("read_query_variables").(map[string]interface{})
 	computedVariables := d.Get("computed_read_operation_variables").(map[string]interface{})
-	queryResponseInputKeyMap := d.Get("query_response_input_key_map").(map[string]interface{})
 	enableRemoteStateReconciliation := d.Get("enable_remote_state_verification").(bool)
 
 	for k, v := range queryVariables {
@@ -188,6 +189,8 @@ func resourceGraphqlRead(ctx context.Context, d *schema.ResourceData, m interfac
 	}
 
 	if enableRemoteStateReconciliation {
+		queryResponseInputKeyMap := d.Get("query_response_input_key_map").(map[string]interface{})
+
 		mappedKeys := make(map[string]interface{})
 		mutationVars := d.Get("mutation_variables").(map[string]interface{})
 
@@ -223,6 +226,11 @@ func resourceGraphqlRead(ctx context.Context, d *schema.ResourceData, m interfac
 		}
 
 		if err := d.Set("mutation_variables", mutationVars); err != nil {
+			return diag.FromErr(err)
+		}
+	} else {
+		// If enable_remote_state_verification = false, we need to set this to an empty map to prevent phantom diff
+		if err := d.Set("query_response_input_key_map", make(map[string]interface{})); err != nil {
 			return diag.FromErr(err)
 		}
 	}
