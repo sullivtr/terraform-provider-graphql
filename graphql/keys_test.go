@@ -11,6 +11,8 @@ import (
 
 var datablob = `{"data": {"someField": "someValue", "items": ["itemValueOne", "itemValueTwo"], "otherItems": [{"field1": "value1", "field2": "value2"}, {"field1": "value3", "field2": "value4"}, {"nestedList": ["nestedListValue"]}]}}`
 
+var complexTest = `{"data": {"virtualHost": {"id": "vhostID","customer": {"id": "customerIDValue"},"dataProtectionPolicy": { "id": "dataProtectionPolicyValue"},"networkInterfaceList": [ {	"id": "fake",	"network": {	 "id": "networkIDValue"	} }],"tier": { "id": "tierIDValue"}}}}`
+
 func TestComputeMutationVariableKeys(t *testing.T) {
 	cases := []struct {
 		body             string
@@ -115,6 +117,45 @@ func TestMapQueryResponse(t *testing.T) {
 		{
 			value:     "nestedListValue",
 			expectKey: "data.otherItems[2].nestedList[0]",
+		},
+	}
+
+	for i, c := range cases {
+		keyOut, _ := mapQueryResponseInputKey(foo, c.value, "", nil)
+		assert.Equal(t, c.expectKey, keyOut, "test case %d", i)
+		ks := strings.Split(keyOut, ".")
+		_, err = getResourceKey(foo, ks...)
+		assert.NoError(t, err, "test case %d", i)
+	}
+
+}
+
+func TestMapQueryResponseComplex(t *testing.T) {
+	var foo map[string]interface{}
+	err := json.Unmarshal([]byte(complexTest), &foo)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+
+	cases := []struct {
+		value     string
+		expectKey string
+	}{
+		{
+			value:     "networkIDValue",
+			expectKey: "data.virtualHost.networkInterfaceList[0].network.id",
+		},
+		{
+			value:     "customerIDValue",
+			expectKey: "data.virtualHost.customer.id",
+		},
+		{
+			value:     "dataProtectionPolicyValue",
+			expectKey: "data.virtualHost.dataProtectionPolicy.id",
+		},
+		{
+			value:     "tierIDValue",
+			expectKey: "data.virtualHost.tier.id",
 		},
 	}
 

@@ -110,6 +110,10 @@ func mapQueryResponseInputKey(m interface{}, value, prev string, parentKeys []st
 				jsonV = str
 			}
 
+			if !strings.Contains(jsonV, value) {
+				continue
+			}
+
 			// If jsonV and input value are the same, we have found our match.
 			if strings.Compare(jsonV, value) == 0 || jsonV == value {
 				if len(parentKeys) != 0 && !strings.Contains(parentKeys[len(parentKeys)-1], "[") {
