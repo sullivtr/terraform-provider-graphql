@@ -33,7 +33,7 @@ func computeMutationVariableKeys(keyMaps map[string]interface{}, responseObject 
 		if err != nil {
 			return nil, err
 		}
-		mvks[k] = key.(string)
+		mvks[k] = fmt.Sprintf("%v", key)
 	}
 	return mvks, nil
 }
