@@ -41,6 +41,21 @@ func TestComputeMutationVariableKeys(t *testing.T) {
 			expectedValues: map[string]interface{}{"id_key": "another"},
 		},
 		{
+			body:           `{"data": {"id": 1}}`,
+			computeKeys:    map[string]interface{}{"id_key": "id"},
+			expectedValues: map[string]interface{}{"id_key": "1"},
+		},
+		{
+			body:           `{"data": {"pi": 3.14159}}`,
+			computeKeys:    map[string]interface{}{"id_key": "pi"},
+			expectedValues: map[string]interface{}{"id_key": "3.14159"},
+		},
+		{
+			body:           `{"data": {"ready": false}}`,
+			computeKeys:    map[string]interface{}{"id_key": "ready"},
+			expectedValues: map[string]interface{}{"id_key": "false"},
+		},
+		{
 			body:             `{"data": {"todos": [{"id": "computed_id"}, {"id": "second_id"}]}}`,
 			computeKeys:      map[string]interface{}{"id_key": "todos[3].id"},
 			expectedErrorMsg: "provided index, 3, out of range for items in object todos with length of 2",
