@@ -50,3 +50,5 @@ func dataSourceGraphqlQuery(ctx context.Context, d *schema.ResourceData, m inter
 	}
 	return diags
 }
+
+// fake
