@@ -175,7 +175,7 @@ func resourceGraphqlRead(ctx context.Context, d *schema.ResourceData, m interfac
 		return diag.FromErr(fmt.Errorf("unable to set computed_read_operation_variables: %w", err))
 	}
 
-	queryResponse, resBytes, err := queryExecute(ctx, d, m, "read_query", "computed_read_operation_variables")
+	queryResponse, resBytes, err := queryExecute(ctx, d, m, "read_query", "computed_read_operation_variables", false)
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("unable to execute read query: %w", err))
 	}
@@ -254,7 +254,7 @@ func resourceGraphqlMutationDelete(ctx context.Context, d *schema.ResourceData, 
 }
 
 func executeCreateHook(ctx context.Context, d *schema.ResourceData, m interface{}) ([]byte, diag.Diagnostics) {
-	queryResponse, resBytes, err := queryExecute(ctx, d, m, "create_mutation", "mutation_variables")
+	queryResponse, resBytes, err := queryExecute(ctx, d, m, "create_mutation", "mutation_variables", false)
 	if err != nil {
 		return nil, diag.FromErr(fmt.Errorf("unable to execute create query: %w", err))
 	}
@@ -288,7 +288,7 @@ func executeUpdateHook(ctx context.Context, d *schema.ResourceData, m interface{
 		return nil, diag.FromErr(fmt.Errorf("unable to set computed_update_operation_variables: %w", err))
 	}
 
-	queryResponse, resBytes, err := queryExecute(ctx, d, m, "update_mutation", "computed_update_operation_variables")
+	queryResponse, resBytes, err := queryExecute(ctx, d, m, "update_mutation", "computed_update_operation_variables", false)
 	if err != nil {
 		return nil, diag.FromErr(fmt.Errorf("unable to execute update query: %w", err))
 	}
@@ -300,7 +300,7 @@ func executeUpdateHook(ctx context.Context, d *schema.ResourceData, m interface{
 }
 
 func executeDeleteHook(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	queryResponse, _, err := queryExecute(ctx, d, m, "delete_mutation", "computed_delete_operation_variables")
+	queryResponse, _, err := queryExecute(ctx, d, m, "delete_mutation", "computed_delete_operation_variables", false)
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("unable to execute delete query: %w", err))
 	}

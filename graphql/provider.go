@@ -62,7 +62,7 @@ func graphqlConfigure(ctx context.Context, d *schema.ResourceData) (interface{},
 	oauth2LoginQueryValueAttribute := d.Get("oauth2_login_query_value_attribute").(string)
 
 	if oauth2LoginQuery != "" && len(oauth2LoginQueryVariables) > 0 && oauth2LoginQueryValueAttribute != "" {
-		queryResponse, _, err := queryExecute(ctx, d, config, "oauth2_login_query", "oauth2_login_query_variables")
+		queryResponse, _, err := queryExecute(ctx, d, config, "oauth2_login_query", "oauth2_login_query_variables", false)
 		if err != nil {
 			return nil, diag.FromErr(fmt.Errorf("unable to execute oauth2_login_query: %w", err))
 		}

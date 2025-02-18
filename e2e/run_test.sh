@@ -13,7 +13,6 @@ trap "echo \"Stopping graphql test server (PPID $SERVER_PPID)\" ; pkill -P $SERV
 
 sleep 2
 cd ..
-# go test -i
 go test
 
 exit_status=$?

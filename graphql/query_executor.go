@@ -13,15 +13,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func queryExecute(ctx context.Context, d *schema.ResourceData, m interface{}, querySource, variableSource string) (*GqlQueryResponse, []byte, error) {
+func queryExecute(ctx context.Context, d *schema.ResourceData, m interface{}, querySource, variableSource string, usePagination bool) (*GqlQueryResponse, []byte, error) {
 	query := d.Get(querySource).(string)
 	inputVariables := d.Get(variableSource).(map[string]interface{})
 	apiURL := m.(*graphqlProviderConfig).GQLServerUrl
 	headers := m.(*graphqlProviderConfig).RequestHeaders
 	authorizationHeaders := m.(*graphqlProviderConfig).RequestAuthorizationHeaders
-	paginated := d.Get("paginated").(bool)
 
-	if paginated {
+	if usePagination {
 		return executePaginatedQuery(ctx, query, inputVariables, apiURL, headers, authorizationHeaders)
 	}
 	return executeSingleQuery(ctx, query, inputVariables, apiURL, headers, authorizationHeaders)

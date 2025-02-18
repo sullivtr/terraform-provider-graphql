@@ -40,7 +40,8 @@ func dataSourceGraphql() *schema.Resource {
 
 func dataSourceGraphqlQuery(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
-	queryResponse, resBytes, err := queryExecute(ctx, d, m, "query", "query_variables")
+	paginated := d.Get("paginated").(bool)
+	queryResponse, resBytes, err := queryExecute(ctx, d, m, "query", "query_variables", paginated)
 	if err != nil {
 		return diag.FromErr(err)
 	}

@@ -15,7 +15,7 @@ provider "graphql" {
 }
 
 resource "graphql_mutation" "basic_mutation" {
-  compute_from_create = var.compute_from_create
+  compute_from_create = false
   mutation_variables = {
     "text" = var.todo_text
     "userId" = var.todo_user_id
@@ -37,7 +37,7 @@ resource "graphql_mutation" "basic_mutation" {
 }
 
 resource "graphql_mutation" "basic_mutation_2" {
-  compute_from_create = var.compute_from_create
+  compute_from_create = false
   mutation_variables = {
     "text" = var.todo_text
     "userId" = var.todo_user_id_2
