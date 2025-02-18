@@ -28,12 +28,17 @@ data "graphql_query" "basic_query" {
   - **Type**: string (multi-line)
   - **Desciption**: The graphql query. ( See basic example below for what that looks like.)
 
+### paginated
+  - **Required**: false
+  - **Type**: bool
+  - **Desciption**: Whether or not the query uses pagination (based on standard GraphQL pageInfo cursor based pagination)
+
 ## Outputs
 
 ### query_response
   - **Type**: string (json encoded http response)
   - **Desciption**: A computed json encoded http response object received from the query.
-    - To use properties from this response, leverage Terraform's built in [jsondecode](https://www.terraform.io/docs/configuration/functions/jsondecode.html) function.
+    - To use properties from this response, leverage Terraform's built in [jsondecode](https://www.terraform.io/docs/configuration/functions/jsondecode.html) function. Will contain `paginatedResponseData` in place of `data` for query_responses derived from paginated queries. 
 
 ## Basic Example
 

@@ -102,7 +102,8 @@ func executeSingleQuery(ctx context.Context, query string, inputVariables map[st
 
 func executePaginatedQuery(ctx context.Context, query string, inputVariables map[string]interface{}, apiURL string, headers, authorizationHeaders map[string]interface{}) (*GqlQueryResponse, []byte, error) {
 	var allResponses []GqlQueryResponse
-	var finalResponse GqlQueryResponse
+	var finalResponseData []map[string]interface{}
+	var finalResponseErrors []GqlError
 	var lastCursor string
 
 	for {
@@ -116,9 +117,9 @@ func executePaginatedQuery(ctx context.Context, query string, inputVariables map
 		allResponses = append(allResponses, *gqlResponse)
 
 		// Extract pageInfo from response
-		pageInfo, ok := gqlResponse.Data["pageInfo"].(map[string]interface{})
+		pageInfo, ok := findPageInfo(gqlResponse.Data)
 		if !ok {
-			return nil, nil, fmt.Errorf("paginated query enabled but no pageInfo found in response")
+			return nil, nil, fmt.Errorf("paginated query enabled but no pageInfo found in response (updated)")
 		}
 
 		hasNextPage, ok := pageInfo["hasNextPage"].(bool)
@@ -138,21 +139,17 @@ func executePaginatedQuery(ctx context.Context, query string, inputVariables map
 	}
 
 	// Merge all responses
-	finalResponse = allResponses[0]
 	for i := 1; i < len(allResponses); i++ {
 		// Merge the data from each response
-		for key, value := range allResponses[i].Data {
-			if key != "pageInfo" {
-				// Assume the data is a slice that needs to be merged
-				if slice, ok := finalResponse.Data[key].([]interface{}); ok {
-					if newSlice, ok := value.([]interface{}); ok {
-						finalResponse.Data[key] = append(slice, newSlice...)
-					}
-				}
-			}
-		}
+		finalResponseData = append(finalResponseData, allResponses[i].Data)
+
 		// Merge any errors
-		finalResponse.Errors = append(finalResponse.Errors, allResponses[i].Errors...)
+		finalResponseErrors = append(finalResponseErrors, allResponses[i].Errors...)
+	}
+
+	finalResponse := GqlQueryResponse{
+		PaginatedResponseData: finalResponseData,
+		Errors:                finalResponseErrors,
 	}
 
 	responseBytes, err := json.Marshal(finalResponse)
@@ -160,6 +157,23 @@ func executePaginatedQuery(ctx context.Context, query string, inputVariables map
 		return nil, nil, fmt.Errorf("error marshaling merged response: %v", err)
 	}
 	return &finalResponse, responseBytes, nil
+}
+
+// findPageInfo recursively searches for the "pageInfo" key in a nested map[string]interface{}
+func findPageInfo(data map[string]interface{}) (map[string]interface{}, bool) {
+	for key, value := range data {
+		if key == "pageInfo" {
+			if pageInfo, ok := value.(map[string]interface{}); ok {
+				return pageInfo, true
+			}
+		}
+		if nestedMap, ok := value.(map[string]interface{}); ok {
+			if pageInfo, found := findPageInfo(nestedMap); found {
+				return pageInfo, true
+			}
+		}
+	}
+	return nil, false
 }
 
 // isJSON will check if s can be interpreted as valid JSON, and return an unmarshalled struct representing the JSON if it can.

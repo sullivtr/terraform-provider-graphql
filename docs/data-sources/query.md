@@ -11,6 +11,19 @@ data "graphql_query" "basic_query" {
 }
 ```
 
+### Example with pagination (using the Github repo pull requests query as an example): 
+```hcl
+data "graphql_query" "basic_query" {
+  query = file("../../testdata/readQueryPaginated")
+  query_variables = {
+    owner = "repo_owner"
+    name = "repo_name"
+    after = ""
+  }
+  paginated = true
+}
+```
+
 ## Argument Reference
 
 * `query_variables` - (Required) A map of any variables that will be used in your query. Each variable's value is interpreted as JSON when possible.

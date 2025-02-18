@@ -1,20 +1,17 @@
-query findTodos{
-  todos(first: 10, after: "cursor") {
-    edges {
-      cursor
-      node {
-        id
-        text
-        user {
-          id
-          name
-        }
-        list
+query($owner: String!, $name: String!, $after: String!) {
+  repository(owner: $owner, name: $name) {
+    pullRequests(first: 10, after: $after) {
+      nodes {
+        createdAt
+        number
+        title
+      }
+      pageInfo {
+        endCursor
+        startCursor
+        hasNextPage
+        hasPreviousPage
       }
     }
-    pageInfo {
-      hasNextPage
-      hasPreviousPage
-      startCursor
-      endCursor
-    }
+  }
+}

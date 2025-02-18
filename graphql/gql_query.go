@@ -12,8 +12,9 @@ type GqlQuery struct {
 }
 
 type GqlQueryResponse struct {
-	Data   map[string]interface{} `json:"data,omitempty"`
-	Errors []GqlError             `json:"errors,omitempty"`
+	Data                  map[string]interface{}   `json:"data,omitempty"`
+	Errors                []GqlError               `json:"errors,omitempty"`
+	PaginatedResponseData []map[string]interface{} `json:"paginatedResponseData,omitempty"`
 }
 
 type GqlError struct {
