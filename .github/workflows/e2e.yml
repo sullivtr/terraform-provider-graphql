@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [master]
 
+env:
+  TF_LOG: trace
+
 jobs:
   test:
     runs-on: ubuntu-20.04

@@ -27,6 +27,12 @@ func dataSourceGraphql() *schema.Resource {
 				Description: "The raw body of the HTTP response from the last read of the object.",
 				Computed:    true,
 			},
+			"paginated": {
+				Type:        schema.TypeBool,
+				Description: "Whether the query is paginated.",
+				Optional:    true,
+				Default:     false,
+			},
 		},
 		ReadContext: dataSourceGraphqlQuery,
 	}
@@ -34,7 +40,8 @@ func dataSourceGraphql() *schema.Resource {
 
 func dataSourceGraphqlQuery(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
-	queryResponse, resBytes, err := queryExecute(ctx, d, m, "query", "query_variables")
+	paginated := d.Get("paginated").(bool)
+	queryResponse, resBytes, err := queryExecute(ctx, d, m, "query", "query_variables", paginated)
 	if err != nil {
 		return diag.FromErr(err)
 	}

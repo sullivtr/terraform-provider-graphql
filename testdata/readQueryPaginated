@@ -1,0 +1,17 @@
+query($owner: String!, $name: String!, $after: String!) {
+  repository(owner: $owner, name: $name) {
+    pullRequests(first: 10, after: $after) {
+      nodes {
+        createdAt
+        number
+        title
+      }
+      pageInfo {
+        endCursor
+        startCursor
+        hasNextPage
+        hasPreviousPage
+      }
+    }
+  }
+}

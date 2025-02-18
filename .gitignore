@@ -5,6 +5,7 @@ e2e/test_*/terraform.tfstate
 e2e/test_*/terraform.tfstate.backup
 e2e/test_*/terraform.d
 e2e/test_*/.terraform
+e2e/test_*/test_private.tf
 dist/
 *.log
 .secrets
