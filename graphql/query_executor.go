@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 
@@ -19,25 +19,41 @@ func queryExecute(ctx context.Context, d *schema.ResourceData, m interface{}, qu
 	apiURL := m.(*graphqlProviderConfig).GQLServerUrl
 	headers := m.(*graphqlProviderConfig).RequestHeaders
 	authorizationHeaders := m.(*graphqlProviderConfig).RequestAuthorizationHeaders
+	paginated := d.Get("paginated").(bool)
 
+	if paginated {
+		return executePaginatedQuery(ctx, query, inputVariables, apiURL, headers, authorizationHeaders)
+	}
+	return executeSingleQuery(ctx, query, inputVariables, apiURL, headers, authorizationHeaders)
+}
+
+func prepareQueryVariables(inputVariables map[string]interface{}, cursor string) map[string]interface{} {
+	currentVars := make(map[string]interface{})
+
+	// Copy input variables
+	for k, v := range inputVariables {
+		js, isJS := isJSON(v)
+		if isJS {
+			currentVars[k] = js
+		} else {
+			currentVars[k] = v
+		}
+	}
+
+	// Add cursor for pagination if provided
+	if cursor != "" {
+		currentVars["after"] = cursor
+	}
+
+	return currentVars
+}
+
+func executeGraphQLRequest(ctx context.Context, query string, variables map[string]interface{}, apiURL string, headers, authorizationHeaders map[string]interface{}) (*GqlQueryResponse, []byte, error) {
 	var queryBodyBuffer bytes.Buffer
 
 	queryObj := GqlQuery{
 		Query:     query,
-		Variables: make(map[string]interface{}), // Create an empty map to be populated below
-	}
-
-	// Populate GqlQuery variables
-	for k, v := range inputVariables {
-		// Convert any json string inputs to a struct for complex GraphQL inputs
-		js, isJS := isJSON(v)
-
-		if isJS {
-			queryObj.Variables[k] = js
-		} else {
-			// If the input is just a simple string/not JSON
-			queryObj.Variables[k] = v
-		}
+		Variables: variables,
 	}
 
 	if err := json.NewEncoder(&queryBodyBuffer).Encode(queryObj); err != nil {
@@ -70,7 +86,7 @@ func queryExecute(ctx context.Context, d *schema.ResourceData, m interface{}, qu
 	}
 	defer resp.Body.Close()
 
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, _ := io.ReadAll(resp.Body)
 
 	var gqlResponse GqlQueryResponse
 	if err := json.Unmarshal(body, &gqlResponse); err != nil {
@@ -78,6 +94,73 @@ func queryExecute(ctx context.Context, d *schema.ResourceData, m interface{}, qu
 	}
 
 	return &gqlResponse, body, nil
+}
+
+func executeSingleQuery(ctx context.Context, query string, inputVariables map[string]interface{}, apiURL string, headers, authorizationHeaders map[string]interface{}) (*GqlQueryResponse, []byte, error) {
+	variables := prepareQueryVariables(inputVariables, "")
+	return executeGraphQLRequest(ctx, query, variables, apiURL, headers, authorizationHeaders)
+}
+
+func executePaginatedQuery(ctx context.Context, query string, inputVariables map[string]interface{}, apiURL string, headers, authorizationHeaders map[string]interface{}) (*GqlQueryResponse, []byte, error) {
+	var allResponses []GqlQueryResponse
+	var finalResponse GqlQueryResponse
+	var lastCursor string
+
+	for {
+		variables := prepareQueryVariables(inputVariables, lastCursor)
+
+		gqlResponse, _, err := executeGraphQLRequest(ctx, query, variables, apiURL, headers, authorizationHeaders)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		allResponses = append(allResponses, *gqlResponse)
+
+		// Extract pageInfo from response
+		pageInfo, ok := gqlResponse.Data["pageInfo"].(map[string]interface{})
+		if !ok {
+			return nil, nil, fmt.Errorf("paginated query enabled but no pageInfo found in response")
+		}
+
+		hasNextPage, ok := pageInfo["hasNextPage"].(bool)
+		if !ok {
+			return nil, nil, fmt.Errorf("invalid or missing hasNextPage in pageInfo")
+		}
+
+		if !hasNextPage {
+			break
+		}
+
+		endCursor, ok := pageInfo["endCursor"].(string)
+		if !ok {
+			return nil, nil, fmt.Errorf("invalid or missing endCursor in pageInfo")
+		}
+		lastCursor = endCursor
+	}
+
+	// Merge all responses
+	finalResponse = allResponses[0]
+	for i := 1; i < len(allResponses); i++ {
+		// Merge the data from each response
+		for key, value := range allResponses[i].Data {
+			if key != "pageInfo" {
+				// Assume the data is a slice that needs to be merged
+				if slice, ok := finalResponse.Data[key].([]interface{}); ok {
+					if newSlice, ok := value.([]interface{}); ok {
+						finalResponse.Data[key] = append(slice, newSlice...)
+					}
+				}
+			}
+		}
+		// Merge any errors
+		finalResponse.Errors = append(finalResponse.Errors, allResponses[i].Errors...)
+	}
+
+	responseBytes, err := json.Marshal(finalResponse)
+	if err != nil {
+		return nil, nil, fmt.Errorf("error marshaling merged response: %v", err)
+	}
+	return &finalResponse, responseBytes, nil
 }
 
 // isJSON will check if s can be interpreted as valid JSON, and return an unmarshalled struct representing the JSON if it can.

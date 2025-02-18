@@ -1,0 +1,20 @@
+query findTodos{
+  todos(first: 10, after: "cursor") {
+    edges {
+      cursor
+      node {
+        id
+        text
+        user {
+          id
+          name
+        }
+        list
+      }
+    }
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
