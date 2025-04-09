@@ -139,12 +139,12 @@ func executePaginatedQuery(ctx context.Context, query string, inputVariables map
 	}
 
 	// Merge all responses
-	for i := 1; i < len(allResponses); i++ {
+	for _, resp := range allResponses {
 		// Merge the data from each response
-		finalResponseData = append(finalResponseData, allResponses[i].Data)
+		finalResponseData = append(finalResponseData, resp.Data)
 
 		// Merge any errors
-		finalResponseErrors = append(finalResponseErrors, allResponses[i].Errors...)
+		finalResponseErrors = append(finalResponseErrors, resp.Errors...)
 	}
 
 	finalResponse := GqlQueryResponse{
