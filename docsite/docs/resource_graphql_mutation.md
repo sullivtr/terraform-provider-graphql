@@ -163,7 +163,7 @@ As mentioned above, you define variables that _you_ want terraform to keep track
 
   For example, we can collect both the "id" and the "text" property off of a `todo` response by defining `compute_mutation_keys` as:
   ```hcl
-    compute_compute_mutation_keys = {
+    compute_mutation_keys = {
       "id" = "todo.id"
       "my_todo_text" = "todo.text"
     }
@@ -224,7 +224,7 @@ mutation updateUser($userID: String!, $firstName: String!, $lastName: String!, $
 ### Delete Mutation Example
 ```hcl
 mutation deleteUser($userID: String!) {
-  deleteUser(userID: $userID) {-
+  deleteUser(userID: $userID) {
     id
   }
 }
