@@ -13,7 +13,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/tools v0.0.0-20200929173036-5272f303b6eb // indirect
 	google.golang.org/genproto v0.0.0-20200929141702-51c3e5b607fe // indirect
-	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
 require (
