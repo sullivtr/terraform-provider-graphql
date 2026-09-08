@@ -33,6 +33,19 @@ provider "graphql" {
 }
 ```
 
+When the GraphQL server enforces a request rate, you can pace the provider's requests with `rate_limit_per_second` and `rate_limit_burst`, e.g.:
+
+```hcl
+provider "graphql" {
+  url = "https://your-graphql-server-url"
+
+  rate_limit_per_second = 2.5 # 0 (default) disables rate limiting
+  rate_limit_burst      = 1   # default 1; only applies when rate_limit_per_second is non-zero
+}
+```
+
+Set `rate_limit_per_second` somewhat below the server's advertised limit rather than exactly at it. The provider issues requests as fast as the limiter allows, so matching the server's exact ceiling leaves no headroom and can still trip rate limiting under concurrency.
+
 ## Argument Reference
 
 In addition to [generic `provider` arguments](https://www.terraform.io/docs/configuration/providers.html) (i.e., `alias` and `version`), the following arguments are supported in the GraphQL `provider` block:
@@ -46,6 +59,10 @@ In addition to [generic `provider` arguments](https://www.terraform.io/docs/conf
 * `oauth2_login_query_variables` - (Optional) A map of any variables that will be used in your OAuth 2.0 login query. Each variable's value is interpreted as JSON when possible. Note: you must also define `oauth2_login_query` and `oauth2_login_query_value_attribute` when using `oauth2_login_query_variables`.
 
 * `oauth2_login_query_value_attribute` - (Optional) The dot-separated path to the attribute containing the access token value that will be extracted from the OAuth 2.0 login query or mutation response `data` (e.g. `loginAPI.accessToken`). Note: you must also define `oauth2_login_query` and `oauth2_login_query_variables` when using `oauth2_login_query_value_attribute`.
+
+* `rate_limit_per_second` - (Optional) The maximum sustained number of GraphQL requests per second, shared across the provider instance. Accepts fractional values (e.g. `2.5`). Defaults to `0`, which disables rate limiting and preserves the provider's default behavior.
+
+* `rate_limit_burst` - (Optional) The maximum burst of requests allowed above the sustained `rate_limit_per_second`. Defaults to `1`. Only applies when `rate_limit_per_second` is non-zero.
 
 ## Full documentation
 
