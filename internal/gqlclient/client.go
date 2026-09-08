@@ -1,10 +1,7 @@
 package gqlclient
 
 import (
-	"log"
 	"net/http"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 )
 
 // Client is a GraphQL client bound to a single endpoint.
@@ -18,20 +15,36 @@ type Client struct {
 	http *http.Client
 }
 
-// NewClient builds a Client for a provider instance.
-func NewClient(endpoint string, headers map[string]interface{}) *Client {
-	return &Client{
-		Endpoint: endpoint,
-		Headers:  headers,
-		http:     newHTTPClient(),
+// clientConfig holds the tunables an Option can set before NewClient builds
+// the shared http.Client. Zero values preserve the pre-rate-limiting behavior.
+type clientConfig struct {
+	rateLimitPerSecond float64
+	rateLimitBurst     int
+}
+
+// Option configures a Client at construction time.
+type Option func(*clientConfig)
+
+// WithRateLimit paces every request through a shared token-bucket limiter at
+// perSecond requests per second with the given burst. A perSecond of 0 leaves
+// rate limiting off, which is the default when the option is not supplied.
+func WithRateLimit(perSecond float64, burst int) Option {
+	return func(c *clientConfig) {
+		c.rateLimitPerSecond = perSecond
+		c.rateLimitBurst = burst
 	}
 }
 
-func newHTTPClient() *http.Client {
-	transport := http.DefaultTransport
-	if logging.IsDebugOrHigher() {
-		log.Printf("[DEBUG] Enabling HTTP requests/responses tracing")
-		transport = logging.NewTransport("GraphQL", transport)
+// NewClient builds a Client for a provider instance.
+func NewClient(endpoint string, headers map[string]interface{}, opts ...Option) *Client {
+	cfg := clientConfig{rateLimitBurst: 1}
+	for _, opt := range opts {
+		opt(&cfg)
 	}
-	return &http.Client{Transport: transport}
+
+	return &Client{
+		Endpoint: endpoint,
+		Headers:  headers,
+		http:     newHTTPClient(cfg.rateLimitPerSecond, cfg.rateLimitBurst),
+	}
 }

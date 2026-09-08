@@ -39,6 +39,18 @@ func Provider() *schema.Provider {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"rate_limit_per_second": {
+				Type:        schema.TypeFloat,
+				Optional:    true,
+				Default:     0,
+				Description: "Maximum sustained GraphQL requests per second across the provider instance. 0 (default) disables rate limiting, preserving current behavior.",
+			},
+			"rate_limit_burst": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     1,
+				Description: "Maximum burst of requests allowed above the sustained rate. Only applies when rate_limit_per_second is non-zero.",
+			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"graphql_mutation": resourceGraphqlMutation(),
@@ -53,9 +65,15 @@ func Provider() *schema.Provider {
 func graphqlConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
 
+	var opts []gqlclient.Option
+	if ratePerSecond := d.Get("rate_limit_per_second").(float64); ratePerSecond > 0 {
+		opts = append(opts, gqlclient.WithRateLimit(ratePerSecond, d.Get("rate_limit_burst").(int)))
+	}
+
 	client := gqlclient.NewClient(
 		d.Get("url").(string),
 		d.Get("headers").(map[string]interface{}),
+		opts...,
 	)
 
 	oauth2LoginQuery := d.Get("oauth2_login_query").(string)
