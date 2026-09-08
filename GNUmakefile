@@ -5,14 +5,14 @@ export GOTOOLCHAIN := go1.17
 export TFENV_TERRAFORM_VERSION := 1.0.5
 GORELEASER_VERSION := v1.5.0
 
-GOPATH := $(shell go env | grep GOPATH | sed 's/GOPATH="\(.*\)"/\1/')
+GOPATH := $(shell go env GOPATH)
 PATH := $(GOPATH)/bin:$(PATH)
 export $(PATH)
 GIT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 TEST_DESTS := $(dir $(wildcard ./e2e/*/*test.tf))
 
 help:
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 fetch: ## download makefile dependencies
 	go install github.com/goreleaser/goreleaser@$(GORELEASER_VERSION)
@@ -28,7 +28,7 @@ build: clean fetch ## publishes in dry run mode
 	$(GOPATH)/bin/goreleaser --skip-publish --snapshot --skip-sign 
 
 
-.PHONY: test copyplugins
+.PHONY: unittest e2etest copyplugins
 
 copyplugins: ## copy plugins to test folders
 	$(eval COPY_FILES := $(filter %/, $(wildcard ./dist/terraform-provider-graphql*/)))
@@ -42,7 +42,10 @@ copyplugins: ## copy plugins to test folders
 		done; \
 	done
 
-test: ## test
+unittest: ## run the graphql package unit & acceptance tests
+	go test -v -coverprofile=cover.out ./... | awk '!/\[no test files\]/ {print}'
+
+e2etest: ## run the E2E tests (requires a build and copied plugins)
 	@cd e2e && $(MAKE) test
 
-fulltest: build copyplugins test ## build, copy plugins to test folders, and test
+fulltest: build copyplugins unittest e2etest ## build, copy plugins, then run unit and E2E tests

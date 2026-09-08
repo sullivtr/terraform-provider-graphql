@@ -20,7 +20,7 @@ Please note we have a code of conduct, please follow it in all your interactions
 
 ## Local Development
 
-The `GNUmakefile` pins the same tool versions CI uses and as listed below. If you run `make fulltest` it will setup most things for you automatically assuming your go version is >= 1.21 and you are using tfenv to manage terraform versions. Otherwise manually configuring versions to match below is required.
+The `GNUmakefile` pins the same tool versions CI uses and as listed below. 
 
 ### Requirements
 
@@ -37,6 +37,20 @@ If your setup differs from the defaults above:
 - **Go:** If your Go predates 1.21 install Go 1.17 yourself, e.g. via [`asdf`](https://asdf-vm.com/) or [`goenv`](https://github.com/go-nv/goenv).
 - **Terraform:** If you manage Terraform another way, make `1.0.5` your active version.
 - **GoReleaser:** __Warning__: Later GoReleaser versions changed the CLI flags and config schema and will not work with this repo's config as-is.
+
+### Make targets
+
+```
+fetch                          download makefile dependencies
+clean                          cleans previously built binaries and test folders
+build                          publishes in dry run mode
+copyplugins                    copy plugins to test folders
+unittest                       run the graphql package unit & acceptance tests
+e2etest                        run the E2E tests (requires a build and copied plugins)
+fulltest                       build, copy plugins, then run unit and E2E tests
+```
+
+If you run `make fulltest` it will setup most things for you automatically assuming your go version is >= 1.21 and you are using tfenv to manage terraform versions. Otherwise manually configuring versions to match below is required.
 
 ## Code of Conduct
 
