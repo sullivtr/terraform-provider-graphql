@@ -38,4 +38,4 @@ jobs:
       - name: Run test
         run: |
           make copyplugins
-          make test
+          make e2etest

@@ -26,8 +26,8 @@ jobs:
           terraform_version: 1.0.5
           terraform_wrapper: false
 
-      - name: Run test
-        run: go test -v -coverprofile=cover.out ./... | awk '!/\[no test files\]/ {print}'
+      - name: Run unit tests
+        run: make unittest
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
