@@ -111,11 +111,11 @@ func TestRateLimitPacesRequests(t *testing.T) {
 	// With burst 1 the first request is free and each of the remaining
 	// (n-1) waits ~1/rate. Allow slack below the theoretical minimum.
 	minExpectedSpan := time.Duration(float64(len(onTimes)-1)/ratePerSecond*float64(time.Second)) * 9 / 10
-	assert.GreaterOrEqualf(t, onSpan, minExpectedSpan,
+	assert.GreaterOrEqualf(t, int64(onSpan), int64(minExpectedSpan),
 		"throttled apply spanned %s over %d requests, expected at least %s", onSpan, len(onTimes), minExpectedSpan)
 
 	// The unthrottled apply must be dramatically tighter, proving the spacing
 	// comes from the limiter rather than inherent server latency.
-	assert.Lessf(t, offSpan, minExpectedSpan,
+	assert.Lessf(t, int64(offSpan), int64(minExpectedSpan),
 		"unthrottled apply spanned %s over %d requests, expected well under %s", offSpan, len(offTimes), minExpectedSpan)
 }
