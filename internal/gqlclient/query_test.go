@@ -102,7 +102,6 @@ func TestExecuteQueryPaginationFollowsCursor(t *testing.T) {
 		_ = json.Unmarshal(raw, &body)
 		cursors = append(cursors, body.Variables["after"])
 
-		// First page has a next page, second page ends pagination.
 		if call == 0 {
 			call++
 			_, _ = w.Write([]byte(`{"data":{"items":{"pageInfo":{"hasNextPage":true,"endCursor":"cursor-1"}}}}`))

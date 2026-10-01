@@ -9,9 +9,7 @@ import (
 	"net/http"
 )
 
-// ExecuteQuery runs a GraphQL query and dispatches to the paginated or single
-// path. It deals only in query text and variables; extracting those from
-// Terraform resource data is the caller's job.
+// ExecuteQuery runs a GraphQL query, following pagination when usePagination is set.
 func (c *Client) ExecuteQuery(ctx context.Context, query string, variables map[string]interface{}, usePagination bool) (*GqlQueryResponse, []byte, error) {
 	if usePagination {
 		return c.executePaginatedQuery(ctx, query, variables)
@@ -146,7 +144,6 @@ func (c *Client) executePaginatedQuery(ctx context.Context, query string, inputV
 	return &finalResponse, responseBytes, nil
 }
 
-// findPageInfo recursively searches for the "pageInfo" key in a nested map.
 func findPageInfo(data map[string]interface{}) (map[string]interface{}, bool) {
 	for key, value := range data {
 		if key == "pageInfo" {
@@ -163,8 +160,6 @@ func findPageInfo(data map[string]interface{}) (map[string]interface{}, bool) {
 	return nil, false
 }
 
-// isJSON checks if s can be interpreted as valid JSON, returning the
-// unmarshalled value if so.
 func isJSON(s interface{}) (interface{}, bool) {
 	var js interface{}
 	err := json.Unmarshal([]byte(s.(string)), &js)

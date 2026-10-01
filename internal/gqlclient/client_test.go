@@ -9,8 +9,6 @@ import (
 	"testing"
 )
 
-// captureLog redirects the std logger for the duration of fn and returns what
-// was written, restoring the previous output afterwards.
 func captureLog(t *testing.T, fn func()) string {
 	t.Helper()
 	var buf bytes.Buffer
@@ -28,8 +26,6 @@ func captureLog(t *testing.T, fn func()) string {
 const tracingLog = "Enabling HTTP requests/responses tracing"
 
 func TestNewHTTPClientTransport(t *testing.T) {
-	// IsDebugOrHigher is true for DEBUG and TRACE, false otherwise; the debug
-	// path wraps the transport and logs a breadcrumb, the quiet path does not.
 	tests := []struct {
 		tfLog     string
 		wantDebug bool

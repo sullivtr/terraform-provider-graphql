@@ -1,9 +1,3 @@
-// Package gqlclient is a GraphQL client that is independent of Terraform's
-// resource/schema layer: it deals in query text and variables, never in
-// *schema.ResourceData. (It does use the SDK's logging helper for debug
-// tracing.) ExecuteQuery is the only entry point callers need — the
-// single-request, pagination, and transport helpers are unexported so the
-// package boundary enforces that.
 package gqlclient
 
 // GqlQuery is the request body posted to the GraphQL endpoint.
