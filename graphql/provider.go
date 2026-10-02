@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/sullivtr/terraform-provider-graphql/internal/gqlclient"
 )
 
 func Provider() *schema.Provider {
@@ -38,6 +39,18 @@ func Provider() *schema.Provider {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"rate_limit_per_second": {
+				Type:        schema.TypeFloat,
+				Optional:    true,
+				Default:     0,
+				Description: "Maximum sustained GraphQL requests per second across the provider instance. 0 (default) disables rate limiting, preserving current behavior.",
+			},
+			"rate_limit_burst": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     1,
+				Description: "Maximum burst of requests allowed above the sustained rate. Only applies when rate_limit_per_second is non-zero.",
+			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"graphql_mutation": resourceGraphqlMutation(),
@@ -52,22 +65,28 @@ func Provider() *schema.Provider {
 func graphqlConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
 
-	config := &graphqlProviderConfig{
-		GQLServerUrl:   d.Get("url").(string),
-		RequestHeaders: d.Get("headers").(map[string]interface{}),
+	var opts []gqlclient.Option
+	if ratePerSecond := d.Get("rate_limit_per_second").(float64); ratePerSecond > 0 {
+		opts = append(opts, gqlclient.WithRateLimit(ratePerSecond, d.Get("rate_limit_burst").(int)))
 	}
+
+	client := gqlclient.NewClient(
+		d.Get("url").(string),
+		d.Get("headers").(map[string]interface{}),
+		opts...,
+	)
 
 	oauth2LoginQuery := d.Get("oauth2_login_query").(string)
 	oauth2LoginQueryVariables := d.Get("oauth2_login_query_variables").(map[string]interface{})
 	oauth2LoginQueryValueAttribute := d.Get("oauth2_login_query_value_attribute").(string)
 
 	if oauth2LoginQuery != "" && len(oauth2LoginQueryVariables) > 0 && oauth2LoginQueryValueAttribute != "" {
-		queryResponse, _, err := queryExecute(ctx, d, config, "oauth2_login_query", "oauth2_login_query_variables", false)
+		queryResponse, _, err := client.ExecuteQuery(ctx, oauth2LoginQuery, oauth2LoginQueryVariables, false)
 		if err != nil {
 			return nil, diag.FromErr(fmt.Errorf("unable to execute oauth2_login_query: %w", err))
 		}
 
-		if queryErrors := queryResponse.ProcessErrors(); queryErrors.HasError() {
+		if queryErrors := processErrors(queryResponse); queryErrors.HasError() {
 			return nil, *queryErrors
 		}
 
@@ -76,7 +95,7 @@ func graphqlConfigure(ctx context.Context, d *schema.ResourceData) (interface{},
 			return nil, diag.FromErr(err)
 		}
 
-		config.RequestAuthorizationHeaders = map[string]interface{}{
+		client.AuthHeaders = map[string]interface{}{
 			"Authorization": fmt.Sprintf("Bearer %s", value),
 		}
 	} else if oauth2LoginQuery != "" || len(oauth2LoginQueryVariables) > 0 || oauth2LoginQueryValueAttribute != "" {
@@ -87,13 +106,7 @@ func graphqlConfigure(ctx context.Context, d *schema.ResourceData) (interface{},
 		})
 	}
 
-	return config, diags
-}
-
-type graphqlProviderConfig struct {
-	GQLServerUrl                string
-	RequestHeaders              map[string]interface{}
-	RequestAuthorizationHeaders map[string]interface{}
+	return client, diags
 }
 
 func getOAuth2LoginQueryAttributeValue(attribute string, data map[string]interface{}) (string, error) {

@@ -11,28 +11,28 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Set up Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v7
         with:
           go-version: 1.17
 
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: 1.0.5
           terraform_wrapper: false
 
-      - name: Run test
-        run: go test -v -coverprofile=cover.out ./... | awk '!/\[no test files\]/ {print}'
+      - name: Run unit tests
+        run: make unittest
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./cover.out
+          files: ./cover.out
           name: codecov-umbrella
           fail_ci_if_error: false

@@ -42,6 +42,19 @@ provider "graphql" {
 }
 ```
 
+In cases where the GraphQL API enforces a request-rate limit, you can pace the provider's requests using `rate_limit_per_second` (and, optionally, `rate_limit_burst`), e.g.:
+
+```hcl
+provider "graphql" {
+  url = "https://your-graphql-server-url"
+
+  rate_limit_per_second = 2.5
+  rate_limit_burst      = 1
+}
+```
+
+The limiter is shared across the provider instance and covers every request, including the individual requests issued while paginating a query. Set `rate_limit_per_second` somewhat below the server's advertised limit rather than exactly at it: the provider issues requests as fast as the limiter allows, so matching the server's exact ceiling leaves no headroom and can still trip rate limiting under concurrency.
+
 ## Inputs
 
 ### url
@@ -68,3 +81,13 @@ provider "graphql" {
   - **Required**: `false`
   - **Type**: `string`
   - **Description**: The dot-separated path to the attribute containing the access token value that will be extracted from the OAuth 2.0 login query or mutation response `data` (e.g. `loginAPI.accessToken`). Note: you must also define `oauth2_login_query` and `oauth2_login_query_variables` when using `oauth2_login_query_value_attribute`.
+
+### rate_limit_per_second
+  - **Required**: `false`
+  - **Type**: `number`
+  - **Description**: The maximum sustained number of GraphQL requests per second, shared across the provider instance. Accepts fractional values (e.g. `2.5`). Defaults to `0`, which disables rate limiting and preserves the provider's default behavior.
+
+### rate_limit_burst
+  - **Required**: `false`
+  - **Type**: `number`
+  - **Description**: The maximum burst of requests allowed above the sustained `rate_limit_per_second`. Defaults to `1`. Only applies when `rate_limit_per_second` is non-zero.
