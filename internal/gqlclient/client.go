@@ -15,8 +15,6 @@ type Client struct {
 	http *http.Client
 }
 
-// clientConfig holds the tunables an Option can set before NewClient builds
-// the shared http.Client. Zero values preserve the pre-rate-limiting behavior.
 type clientConfig struct {
 	rateLimitPerSecond float64
 	rateLimitBurst     int

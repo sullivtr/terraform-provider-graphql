@@ -20,8 +20,6 @@ const defaultPort = "8080"
 // the rate limiting e2e fixture sends it, so the other fixtures are unaffected.
 const rateLimitHeader = "x-e2e-rate-limit"
 
-// requestRecorder captures the arrival time of every opted-in /query request so
-// a test can assert how far apart the client's paced requests landed.
 type requestRecorder struct {
 	mu    sync.Mutex
 	times []time.Time
@@ -39,8 +37,6 @@ func (r *requestRecorder) reset() {
 	r.times = nil
 }
 
-// snapshotNanos returns the recorded arrival times as Unix-nanosecond values,
-// in the order they arrived, for a test to inspect the spacing.
 func (r *requestRecorder) snapshotNanos() []int64 {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -51,8 +47,6 @@ func (r *requestRecorder) snapshotNanos() []int64 {
 	return out
 }
 
-// recordMiddleware timestamps opted-in requests before passing them to the
-// GraphQL handler. Non-opted-in traffic is untouched.
 func recordMiddleware(rec *requestRecorder, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Header.Get(rateLimitHeader) != "" {
@@ -75,8 +69,6 @@ func main() {
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", recordMiddleware(rec, srv))
 
-	// Test-only introspection of the recorded request arrival times. GET returns
-	// the timestamps as JSON; DELETE clears them so each test starts clean.
 	http.HandleFunc("/rate-limit-timestamps", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodDelete {
 			rec.reset()

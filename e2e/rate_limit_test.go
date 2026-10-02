@@ -15,8 +15,6 @@ import (
 
 const rateLimitTimestampsURL = "http://localhost:8080/rate-limit-timestamps"
 
-// resetRateLimitWorkspace clears the shared server state file and the local
-// terraform state so a subsequent apply starts from a clean slate.
 func resetRateLimitWorkspace() {
 	os.Remove("./gql-server/test.json")
 	os.Remove("./test_rate_limit/terraform.tfstate")
@@ -26,7 +24,6 @@ func resetRateLimitWorkspace() {
 	os.Remove("./test_rate_limit/.terraform.lock.hcl")
 }
 
-// resetRecordedTimestamps clears the server's recorded request arrival times.
 func resetRecordedTimestamps(t *testing.T) {
 	req, err := http.NewRequest(http.MethodDelete, rateLimitTimestampsURL, nil)
 	require.NoError(t, err)
@@ -35,8 +32,6 @@ func resetRecordedTimestamps(t *testing.T) {
 	resp.Body.Close()
 }
 
-// recordedTimestamps returns the arrival times the server captured for opted-in
-// requests, in arrival order.
 func recordedTimestamps(t *testing.T) []time.Time {
 	resp, err := http.Get(rateLimitTimestampsURL)
 	require.NoError(t, err)
@@ -52,7 +47,6 @@ func recordedTimestamps(t *testing.T) []time.Time {
 	return times
 }
 
-// span returns the elapsed time between the first and last recorded arrival.
 func span(times []time.Time) time.Duration {
 	if len(times) < 2 {
 		return 0
@@ -60,16 +54,7 @@ func span(times []time.Time) time.Duration {
 	return times[len(times)-1].Sub(times[0])
 }
 
-// TestRateLimitPacesRequests proves the client-side limiter spaces the
-// provider's requests. The test server records the arrival time of every
-// opted-in request; the test compares an unthrottled apply against a throttled
-// one.
-//
-//   - With rate limiting disabled (the default), the apply's requests land
-//     back-to-back and the recorded arrivals span only a few milliseconds.
-//   - With rate limiting enabled at ratePerSecond, the same apply's requests
-//     are paced ~1/ratePerSecond apart, so the recorded arrivals span at least
-//     the sum of those gaps.
+// TestRateLimitPacesRequests compares request arrival spans of an unthrottled and a throttled apply.
 func TestRateLimitPacesRequests(t *testing.T) {
 	const ratePerSecond = 5.0
 
@@ -77,7 +62,6 @@ func TestRateLimitPacesRequests(t *testing.T) {
 	t.Cleanup(resetRateLimitWorkspace)
 	assert.NoFileExists(t, "./gql-server/test.json")
 
-	// Unthrottled baseline: requests are not paced, so the arrivals cluster.
 	resetRecordedTimestamps(t)
 	offOptions := &terraform.Options{
 		TerraformDir: "./test_rate_limit",
@@ -92,7 +76,6 @@ func TestRateLimitPacesRequests(t *testing.T) {
 
 	resetRateLimitWorkspace()
 
-	// Throttled run: the client paces requests at ratePerSecond with burst 1.
 	resetRecordedTimestamps(t)
 	onOptions := &terraform.Options{
 		TerraformDir: "./test_rate_limit",

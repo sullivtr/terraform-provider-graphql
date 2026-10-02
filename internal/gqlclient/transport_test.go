@@ -54,9 +54,6 @@ func TestRateLimitedTransportPacesRequests(t *testing.T) {
 	}
 }
 
-// NewClient must accept the rate-limit option and build a limited transport,
-// while the default (no option) stays unlimited so existing callers are
-// unaffected.
 func TestNewClientWithRateLimitOption(t *testing.T) {
 	unlimited := NewClient("http://example.com", nil)
 	if _, ok := unlimited.http.Transport.(*rateLimitedTransport); ok {
