@@ -5,6 +5,11 @@ export GOTOOLCHAIN := go1.17
 export TFENV_TERRAFORM_VERSION := 1.0.5
 GORELEASER_VERSION := v1.5.0
 
+# Recipes that pipe or loop must start with `set -euo pipefail;` so a failing
+# command is not masked by the last command's exit status. .SHELLFLAGS would
+# do this globally but macOS ships GNU Make 3.81, which ignores it.
+SHELL := /bin/bash
+
 GOPATH := $(shell go env GOPATH)
 PATH := $(GOPATH)/bin:$(PATH)
 export $(PATH)
@@ -18,7 +23,7 @@ fetch: ## download makefile dependencies
 	go install github.com/goreleaser/goreleaser@$(GORELEASER_VERSION)
 
 clean: ## cleans previously built binaries and test folders
-	@for f in $(TEST_DESTS); do \
+	@set -euo pipefail; for f in $(TEST_DESTS); do \
 	  rm -rf $$f/.terraform; \
 	  rm -rf $$f/terraform.d; \
 	done
@@ -36,14 +41,14 @@ copyplugins: ## copy plugins to test folders
 	$(eval TEST_FOLDERS := $(foreach p,$(OS_ARCH), $(patsubst %,%terraform.d/plugins/gqlprovidertf.com/examplecorp/graphql/2.0.0/$p,$(TEST_DESTS))))
 	@sleep 1
 	@mkdir -p $(TEST_FOLDERS);
-	@for o in $(OS_ARCH); do \
+	@set -euo pipefail; for o in $(OS_ARCH); do \
 		for f in $(TEST_DESTS); do \
 	    	cp ./dist/terraform-provider-graphql_$$o/* $$f/terraform.d/plugins/gqlprovidertf.com/examplecorp/graphql/2.0.0/$$o; \
 		done; \
 	done
 
 unittest: ## run the graphql package unit & acceptance tests
-	go test -v -coverprofile=cover.out ./... | awk '!/\[no test files\]/ {print}'
+	set -euo pipefail; go test -v -coverprofile=cover.out ./... | awk '!/\[no test files\]/ {print}'
 
 e2etest: ## run the E2E tests (requires a build and copied plugins)
 	@cd e2e && $(MAKE) test
