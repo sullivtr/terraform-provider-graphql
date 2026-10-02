@@ -28,13 +28,14 @@ A [Terraform](https://terraform.io) [GraphQL](https://graphql.org/) provider to 
 ## Testing this provider:
 > See [Local Development](CONTRIBUTING.md#local-development) for setup details.
 
+- To run just the unit & acceptance tests (the same command CI uses), run `make unittest`.
+  This is equivalent to `go test -v ./...` on the graphql package.
+  > NOTE: The acceptance tests utilize a mocked http response to simulate a graphql api. Therefore, TF_ACC is set automatically by the test init() functions.
+
 - In the root of this project, run `make fulltest`
-  This will build the plugin, and copy the binaries to the basic_test/terraform.d/* folder and run the E2E Test.
+  This will build the plugin, copy the binaries to the basic_test/terraform.d/* folder, and run both the unit and E2E tests.
 
-- To run a test without a build, simply run `make test`
-
-- Run `go test -v ./...` to run the graphql package's internal unit & acceptance tests. 
-  > NOTE: The acceptance tests utilize a mocked http response to simulate a graphql api. Therefore, TF_ACC is set automatically by the test init() functions. 
+- To run just the E2E test without a full build, run `make e2etest`.
    
 # License
 
