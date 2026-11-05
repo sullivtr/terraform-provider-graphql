@@ -85,9 +85,9 @@ The limiter is shared across the provider instance and covers every request, inc
 ### rate_limit_per_second
   - **Required**: `false`
   - **Type**: `number`
-  - **Description**: The maximum sustained number of GraphQL requests per second, shared across the provider instance. Accepts fractional values (e.g. `2.5`). Defaults to `0`, which disables rate limiting and preserves the provider's default behavior.
+  - **Description**: The maximum sustained number of GraphQL requests per second, shared across the provider instance. Accepts fractional values (e.g. `2.5`). Defaults to `0`, the lowest allowed value, which disables rate limiting.
 
 ### rate_limit_burst
   - **Required**: `false`
   - **Type**: `number`
-  - **Description**: The maximum burst of requests allowed above the sustained `rate_limit_per_second`. Defaults to `1`. Only applies when `rate_limit_per_second` is non-zero.
+  - **Description**: The maximum number of requests that can be sent at once before pacing starts. Defaults to `1`, the lowest allowed value. Only applies when `rate_limit_per_second` is non-zero.

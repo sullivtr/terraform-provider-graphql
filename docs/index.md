@@ -60,9 +60,9 @@ In addition to [generic `provider` arguments](https://www.terraform.io/docs/conf
 
 * `oauth2_login_query_value_attribute` - (Optional) The dot-separated path to the attribute containing the access token value that will be extracted from the OAuth 2.0 login query or mutation response `data` (e.g. `loginAPI.accessToken`). Note: you must also define `oauth2_login_query` and `oauth2_login_query_variables` when using `oauth2_login_query_value_attribute`.
 
-* `rate_limit_per_second` - (Optional) The maximum sustained number of GraphQL requests per second, shared across the provider instance. Accepts fractional values (e.g. `2.5`). Defaults to `0`, which disables rate limiting and preserves the provider's default behavior.
+* `rate_limit_per_second` - (Optional) The maximum sustained number of GraphQL requests per second, shared across the provider instance. Accepts fractional values (e.g. `2.5`). Defaults to `0`, the lowest allowed value, which disables rate limiting.
 
-* `rate_limit_burst` - (Optional) The maximum burst of requests allowed above the sustained `rate_limit_per_second`. Defaults to `1`. Only applies when `rate_limit_per_second` is non-zero.
+* `rate_limit_burst` - (Optional) The maximum number of requests that can be sent at once before pacing starts. Defaults to `1`, the lowest allowed value. Only applies when `rate_limit_per_second` is non-zero.
 
 ## Full documentation
 

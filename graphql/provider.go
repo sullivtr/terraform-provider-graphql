@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/sullivtr/terraform-provider-graphql/internal/gqlclient"
 )
 
@@ -40,16 +41,18 @@ func Provider() *schema.Provider {
 				Optional: true,
 			},
 			"rate_limit_per_second": {
-				Type:        schema.TypeFloat,
-				Optional:    true,
-				Default:     0,
-				Description: "Maximum sustained GraphQL requests per second across the provider instance. 0 (default) disables rate limiting, preserving current behavior.",
+				Type:         schema.TypeFloat,
+				Optional:     true,
+				Default:      0,
+				ValidateFunc: validation.FloatAtLeast(0),
+				Description:  "Maximum sustained GraphQL requests per second across the provider instance. Defaults to 0, the lowest allowed value, which disables rate limiting.",
 			},
 			"rate_limit_burst": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Default:     1,
-				Description: "Maximum burst of requests allowed above the sustained rate. Only applies when rate_limit_per_second is non-zero.",
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Default:      1,
+				ValidateFunc: validation.IntAtLeast(1),
+				Description:  "Maximum number of requests that can be sent at once before pacing starts. Defaults to 1, the lowest allowed value. Only applies when rate_limit_per_second is non-zero.",
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
