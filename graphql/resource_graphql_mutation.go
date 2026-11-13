@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/sullivtr/terraform-provider-graphql/internal/gqlclient"
 )
 
 func resourceGraphqlMutation() *schema.Resource {
@@ -175,12 +176,15 @@ func resourceGraphqlRead(ctx context.Context, d *schema.ResourceData, m interfac
 		return diag.FromErr(fmt.Errorf("unable to set computed_read_operation_variables: %w", err))
 	}
 
-	queryResponse, resBytes, err := queryExecute(ctx, d, m, "read_query", "computed_read_operation_variables", false)
+	c := m.(*gqlclient.Client)
+	query := d.Get("read_query").(string)
+	variables := d.Get("computed_read_operation_variables").(map[string]interface{})
+	queryResponse, resBytes, err := c.ExecuteQuery(ctx, query, variables, false)
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("unable to execute read query: %w", err))
 	}
 
-	if queryErrors := queryResponse.ProcessErrors(); queryErrors.HasError() {
+	if queryErrors := processErrors(queryResponse); queryErrors.HasError() {
 		return *queryErrors
 	}
 
@@ -254,12 +258,15 @@ func resourceGraphqlMutationDelete(ctx context.Context, d *schema.ResourceData, 
 }
 
 func executeCreateHook(ctx context.Context, d *schema.ResourceData, m interface{}) ([]byte, diag.Diagnostics) {
-	queryResponse, resBytes, err := queryExecute(ctx, d, m, "create_mutation", "mutation_variables", false)
+	c := m.(*gqlclient.Client)
+	query := d.Get("create_mutation").(string)
+	variables := d.Get("mutation_variables").(map[string]interface{})
+	queryResponse, resBytes, err := c.ExecuteQuery(ctx, query, variables, false)
 	if err != nil {
 		return nil, diag.FromErr(fmt.Errorf("unable to execute create query: %w", err))
 	}
 
-	if queryErrors := queryResponse.ProcessErrors(); queryErrors.HasError() {
+	if queryErrors := processErrors(queryResponse); queryErrors.HasError() {
 		return nil, *queryErrors
 	}
 
@@ -288,24 +295,30 @@ func executeUpdateHook(ctx context.Context, d *schema.ResourceData, m interface{
 		return nil, diag.FromErr(fmt.Errorf("unable to set computed_update_operation_variables: %w", err))
 	}
 
-	queryResponse, resBytes, err := queryExecute(ctx, d, m, "update_mutation", "computed_update_operation_variables", false)
+	c := m.(*gqlclient.Client)
+	query := d.Get("update_mutation").(string)
+	variables := d.Get("computed_update_operation_variables").(map[string]interface{})
+	queryResponse, resBytes, err := c.ExecuteQuery(ctx, query, variables, false)
 	if err != nil {
 		return nil, diag.FromErr(fmt.Errorf("unable to execute update query: %w", err))
 	}
 
-	if queryErrors := queryResponse.ProcessErrors(); queryErrors.HasError() {
+	if queryErrors := processErrors(queryResponse); queryErrors.HasError() {
 		return nil, *queryErrors
 	}
 	return resBytes, nil
 }
 
 func executeDeleteHook(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	queryResponse, _, err := queryExecute(ctx, d, m, "delete_mutation", "computed_delete_operation_variables", false)
+	c := m.(*gqlclient.Client)
+	query := d.Get("delete_mutation").(string)
+	variables := d.Get("computed_delete_operation_variables").(map[string]interface{})
+	queryResponse, _, err := c.ExecuteQuery(ctx, query, variables, false)
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("unable to execute delete query: %w", err))
 	}
 
-	if queryErrors := queryResponse.ProcessErrors(); queryErrors.HasError() {
+	if queryErrors := processErrors(queryResponse); queryErrors.HasError() {
 		return *queryErrors
 	}
 

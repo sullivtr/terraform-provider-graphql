@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/sullivtr/terraform-provider-graphql/internal/gqlclient"
 )
 
 func dataSourceGraphql() *schema.Resource {
@@ -40,13 +41,16 @@ func dataSourceGraphql() *schema.Resource {
 
 func dataSourceGraphqlQuery(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
+	c := m.(*gqlclient.Client)
 	paginated := d.Get("paginated").(bool)
-	queryResponse, resBytes, err := queryExecute(ctx, d, m, "query", "query_variables", paginated)
+	query := d.Get("query").(string)
+	variables := d.Get("query_variables").(map[string]interface{})
+	queryResponse, resBytes, err := c.ExecuteQuery(ctx, query, variables, paginated)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	if queryErrors := queryResponse.ProcessErrors(); queryErrors.HasError() {
+	if queryErrors := processErrors(queryResponse); queryErrors.HasError() {
 		return *queryErrors
 	}
 
