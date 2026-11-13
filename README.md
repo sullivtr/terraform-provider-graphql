@@ -20,6 +20,8 @@
 ## Synopsis
 
 A [Terraform](https://terraform.io) [GraphQL](https://graphql.org/) provider to manage the full lifecyle of graphql based api resources. 
+
+It also supports optional client-side rate limiting via the `rate_limit_per_second` and `rate_limit_burst` provider arguments, for use against GraphQL APIs that enforce a request-rate limit. See the [provider documentation](https://sullivtr.github.io/terraform-provider-graphql) for details.
   
 ## Docs:
 

@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/sullivtr/terraform-provider-graphql/internal/gqlclient"
 )
 
@@ -39,6 +40,20 @@ func Provider() *schema.Provider {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"rate_limit_per_second": {
+				Type:         schema.TypeFloat,
+				Optional:     true,
+				Default:      0,
+				ValidateFunc: validation.FloatAtLeast(0),
+				Description:  "Maximum sustained GraphQL requests per second across the provider instance. Defaults to 0, the lowest allowed value, which disables rate limiting.",
+			},
+			"rate_limit_burst": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Default:      1,
+				ValidateFunc: validation.IntAtLeast(1),
+				Description:  "Maximum number of requests that can be sent at once before pacing starts. Defaults to 1, the lowest allowed value. Only applies when rate_limit_per_second is non-zero.",
+			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"graphql_mutation": resourceGraphqlMutation(),
@@ -53,9 +68,15 @@ func Provider() *schema.Provider {
 func graphqlConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
 
+	var opts []gqlclient.Option
+	if ratePerSecond := d.Get("rate_limit_per_second").(float64); ratePerSecond > 0 {
+		opts = append(opts, gqlclient.WithRateLimit(ratePerSecond, d.Get("rate_limit_burst").(int)))
+	}
+
 	client := gqlclient.NewClient(
 		d.Get("url").(string),
 		d.Get("headers").(map[string]interface{}),
+		opts...,
 	)
 
 	oauth2LoginQuery := d.Get("oauth2_login_query").(string)

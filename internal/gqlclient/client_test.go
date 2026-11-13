@@ -43,7 +43,7 @@ func TestNewHTTPClientTransport(t *testing.T) {
 			t.Setenv("TF_LOG", tt.tfLog)
 
 			var client *http.Client
-			out := captureLog(t, func() { client = newHTTPClient() })
+			out := captureLog(t, func() { client = newHTTPClient(0, 1) })
 
 			logged := strings.Contains(out, tracingLog)
 			if logged != tt.wantDebug {
